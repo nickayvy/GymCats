@@ -19,20 +19,34 @@ export function HeroSection({ session }: HeroSectionProps): React.JSX.Element {
             GymCats
           </h1>
           <p className="mx-auto mt-5 max-w-md text-base text-foreground/70 sm:text-lg">
-            Train hard. Nap harder. Your British Shorthair spotter is ready.
+            Train hard. Nap harder. Your pixel-art spotters are ready.
           </p>
         </div>
 
-        <div className="relative">
-          <div className="absolute -inset-4 rounded-3xl bg-accent/10 blur-2xl" />
-          <Image
-            src="/gymcats-hero-cat.png"
-            alt="Pixel art British Shorthair Siamese cat"
-            width={320}
-            height={320}
-            priority
-            className="pixel-art relative rounded-xl drop-shadow-2xl"
-          />
+        <div className="relative flex flex-col items-center gap-8 sm:flex-row sm:gap-10">
+          <div className="relative">
+            <div className="absolute -inset-4 rounded-3xl bg-accent/10 blur-2xl" />
+            <Image
+              src="/gymcats-hero-cat.png"
+              alt="Pixel art British Shorthair Siamese cat"
+              width={280}
+              height={280}
+              priority
+              className="pixel-art relative rounded-xl drop-shadow-2xl"
+            />
+          </div>
+
+          <div className="relative">
+            <div className="absolute -inset-4 rounded-3xl bg-accent/10 blur-2xl" />
+            <Image
+              src="/gymcats-hero-tuxedo-cat.png"
+              alt="Pixel art tuxedo cat"
+              width={280}
+              height={280}
+              priority
+              className="pixel-art relative rounded-xl drop-shadow-2xl"
+            />
+          </div>
         </div>
 
         {session && (
