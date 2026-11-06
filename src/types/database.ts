@@ -105,6 +105,105 @@ export interface Database {
         };
         Relationships: [];
       };
+      workouts: {
+        Row: {
+          id: string;
+          user_id: string;
+          performed_at: string;
+          spins_earned: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          performed_at?: string;
+          spins_earned?: number;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          performed_at?: string;
+          spins_earned?: number;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      workout_exercises: {
+        Row: {
+          id: string;
+          workout_id: string;
+          user_id: string;
+          position: number;
+          exercise_name: string;
+          exercise_key: string;
+          sets: Json;
+          set_count: number;
+          total_reps: number;
+          top_weight_lb: number;
+          volume_lb: number;
+          grew: boolean;
+          spin_awarded: boolean;
+          performed_at: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          workout_id: string;
+          user_id: string;
+          position: number;
+          exercise_name: string;
+          exercise_key: string;
+          sets: Json;
+          set_count: number;
+          total_reps: number;
+          top_weight_lb: number;
+          volume_lb: number;
+          grew?: boolean;
+          spin_awarded?: boolean;
+          performed_at: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          workout_id?: string;
+          user_id?: string;
+          position?: number;
+          exercise_name?: string;
+          exercise_key?: string;
+          sets?: Json;
+          set_count?: number;
+          total_reps?: number;
+          top_weight_lb?: number;
+          volume_lb?: number;
+          grew?: boolean;
+          spin_awarded?: boolean;
+          performed_at?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      spin_wallets: {
+        Row: {
+          user_id: string;
+          spins: number;
+          lifetime_spins: number;
+          updated_at: string;
+        };
+        Insert: {
+          user_id: string;
+          spins?: number;
+          lifetime_spins?: number;
+          updated_at?: string;
+        };
+        Update: {
+          user_id?: string;
+          spins?: number;
+          lifetime_spins?: number;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: {
@@ -119,6 +218,10 @@ export interface Database {
       join_couple: {
         Args: { p_code: string };
         Returns: string;
+      };
+      log_workout: {
+        Args: { p_exercises: Json };
+        Returns: Json;
       };
     };
     Enums: Record<string, never>;

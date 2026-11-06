@@ -1,15 +1,21 @@
 import { BossPlaceholder } from "@/components/boss/BossPlaceholder";
 import { HealthBar } from "@/components/boss/HealthBar";
 import { BattleButton } from "@/components/hub/BattleButton";
+import { LogGrowButton } from "@/components/hub/LogGrowButton";
+import { SpinBadge } from "@/components/hub/SpinBadge";
 import { requireOnboardedUser } from "@/lib/auth/requireOnboardedUser";
 import { daysRemaining, getCurrentBoss } from "@/lib/boss/currentBoss";
+import { createClient } from "@/lib/supabase/server";
+import { getSpinBalance } from "@/lib/workouts/queries";
 
 export const metadata = { title: "Hub · GymCats" };
 
 export default async function HubPage(): Promise<React.JSX.Element> {
-  const { preview } = await requireOnboardedUser();
+  const { preview, userId } = await requireOnboardedUser();
   const boss = getCurrentBoss();
   const days = daysRemaining(boss);
+  const spins =
+    !preview && userId ? await getSpinBalance(await createClient(), userId) : 0;
 
   return (
     <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 py-16">
@@ -32,7 +38,11 @@ export default async function HubPage(): Promise<React.JSX.Element> {
           max={boss.maxHp}
           label="Boss HP"
         />
-        <BattleButton />
+        <div className="mt-4 flex w-full max-w-sm items-stretch gap-3">
+          <BattleButton />
+          <LogGrowButton />
+        </div>
+        <SpinBadge spins={spins} />
       </section>
     </main>
   );

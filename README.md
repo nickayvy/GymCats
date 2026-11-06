@@ -34,6 +34,18 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
 
 Run `supabase/migrations/20261106000000_onboarding.sql` in the Supabase SQL editor, or apply it with `supabase db push`. It creates the `profiles`, `couples` and `couple_members` tables with row-level security, the pairing functions (`create_couple`, `join_couple`) and a private `avatars` storage bucket.
 
+Then run `supabase/migrations/20261107000000_workout_log.sql` for workout logging. It adds `workouts`, `workout_exercises` and `spin_wallets`, plus the `log_workout` function that saves a workout and awards spins. Clients can only read these tables; every write goes through `log_workout`.
+
+## Log & Grow
+
+From the hub, **Log & Grow** opens `/log`, where you log each exercise as sets of weight × reps. Each exercise is compared with your previous session of the same exercise (names are matched case-insensitively). It counts as **growth** if you:
+
+- lift a heavier top set (even with fewer sets or reps), or
+- move more total volume (reps × weight): +1 rep, +2 reps, an extra set, or an extra set at a lighter weight, or
+- for bodyweight work (weight left blank), do more total reps.
+
+Each exercise that grows earns **1 spin**. An exercise can earn at most one spin every 20 hours, so logging the same lift twice in a row doesn't pay out twice. The first time you log an exercise sets your baseline. The log screen shows your last session and one-tap "Grow it" targets (+1 rep, +2 reps, +5 lb, +1 set).
+
 ## Goal assistant (AI)
 
 The onboarding goals step can turn a free-text description of your goals into a weekly plan. It calls a model through the Vercel AI Gateway.
@@ -73,19 +85,22 @@ src/
     onboarding/       # Onboarding wizard route and server actions
     hub/              # Weekly boss hub (onboarded users only)
     battle/           # Battle screen against the weekly boss
+    log/              # Log & Grow: workout logging and its server action
   components/
     onboarding/       # Onboarding wizard and form steps
     boss/             # Boss placeholder and HP bar
-    hub/              # Hub battle button
+    hub/              # Hub battle and Log & Grow buttons, spin badge
     battle/           # Battle screen
+    log/              # Workout logger, exercise cards, results
   lib/
     supabase/         # Supabase client helpers
     onboarding/       # Onboarding validation schemas and types
     boss/             # Weekly boss roster and week helpers
     auth/             # Onboarded-user route guard
+    workouts/         # Growth rules, schemas and workout queries
   middleware.ts       # Session refresh
 supabase/
-  migrations/         # Schema, RLS policies and pairing functions
+  migrations/         # Schema, RLS policies, pairing and workout-logging functions
 public/
   gymcats-hero-cat.png
 ```
