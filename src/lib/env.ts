@@ -1,17 +1,14 @@
-type PublicEnvKey =
-  | "NEXT_PUBLIC_SUPABASE_URL"
-  | "NEXT_PUBLIC_SUPABASE_ANON_KEY";
-
-function getPublicEnv(key: PublicEnvKey): string | undefined {
-  return process.env[key];
-}
-
+// Literal process.env reads so Next.js can inline NEXT_PUBLIC_* values.
+// The publishable key (sb_publishable_…) supersedes the legacy anon key;
+// either works with Supabase Auth and RLS.
 export function getSupabaseConfig(): {
   url: string;
   anonKey: string;
 } | null {
-  const url = getPublicEnv("NEXT_PUBLIC_SUPABASE_URL");
-  const anonKey = getPublicEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY");
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const anonKey =
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (!url || !anonKey) {
     return null;
@@ -25,7 +22,7 @@ export function requireSupabaseConfig(): { url: string; anonKey: string } {
 
   if (!config) {
     throw new Error(
-      "Missing Supabase env vars. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.",
+      "Missing Supabase env vars. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY.",
     );
   }
 

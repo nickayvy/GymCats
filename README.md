@@ -23,11 +23,11 @@ Open [http://localhost:3000](http://localhost:3000).
 
 1. Create a project at [supabase.com](https://supabase.com).
 2. Go to **Project Settings → API**.
-3. Copy the **Project URL** and **anon public** key into `.env.local`:
+3. Copy the **Project URL** and **publishable** key (`sb_publishable_…`; the legacy `NEXT_PUBLIC_SUPABASE_ANON_KEY` also works) into `.env.local`:
 
 ```
 NEXT_PUBLIC_SUPABASE_URL=https://xxxx.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
 ```
 
 ## Database setup
@@ -49,7 +49,7 @@ Without a gateway key, the assistant shows a "not configured" message instead of
 2. Import the project at [vercel.com/new](https://vercel.com/new).
 3. Add the same environment variables under **Settings → Environment Variables**:
    - `NEXT_PUBLIC_SUPABASE_URL`
-   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
 4. Deploy — Vercel auto-detects Next.js.
 
 Or use the Vercel CLI:
@@ -57,7 +57,7 @@ Or use the Vercel CLI:
 ```bash
 npx vercel
 npx vercel env add NEXT_PUBLIC_SUPABASE_URL
-npx vercel env add NEXT_PUBLIC_SUPABASE_ANON_KEY
+npx vercel env add NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
 npx vercel --prod
 ```
 
