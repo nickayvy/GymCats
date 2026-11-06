@@ -2,7 +2,9 @@ import { BossPlaceholder } from "@/components/boss/BossPlaceholder";
 import { HealthBar } from "@/components/boss/HealthBar";
 import { BattleButton } from "@/components/hub/BattleButton";
 import { requireOnboardedUser } from "@/lib/auth/requireOnboardedUser";
+import { loadBattleState } from "@/lib/battle/server";
 import { daysRemaining, getCurrentBoss } from "@/lib/boss/currentBoss";
+import { createClient } from "@/lib/supabase/server";
 
 export const metadata = { title: "Hub · GymCats" };
 
@@ -10,6 +12,19 @@ export default async function HubPage(): Promise<React.JSX.Element> {
   const { preview } = await requireOnboardedUser();
   const boss = getCurrentBoss();
   const days = daysRemaining(boss);
+
+  // Real HP and spins for signed-in players; full HP in preview mode.
+  let currentHp = boss.currentHp;
+  let maxHp = boss.maxHp;
+  let spins: number | null = null;
+  if (!preview) {
+    const result = await loadBattleState(await createClient());
+    if (result.ok) {
+      currentHp = result.data.battle.currentHp;
+      maxHp = result.data.battle.maxHp;
+      spins = result.data.spinsAvailable;
+    }
+  }
 
   return (
     <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 py-16">
@@ -27,11 +42,16 @@ export default async function HubPage(): Promise<React.JSX.Element> {
         <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
           {boss.name}
         </h1>
-        <HealthBar
-          current={boss.currentHp}
-          max={boss.maxHp}
-          label="Boss HP"
-        />
+        <HealthBar current={currentHp} max={maxHp} label="Boss HP" />
+        {spins !== null && (
+          <p className="font-mono text-xs uppercase tracking-widest text-foreground/60">
+            {spins > 0
+              ? `${spins} ${spins === 1 ? "spin" : "spins"} ready`
+              : currentHp > 0
+                ? "Check in at the gym to earn spins"
+                : "Boss defeated!"}
+          </p>
+        )}
         <BattleButton />
       </section>
     </main>

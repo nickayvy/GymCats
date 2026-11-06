@@ -141,15 +141,81 @@ body {
   pointer-events: none;
 }
 
+@keyframes boss-hit {
+  0%,
+  100% {
+    transform: translateX(0);
+    filter: none;
+  }
+  15% {
+    transform: translateX(-10px) rotate(-2deg);
+    filter: brightness(1.8) saturate(0.4);
+  }
+  35% {
+    transform: translateX(8px) rotate(1.5deg);
+  }
+  55% {
+    transform: translateX(-5px);
+  }
+  75% {
+    transform: translateX(3px);
+  }
+}
+
+.boss-hit {
+  animation: boss-hit 500ms ease-out;
+}
+
+@keyframes damage-pop {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 10px) scale(0.6);
+  }
+  20% {
+    opacity: 1;
+    transform: translate(-50%, -10px) scale(1.15);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -70px) scale(1);
+  }
+}
+
+.damage-pop {
+  animation: damage-pop 1400ms ease-out forwards;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.8);
+}
+
+@keyframes reel-winner {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.06);
+  }
+}
+
+.reel-winner {
+  animation: reel-winner 900ms ease-in-out 2;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .boss-float,
   .battle-enter-boss,
-  .battle-enter-panel {
+  .battle-enter-panel,
+  .boss-hit,
+  .reel-winner {
     animation: none;
   }
 
   .health-fill {
     transition: none;
+  }
+
+  .damage-pop {
+    animation: none;
+    opacity: 0;
   }
 
   .battle-wipe,
