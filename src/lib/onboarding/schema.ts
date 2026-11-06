@@ -41,8 +41,6 @@ export const goalPlanSchema = z.object({
 
 export type GoalPlan = z.infer<typeof goalPlanSchema>;
 
-export const FREE_TIME_OPTIONS = [60, 120, 180, 240, 300, 420, 600, 900, 1200] as const;
-
 export const basicsSchema = z.object({
   displayName: z
     .string()
@@ -57,7 +55,6 @@ export const basicsSchema = z.object({
 });
 
 export const bodySchema = z.object({
-  unitSystem: z.enum(["imperial", "metric"]),
   heightCm: z
     .number({ error: "Enter your height." })
     .min(100, "Height looks too short.")
@@ -66,15 +63,6 @@ export const bodySchema = z.object({
     .number({ error: "Enter your weight." })
     .min(30, "Weight looks too low.")
     .max(300, "Weight looks too high."),
-});
-
-export const healthTimeSchema = z.object({
-  healthNotes: z.string().max(500, "Keep health notes under 500 characters."),
-  weeklyFreeMinutes: z
-    .number({ error: "Choose how much free time you have." })
-    .int()
-    .min(30)
-    .max(1200),
 });
 
 export const goalsSchema = z
@@ -95,7 +83,6 @@ export const goalsSchema = z
 
 export const profileSchema = basicsSchema
   .extend(bodySchema.shape)
-  .extend(healthTimeSchema.shape)
   .and(goalsSchema);
 
 export type ProfileInput = z.infer<typeof profileSchema>;
@@ -103,18 +90,15 @@ export type ProfileInput = z.infer<typeof profileSchema>;
 export type OnboardingDraft = {
   displayName: string;
   age: number | null;
-  unitSystem: "imperial" | "metric";
   heightCm: number | null;
   weightKg: number | null;
-  healthNotes: string;
-  weeklyFreeMinutes: number | null;
   goalPresets: GoalPresetId[];
   goalFreeform: string;
   goalPlan: GoalPlan | null;
   workoutsPerWeek: number | null;
 };
 
-export const STEP_SCHEMAS = [basicsSchema, bodySchema, healthTimeSchema, goalsSchema] as const;
+export const STEP_SCHEMAS = [basicsSchema, bodySchema, goalsSchema] as const;
 
 export function firstIssue(error: z.ZodError): string {
   return error.issues[0]?.message ?? "Please check your answers.";
@@ -130,8 +114,6 @@ export const goalPlanInputSchema = z.object({
   age: z.number().int().min(13).max(100).nullable(),
   heightCm: z.number().nullable(),
   weightKg: z.number().nullable(),
-  healthNotes: z.string().max(500),
-  weeklyFreeMinutes: z.number().int().nullable(),
 });
 
 export type GoalPlanInput = z.infer<typeof goalPlanInputSchema>;

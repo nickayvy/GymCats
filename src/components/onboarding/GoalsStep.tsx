@@ -43,8 +43,6 @@ export function GoalsStep({ draft, onChange }: StepProps) {
         age: draft.age,
         heightCm: draft.heightCm,
         weightKg: draft.weightKg,
-        healthNotes: draft.healthNotes,
-        weeklyFreeMinutes: draft.weeklyFreeMinutes,
       });
       if (result.ok) {
         onChange({ goalPlan: result.data });
