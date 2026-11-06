@@ -28,14 +28,11 @@ export async function requireOnboardedUser(): Promise<{
     redirect("/login");
   }
 
-  // The explicit row type is needed: with the locked @supabase/ssr 0.6.1 +
-  // supabase-js 2.114 pair, the client's schema resolves to `never` and the
-  // generated Database row types are not inferred from `.from("profiles")`.
   const { data: profile, error } = await supabase
     .from("profiles")
     .select("onboarded_at")
     .eq("id", user.id)
-    .maybeSingle<{ onboarded_at: string | null }>();
+    .maybeSingle();
 
   if (error) {
     throw new Error(`Failed to load profile: ${error.message}`);
