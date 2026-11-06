@@ -1,5 +1,6 @@
 "use server";
 
+import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
@@ -70,10 +71,19 @@ export async function signup(
     return { error: parsed.error, message: null };
   }
 
+  const confirm = String(formData.get("confirmPassword") ?? "");
+  if (confirm !== parsed.password) {
+    return { error: "Passwords don't match.", message: null };
+  }
+
+  const h = await headers();
+  const origin = h.get("origin") ?? `https://${h.get("host")}`;
+
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signUp({
     email: parsed.email,
     password: parsed.password,
+    options: { emailRedirectTo: `${origin}/login?confirmed=1` },
   });
 
   if (error) {
@@ -81,11 +91,11 @@ export async function signup(
   }
 
   if (data.session) {
-    revalidatePath("/", "layout");
-    redirect("/");
+    await supabase.auth.signOut();
+    redirect("/login?created=ready");
   }
 
-  return { error: null, message: "Check your email to confirm your account." };
+  redirect("/login?created=confirm");
 }
 
 export async function logout(): Promise<void> {
