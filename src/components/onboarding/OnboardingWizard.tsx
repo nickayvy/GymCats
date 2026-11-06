@@ -7,7 +7,6 @@ import { STEP_SCHEMAS, firstIssue, type OnboardingDraft } from "@/lib/onboarding
 import { BasicsStep } from "./BasicsStep";
 import { BodyStep } from "./BodyStep";
 import { GoalsStep } from "./GoalsStep";
-import { HealthTimeStep } from "./HealthTimeStep";
 import { PartnerStep } from "./PartnerStep";
 import { PhotoStep } from "./PhotoStep";
 import { errorClass, primaryButtonClass, secondaryButtonClass } from "./styles";
@@ -15,15 +14,14 @@ import { errorClass, primaryButtonClass, secondaryButtonClass } from "./styles";
 const TITLES = [
   "About you",
   "Your body",
-  "Health & time",
   "Your goals",
   "Profile photo",
   "Your partner",
 ] as const;
 
 const TOTAL_STEPS = TITLES.length;
-const PHOTO_STEP = 4;
-const PARTNER_STEP = 5;
+const PHOTO_STEP = 3;
+const PARTNER_STEP = 4;
 
 export function OnboardingWizard({
   configured,
@@ -37,11 +35,8 @@ export function OnboardingWizard({
   const [draft, setDraft] = useState<OnboardingDraft>({
     displayName: initialDisplayName,
     age: null,
-    unitSystem: "imperial",
     heightCm: null,
     weightKg: null,
-    healthNotes: "",
-    weeklyFreeMinutes: null,
     goalPresets: [],
     goalFreeform: "",
     goalPlan: null,
@@ -104,8 +99,6 @@ export function OnboardingWizard({
       case 1:
         return <BodyStep draft={draft} onChange={onChange} />;
       case 2:
-        return <HealthTimeStep draft={draft} onChange={onChange} />;
-      case 3:
         return <GoalsStep draft={draft} onChange={onChange} />;
       case PHOTO_STEP:
         return <PhotoStep file={avatarFile} onFileChange={setAvatarFile} />;

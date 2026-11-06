@@ -18,7 +18,7 @@ export interface Database {
           weight_kg: number;
           unit_system: string;
           health_notes: string;
-          weekly_free_minutes: number;
+          weekly_free_minutes: number | null;
           goal_presets: string[];
           goal_freeform: string;
           goal_plan: Json | null;
@@ -36,7 +36,7 @@ export interface Database {
           weight_kg: number;
           unit_system?: string;
           health_notes?: string;
-          weekly_free_minutes: number;
+          weekly_free_minutes?: number | null;
           goal_presets?: string[];
           goal_freeform?: string;
           goal_plan?: Json | null;
@@ -54,7 +54,7 @@ export interface Database {
           weight_kg?: number;
           unit_system?: string;
           health_notes?: string;
-          weekly_free_minutes?: number;
+          weekly_free_minutes?: number | null;
           goal_presets?: string[];
           goal_freeform?: string;
           goal_plan?: Json | null;
