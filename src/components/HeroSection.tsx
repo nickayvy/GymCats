@@ -1,5 +1,6 @@
 import Image from "next/image";
 import type { Session } from "@supabase/supabase-js";
+import { AuthButton } from "@/components/AuthButton";
 
 export interface HeroSectionProps {
   session: Session | null;
@@ -9,6 +10,7 @@ export function HeroSection({ session }: HeroSectionProps): React.JSX.Element {
   return (
     <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 py-16">
       <div className="hero-glow pointer-events-none absolute inset-0" />
+      <div className="absolute right-6 top-6 z-20"><AuthButton email={session?.user.email ?? null} /></div>
 
       <div className="relative z-10 flex w-full max-w-4xl flex-col items-center gap-10 text-center">
         <div className="title-card w-full max-w-2xl rounded-2xl px-8 py-10 sm:px-12 sm:py-14">
