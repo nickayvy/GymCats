@@ -1,6 +1,5 @@
 "use server";
 
-import type { SupabaseClient } from "@supabase/supabase-js";
 import { revalidatePath } from "next/cache";
 import { getSupabaseConfig } from "@/lib/env";
 import {
@@ -9,7 +8,6 @@ import {
   type ActionResult,
 } from "@/lib/onboarding/schema";
 import { createClient } from "@/lib/supabase/server";
-import type { Database } from "@/types/database";
 
 const AVATAR_TYPES: string[] = ["image/jpeg", "image/png", "image/webp"];
 const AVATAR_MAX_BYTES = 5 * 1024 * 1024;
@@ -22,9 +20,7 @@ export async function saveProfile(formData: FormData): Promise<ActionResult> {
     };
   }
 
-  // The SSR client's table typing resolves to `never` against the installed
-  // supabase-js/postgrest-js; retype it so upserts check against Database.
-  const supabase = (await createClient()) as unknown as SupabaseClient<Database>;
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
