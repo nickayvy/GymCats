@@ -32,7 +32,29 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
 
 ## Database setup
 
-Run `supabase/migrations/20261106000000_onboarding.sql` in the Supabase SQL editor, or apply it with `supabase db push`. It creates the `profiles`, `couples` and `couple_members` tables with row-level security, the pairing functions (`create_couple`, `join_couple`) and a private `avatars` storage bucket.
+Run every file in `supabase/migrations/` in order in the Supabase SQL editor, or apply them with `supabase db push`. They create the `profiles`, `couples` and `couple_members` tables with row-level security, the pairing functions (`create_couple`, `join_couple`, `leave_couple`, `get_invite_preview`) and a private `avatars` storage bucket that partners can read from each other.
+
+How partner invites work, and why one couple's data can't leak to another account, is covered in [docs/partner-pairing.md](docs/partner-pairing.md).
+
+## Partner pairing E2E test
+
+`e2e/partner-pairing.cjs` drives three browsers: Alice invites Bob by link, Bob signs up through it, they see each other, and an outsider can't. It creates throwaway users, so run it against a **local** Supabase stack (needs Docker):
+
+```bash
+npx supabase start
+```
+
+Put the printed API URL and publishable key in `.env.local`, then start the app and run the test:
+
+```bash
+npm run dev
+```
+
+```bash
+npm i --no-save playwright && npx playwright install chromium && npm run e2e:partner
+```
+
+Screenshots land in `e2e/shots/`.
 
 ## Goal assistant (AI)
 
@@ -71,6 +93,8 @@ src/
     globals.css
     login/            # Login page and actions
     onboarding/       # Onboarding wizard route and server actions
+    invite/[code]/    # Public partner invite landing page
+    partner/          # Partner profile (or invite link while solo)
     hub/              # Weekly boss hub (onboarded users only)
     battle/           # Battle screen against the weekly boss
   components/
@@ -78,14 +102,21 @@ src/
     boss/             # Boss placeholder and HP bar
     hub/              # Hub battle button
     battle/           # Battle screen
+    team/             # Partner badge, avatars, invite link and panels
   lib/
     supabase/         # Supabase client helpers
     onboarding/       # Onboarding validation schemas and types
     boss/             # Weekly boss roster and week helpers
     auth/             # Onboarded-user route guard
+    team/             # Team loader, invite code helpers
   middleware.ts       # Session refresh
 supabase/
+  config.toml         # Local stack config (npx supabase start)
   migrations/         # Schema, RLS policies and pairing functions
+e2e/
+  partner-pairing.cjs # Two-partner end-to-end test
+docs/
+  partner-pairing.md  # Pairing options and data isolation
 public/
   gymcats-hero-cat.png
 ```

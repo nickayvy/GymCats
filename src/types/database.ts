@@ -120,6 +120,17 @@ export interface Database {
         Args: { p_code: string };
         Returns: string;
       };
+      leave_couple: {
+        Args: Record<string, never>;
+        Returns: undefined;
+      };
+      get_invite_preview: {
+        Args: { p_code: string };
+        Returns: {
+          status: "open" | "full" | "own" | "invalid";
+          inviter_name: string | null;
+        }[];
+      };
     };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;

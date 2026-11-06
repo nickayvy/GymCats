@@ -7,9 +7,11 @@ import type { Boss } from "@/lib/boss/currentBoss";
 
 export interface BattleScreenProps {
   boss: Boss;
+  /** Display name of the user's partner, when they have one. */
+  partnerName?: string | null;
 }
 
-export function BattleScreen({ boss }: BattleScreenProps): React.JSX.Element {
+export function BattleScreen({ boss, partnerName = null }: BattleScreenProps): React.JSX.Element {
   return (
     <main className="relative flex min-h-screen flex-col overflow-hidden bg-[radial-gradient(ellipse_at_top,rgba(127,29,29,0.35),transparent_60%)] px-6 py-10">
       <div className="battle-cover" aria-hidden="true" />
@@ -26,7 +28,9 @@ export function BattleScreen({ boss }: BattleScreenProps): React.JSX.Element {
 
       <section className="battle-enter-panel title-card relative z-10 mx-auto mt-auto w-full max-w-2xl rounded-2xl px-6 py-6 text-center">
         <p role="status" className="font-mono text-sm text-accent-glow">{boss.name} blocks your path!</p>
-        <p className="mt-2 text-sm text-foreground/60">Attack cards are coming soon. Train together to power up.</p>
+        <p className="mt-2 text-sm text-foreground/60">
+          {partnerName ? `You and ${partnerName} stand ready. ` : ""}Attack cards are coming soon. Train together to power up.
+        </p>
       </section>
     </main>
   );

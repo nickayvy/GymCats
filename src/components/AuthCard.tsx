@@ -8,9 +8,11 @@ import { SignupForm } from "@/components/SignupForm";
 export function AuthCard({
   initialMode,
   notice,
+  invitedBy = null,
 }: {
   initialMode: "login" | "signup";
   notice: string | null;
+  invitedBy?: string | null;
 }): React.JSX.Element {
   const [mode, setMode] = useState(initialMode);
 
@@ -18,6 +20,12 @@ export function AuthCard({
     <div
       className={`title-card relative z-10 flex w-full max-w-md flex-col items-center gap-6 rounded-2xl px-8 py-10 text-center transition-shadow ${mode === "signup" ? "shadow-[0_0_60px_rgba(201,168,108,0.35)]" : ""}`}
     >
+      {invitedBy ? (
+        <p className="w-full rounded-lg border border-accent/40 bg-accent/10 px-4 py-2 text-sm text-accent-glow">
+          You&apos;re joining <strong>{invitedBy}</strong>&apos;s team. {mode === "signup" ? "Create an account" : "Log in"} to
+          accept the invite.
+        </p>
+      ) : null}
       <div
         key={mode}
         className="flex w-full flex-col items-center gap-6 motion-safe:[animation:battle-enter-up_300ms_ease-out_both]"

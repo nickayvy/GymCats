@@ -1,8 +1,10 @@
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { getSupabaseConfig } from "@/lib/env";
 import { AuthCard } from "@/components/AuthCard";
+import { INVITE_COOKIE, normalizeInviteCode } from "@/lib/team/inviteCode";
 
 export const metadata: Metadata = { title: "Log in · GymCats" };
 
@@ -24,10 +26,20 @@ export default async function LoginPage({
 }: {
   searchParams: Promise<{ created?: string; confirmed?: string; mode?: string }>;
 }): Promise<React.JSX.Element> {
+  let invitedBy: string | null = null;
   if (getSupabaseConfig() !== null) {
-    const { data } = await (await createClient()).auth.getUser();
+    const supabase = await createClient();
+    const { data } = await supabase.auth.getUser();
     if (data.user) {
       redirect("/");
+    }
+
+    const pendingInvite = normalizeInviteCode((await cookies()).get(INVITE_COOKIE)?.value);
+    if (pendingInvite) {
+      const { data: preview } = await supabase.rpc("get_invite_preview", { p_code: pendingInvite });
+      if (preview?.[0]?.status === "open") {
+        invitedBy = preview[0].inviter_name ?? "Your partner";
+      }
     }
   }
 
@@ -38,7 +50,7 @@ export default async function LoginPage({
   return (
     <main className="relative flex min-h-screen items-center justify-center overflow-hidden px-6 py-16">
       <div className="hero-glow pointer-events-none absolute inset-0" />
-      <AuthCard initialMode={initialMode} notice={notice} />
+      <AuthCard initialMode={initialMode} notice={notice} invitedBy={invitedBy} />
     </main>
   );
 }

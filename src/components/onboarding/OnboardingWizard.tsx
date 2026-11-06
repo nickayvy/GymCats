@@ -1,8 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import { saveProfile } from "@/app/onboarding/actions/profile";
+import { completeOnboarding, saveProfile } from "@/app/onboarding/actions/profile";
 import { STEP_SCHEMAS, firstIssue, type OnboardingDraft } from "@/lib/onboarding/schema";
 import { BasicsStep } from "./BasicsStep";
 import { BodyStep } from "./BodyStep";
@@ -26,12 +25,18 @@ const PARTNER_STEP = 4;
 export function OnboardingWizard({
   configured,
   initialDisplayName,
+  partnerName = null,
+  inviteCode = null,
+  resumeAtPartnerStep = false,
 }: {
   configured: boolean;
   initialDisplayName: string;
+  partnerName?: string | null;
+  inviteCode?: string | null;
+  /** The profile is saved but the partner step was never finished. */
+  resumeAtPartnerStep?: boolean;
 }): React.JSX.Element {
-  const router = useRouter();
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState(resumeAtPartnerStep ? PARTNER_STEP : 0);
   const [draft, setDraft] = useState<OnboardingDraft>({
     displayName: initialDisplayName,
     age: null,
@@ -105,9 +110,12 @@ export function OnboardingWizard({
       default:
         return (
           <PartnerStep
+            partnerName={partnerName}
+            initialInviteCode={inviteCode}
             onFinish={() => {
-              router.push("/hub");
-              router.refresh();
+              startSaving(async () => {
+                await completeOnboarding();
+              });
             }}
           />
         );

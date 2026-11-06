@@ -3,12 +3,16 @@ import type { Metadata } from "next";
 import { OnboardingWizard } from "@/components/onboarding/OnboardingWizard";
 import { createClient } from "@/lib/supabase/server";
 import { getSupabaseConfig } from "@/lib/env";
+import { getTeam } from "@/lib/team/getTeam";
 
 export const metadata: Metadata = { title: "Onboarding · GymCats" };
 
 export default async function OnboardingPage(): Promise<React.JSX.Element> {
   const config = getSupabaseConfig();
   let initialDisplayName = "";
+  let partnerName: string | null = null;
+  let inviteCode: string | null = null;
+  let resumeAtPartnerStep = false;
 
   if (config !== null) {
     const supabase = await createClient();
@@ -21,7 +25,7 @@ export default async function OnboardingPage(): Promise<React.JSX.Element> {
 
     const { data: profile } = await supabase
       .from("profiles")
-      .select("onboarded_at")
+      .select("onboarded_at, display_name")
       .eq("id", user.id)
       .maybeSingle();
 
@@ -29,7 +33,12 @@ export default async function OnboardingPage(): Promise<React.JSX.Element> {
       redirect("/hub");
     }
 
-    initialDisplayName = user.email?.split("@")[0]?.slice(0, 40) ?? "";
+    initialDisplayName = profile?.display_name ?? user.email?.split("@")[0]?.slice(0, 40) ?? "";
+    resumeAtPartnerStep = profile !== null;
+
+    const team = await getTeam(supabase, user.id);
+    partnerName = team.partner?.displayName ?? null;
+    inviteCode = team.inviteCode;
   }
 
   return (
@@ -44,6 +53,9 @@ export default async function OnboardingPage(): Promise<React.JSX.Element> {
         <OnboardingWizard
           configured={config !== null}
           initialDisplayName={initialDisplayName}
+          partnerName={partnerName}
+          inviteCode={inviteCode}
+          resumeAtPartnerStep={resumeAtPartnerStep}
         />
       </div>
     </main>
