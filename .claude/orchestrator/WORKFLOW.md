@@ -1,17 +1,18 @@
----
-name: fable-orchestrator
-description: Spec-driven build loop. Fable 5.1 (this session) is the architect, PM and reviewer; Opus 5.5 subagents on medium effort implement one deliverable each, on their own branches, and open PRs that the orchestrator reviews and merges. Use when the user asks for the orchestrator workflow, the "Fable orchestrator", or a feature built as spec → executors → PR review.
----
+# Orchestrator → executor workflow (shared)
 
-# Fable → Opus executor workflow
+Used by the `orchestrator-saver` and `orchestrator-rich` skills. Each skill sets the **mode config**:
 
-| Role | Who | Responsibility |
-|---|---|---|
-| Orchestrator (architect, PM, reviewer) | This session, running **Fable 5.1** (`claude-fable-5-1`) | Problem statement, brief, acceptance criteria, amendments, PR review, integration testing, merges |
-| Executor | `Agent` subagents with `model: "opus"`, `effort: "medium"`, `isolation: "worktree"` | Implement **one** deliverable exactly as specced, then open a PR |
+- `ORCH_MODEL`: the model this session must run as orchestrator.
+- `EXEC_MODEL` / `EXEC_EFFORT`: what each executor subagent runs.
+- **Mode rules**: cost or depth adjustments that override the defaults below.
+
+| Role | Responsibility |
+|---|---|
+| Orchestrator (this session) | Problem statement, brief, acceptance criteria, amendments, PR review, integration testing, merges |
+| Executor (`Agent` subagent) | Implement **one** deliverable exactly as specced, on its own branch, then open a PR |
 
 ## 0. Check the orchestrator model
-Call `get_session` (claude-code-remote) and read `session_context.model`. If it isn't `claude-fable-5-1`, tell the user to switch with `/model` (or the app's model picker) before continuing. The orchestrator can't switch its own model.
+Call `get_session` (claude-code-remote) and read `session_context.model`. If it isn't `ORCH_MODEL`, tell the user to switch with `/model` (or the app's model picker) before continuing. The orchestrator can't switch its own model. If the user says to go ahead anyway, continue and note the mismatch in the final report.
 
 ## 1. Problem statement
 Distil the request into 1–3 sentences: what, why, constraints. Ask the user only about decisions that change the design (data storage, scope, UX choices). Use sensible defaults for everything else.
@@ -20,7 +21,7 @@ Distil the request into 1–3 sentences: what, why, constraints. Ask the user on
 Write it to the scratchpad as `<feature>-brief.md`. It must contain:
 - **Stack facts.** Check installed versions in `node_modules/*/package.json`, never `package.json` ranges or memory. Check library APIs in `node_modules` docs and types before speccing them.
 - **Architecture and data flow** (a small diagram).
-- **Deliverables.** Each one is IDed (e.g. `S1`) and lists the **exact files** it may touch. File sets must never overlap between deliverables. Give exact signatures, types, copy text and class strings, so executors don't invent them.
+- **Deliverables.** Each one is IDed (e.g. `S1`) and lists the **exact files** it may touch. File sets must never overlap between deliverables. Give exact signatures, types, copy text and class strings, so executors don't invent them. The weaker the executor model, the more literal the spec.
 - **Implementation order.** Group into phases by dependency. Anything other deliverables import goes in Phase 1.
 - **Acceptance criteria**, each checkable (commands, browser checks, or code review).
 
@@ -33,7 +34,7 @@ Write `executor-protocol.md` in the scratchpad (template below), then start one 
 
 ```
 Agent({ description: "Executor S1: …", subagent_type: "general-purpose",
-        model: "opus", effort: "medium", isolation: "worktree", run_in_background: true,
+        model: EXEC_MODEL, effort: EXEC_EFFORT, isolation: "worktree", run_in_background: true,
         prompt: "Follow the executor protocol at <path> exactly. Your deliverable: S1 — <title>. YOUR_BRANCH = <integration-branch>-s1-<slug>, ID = S1. <any per-deliverable notes>" })
 ```
 
@@ -43,21 +44,21 @@ Keep prompts short: the brief and protocol carry the detail. Say which sibling m
 1. In your isolated worktree: `git fetch origin <integration-branch> && git checkout -b <YOUR_BRANCH> origin/<integration-branch>`. Then run `ln -s <main-checkout>/node_modules node_modules`. Never `npm install`.
 2. Touch only your deliverable's files. Add no extra features. If the spec is ambiguous or impossible, stop and report it rather than guess.
 3. Verify with `npx tsc --noEmit` (only errors in your files matter) and `npx eslint <your files>`.
-4. Commit with the session's attribution trailers, then `git push -u origin <YOUR_BRANCH>`. Use plain commands: compound retry loops get refused.
+4. Commit with the session's attribution trailers (the executor's own model in `Co-Authored-By`), then `git push -u origin <YOUR_BRANCH>`. Use plain commands: compound retry loops get refused.
 5. Open a PR with `mcp__github__create_pull_request` (load it via ToolSearch), base = the integration branch, title `[<ID>] …`. The body maps the work to the spec and includes verification output and concerns.
 6. Report: branch, PR URL, files, verification, concerns.
 
 ## 4. Review and integrate (orchestrator)
 - Review each PR diff (`pull_request_read` `get_diff`) against the brief as it arrives.
 - **Merge leaf PRs right away.** Hold PRs whose imports aren't merged yet.
-- Before merging dependent PRs, do a **trial integration**. Create a scratch worktree of the integration branch, merge every executor branch into it, and run typecheck, lint and build. Then drive the real flows with Playwright (headless Chromium is preinstalled), covering every acceptance criterion and reduced-motion and mobile widths where relevant.
+- Before merging dependent PRs, do a **trial integration**. Create a scratch worktree of the integration branch, merge every executor branch into it, and run typecheck, lint and build. Then drive the real flows with Playwright (headless Chromium is preinstalled), covering every acceptance criterion.
 - **Changes needed?** Append `## Amendment A<n>` to the brief, then `SendMessage` the same executor (it keeps its context) with the amendment and exact steps. Executors rebase and push to the same PR.
 - **User changes scope mid-run?** Amend the brief and message every affected executor at once. If an executor finishes before it reads the message, message it again.
 - **Approve as a COMMENT review.** GitHub blocks approving your own account's PRs. The comment says what was verified, plus any non-blocking follow-ups, and ends with the attribution footer. Then squash-merge in dependency order.
 - When everything is merged, re-run the checks and the browser flow on the integration branch, and open or update the integration PR to `main`.
 
 ## 5. Report to the user
-Say what shipped and how it was verified. Name anything that couldn't be verified here (live services, network-blocked hosts). List follow-ups and what the user has to do (dashboard settings, keys). Then ask what's next.
+Say which mode ran. Say what shipped and how it was verified. Name anything that couldn't be verified here (live services, network-blocked hosts). List follow-ups and what the user has to do (dashboard settings, keys). Then ask what's next.
 
 ## Rules
 - The approved brief is the source of truth. Scope changes go through an amendment before executors act on them.
