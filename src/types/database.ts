@@ -105,6 +105,12 @@ export interface Database {
         };
         Relationships: [];
       };
+      partner_gyms: {
+        Row: { place_id: string; brand: string; region: string; added_at: string };
+        Insert: { place_id: string; brand: string; region: string; added_at?: string };
+        Update: { place_id?: string; brand?: string; region?: string; added_at?: string };
+        Relationships: [];
+      };
       bosses: {
         Row: { id: string; name: string; max_hp: number; rotation_order: number };
         Insert: { id: string; name: string; max_hp: number; rotation_order: number };

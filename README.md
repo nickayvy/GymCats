@@ -34,7 +34,7 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
 
 Run `supabase/migrations/20261106000000_onboarding.sql` in the Supabase SQL editor, or apply it with `supabase db push`. It creates the `profiles`, `couples` and `couple_members` tables with row-level security, the pairing functions (`create_couple`, `join_couple`) and a private `avatars` storage bucket.
 
-Then run `supabase/migrations/20261107000000_boss_battles.sql`, then `supabase/migrations/20261108000000_gym_places.sql`. It adds the boss battle tables (`bosses`, `user_gyms`, `gym_sessions`, `boss_battles`, `boss_attacks`) and the functions the battle screen calls (`get_battle_state`, `set_my_gym`, `gym_check_in`, `gym_heartbeat`, `gym_check_out`, `roll_spin`). Clients can read these tables but never write them directly. Every write goes through those functions, so spins and damage can't be forged.
+Then run `supabase/migrations/20261107000000_boss_battles.sql`, `supabase/migrations/20261108000000_gym_places.sql` and `supabase/migrations/20261109000000_partner_gyms.sql`, in that order. It adds the boss battle tables (`bosses`, `user_gyms`, `gym_sessions`, `boss_battles`, `boss_attacks`) and the functions the battle screen calls (`get_battle_state`, `set_my_gym`, `gym_check_in`, `gym_heartbeat`, `gym_check_out`, `roll_spin`). Clients can read these tables but never write them directly. Every write goes through those functions, so spins and damage can't be forged.
 
 ## Boss battles
 
@@ -69,6 +69,16 @@ The battle screen lets players pick their gym from nearby gyms using the [Places
 - Each gym search or save is one Nearby Search Pro call (5,000 free a month, then about $32 per 1,000). Check-ins don't call Google.
 
 Without the key, players type a gym name and the app saves where they're standing.
+
+### 24 Hour Fitness clubs (SoCal)
+
+`supabase/migrations/20261109000000_partner_gyms.sql` seeds `partner_gyms` with the Google place IDs of 104 24 Hour Fitness clubs in Southern California: from the Mexican border up to latitude 34.5° N (just north of Santa Clarita), and from the Arizona border west to longitude 119.5° W (Oxnard). Only place IDs are stored, since Google's terms allow keeping those but not names, addresses or coordinates.
+
+To rebuild it (about 45 Text Search calls), adjust `REGION` in the script if needed and run:
+
+```bash
+GOOGLE_MAPS_API_KEY=... node scripts/fetch-24hf-socal.mjs
+```
 
 ## Deploy to Vercel
 
@@ -113,8 +123,10 @@ src/
     battle/           # Spin odds and damage rules, battle state types
     auth/             # Onboarded-user route guard
   middleware.ts       # Session refresh
+scripts/
+  fetch-24hf-socal.mjs  # Rebuilds the 24 Hour Fitness place ID list
 supabase/
-  migrations/         # Schema, RLS policies and pairing functions
+  migrations/         # Schema, RLS policies, game functions and seed data
 public/
   gymcats-hero-cat.png
 ```
