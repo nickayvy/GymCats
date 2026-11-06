@@ -22,13 +22,11 @@ export default async function Home(): Promise<React.JSX.Element> {
     const { data: userData } = await supabase.auth.getUser();
 
     if (userData.user) {
-      // overrideTypes: see src/app/onboarding/page.tsx.
       const { data: profile } = await supabase
         .from("profiles")
         .select("onboarded_at")
         .eq("id", userData.user.id)
-        .maybeSingle()
-        .overrideTypes<{ onboarded_at: string | null }, { merge: false }>();
+        .maybeSingle();
 
       redirect(profile?.onboarded_at ? "/hub" : "/onboarding");
     }

@@ -19,14 +19,11 @@ export default async function OnboardingPage(): Promise<React.JSX.Element> {
       redirect("/login");
     }
 
-    // overrideTypes: the ssr client's inferred schema resolves to `never` for
-    // this select, so the row type is stated explicitly here.
     const { data: profile } = await supabase
       .from("profiles")
       .select("onboarded_at")
       .eq("id", user.id)
-      .maybeSingle()
-      .overrideTypes<{ onboarded_at: string | null }, { merge: false }>();
+      .maybeSingle();
 
     if (profile?.onboarded_at) {
       redirect("/hub");
