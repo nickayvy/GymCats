@@ -1,7 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { checkIn, checkOut, heartbeat, setGym, type LocationFix } from "@/app/battle/actions";
+import { checkIn, checkOut, heartbeat, type LocationFix } from "@/app/battle/actions";
+import { GymPicker } from "@/components/battle/GymPicker";
+import { buttonClass, getFix, ghostButtonClass } from "@/components/battle/shared";
 import {
   HEARTBEAT_INTERVAL_MS,
   MAX_CREDITED_GAP_MINUTES,
@@ -9,31 +11,6 @@ import {
   MINUTES_PER_SPIN,
 } from "@/lib/battle/rules";
 import { PREVIEW_SPINS, type BattleState } from "@/lib/battle/state";
-
-function getFix(): Promise<LocationFix> {
-  return new Promise((resolve, reject) => {
-    if (!("geolocation" in navigator)) {
-      reject(new Error("This browser can't share your location."));
-      return;
-    }
-    navigator.geolocation.getCurrentPosition(
-      (pos) =>
-        resolve({
-          lat: pos.coords.latitude,
-          lng: pos.coords.longitude,
-          accuracy: pos.coords.accuracy,
-        }),
-      (err) => {
-        if (err.code === err.PERMISSION_DENIED) {
-          reject(new Error("Location is blocked. Allow location for this site in your browser settings."));
-        } else {
-          reject(new Error("Couldn't get a location fix. Try again in a moment."));
-        }
-      },
-      { enableHighAccuracy: true, timeout: 20_000, maximumAge: 15_000 },
-    );
-  });
-}
 
 function formatDuration(totalSeconds: number): string {
   const s = Math.max(0, Math.floor(totalSeconds));
@@ -45,11 +22,6 @@ function formatDuration(totalSeconds: number): string {
     : `${m}:${String(sec).padStart(2, "0")}`;
 }
 
-const buttonClass =
-  "rounded-xl bg-accent px-5 py-3 font-semibold text-background transition hover:bg-accent-glow disabled:cursor-not-allowed disabled:opacity-50";
-const ghostButtonClass =
-  "rounded-xl border border-white/15 px-5 py-3 text-sm text-foreground/80 transition hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:opacity-50";
-
 export interface GymPanelProps {
   state: BattleState;
   preview: boolean;
@@ -60,7 +32,6 @@ export function GymPanel({ state, preview, onState }: GymPanelProps): React.JSX.
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
-  const [gymName, setGymName] = useState("");
   const [now, setNow] = useState(() => Date.now());
   const session = state.session;
   const sessionActive = session !== null;
@@ -149,17 +120,6 @@ export function GymPanel({ state, preview, onState }: GymPanelProps): React.JSX.
     };
   }, [sessionActive]);
 
-  async function handleSetGym(): Promise<void> {
-    setNotice(null);
-    const name = gymName.trim();
-    if (!name) {
-      setError("Give your gym a name first.");
-      return;
-    }
-    const next = await run((fix) => setGym({ name, lat: fix.lat, lng: fix.lng }));
-    if (next) setNotice(`Saved ${name} as your gym. Check in whenever you're here.`);
-  }
-
   async function handleCheckIn(): Promise<void> {
     setNotice(null);
     const next = await run(checkIn);
@@ -212,26 +172,10 @@ export function GymPanel({ state, preview, onState }: GymPanelProps): React.JSX.
           Gym check-ins need Supabase. Preview mode gives you {PREVIEW_SPINS} demo spins and saves nothing.
         </p>
       ) : state.gym === null ? (
-        <div className="mt-3 space-y-3">
-          <p className="text-sm text-foreground/70">
-            Stand inside your gym and save it. Check-ins only work within about 150 m of it, and you can change it once
-            a week.
-          </p>
-          <div className="flex flex-col gap-2 sm:flex-row">
-            <input
-              type="text"
-              value={gymName}
-              onChange={(e) => setGymName(e.target.value)}
-              maxLength={60}
-              placeholder="e.g. 24 Hour Fitness Downtown"
-              aria-label="Gym name"
-              className="flex-1 rounded-xl border border-white/15 bg-black/30 px-4 py-3 text-sm outline-none focus:border-accent"
-            />
-            <button type="button" onClick={handleSetGym} disabled={busy} className={buttonClass}>
-              {busy ? "Locating…" : "I'm here, save it"}
-            </button>
-          </div>
-        </div>
+        <GymPicker
+          onState={onState}
+          onSaved={(name) => setNotice(`Saved ${name} as your gym. Check in whenever you're here.`)}
+        />
       ) : session === null ? (
         <div className="mt-3 flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm text-foreground/70">

@@ -5,11 +5,12 @@ import type { Database } from "@/types/database";
 const RPC_ERRORS: Record<string, string> = {
   not_authenticated: "Your session expired. Please log in again.",
   no_gym_set: "Set your gym first.",
-  not_at_gym: "You're not at your gym yet. Get within about 150 m and try again.",
+  not_at_gym: "You're not at your gym yet. You need to be within a mile of it.",
   location_too_imprecise:
     "Your location is too fuzzy right now. Turn on Wi-Fi or step near a window and try again.",
   invalid_location: "Couldn't read your location. Try again.",
   invalid_gym_name: "Give your gym a name (up to 60 characters).",
+  invalid_place: "That gym couldn't be saved. Pick it from the list again.",
   session_active: "Check out of your gym session before changing gyms.",
   gym_change_cooldown: "You can only change your gym once a week.",
   no_active_session: "You're not checked in.",

@@ -1,5 +1,6 @@
 // Battle rules shared by the UI. The server enforces the same numbers in
-// supabase/migrations/20261107000000_boss_battles.sql; change both together.
+// supabase/migrations/20261107000000_boss_battles.sql (the gym radius is
+// overridden in 20261108000000_gym_places.sql); change both together.
 
 export type Rarity = "common" | "uncommon" | "rare" | "legendary";
 
@@ -56,14 +57,23 @@ export const RARITY_STYLES: Record<Rarity, { text: string; border: string; glow:
 export const CHECK_IN_BONUS_SPINS = 1;
 /** One more spin for every 10 verified minutes at the gym. */
 export const MINUTES_PER_SPIN = 10;
-/** How close (meters) a fix must be to your gym, before accuracy slack. */
-export const GYM_RADIUS_M = 150;
+/** How close (meters) a fix must be to your gym (1 mile), before accuracy slack. */
+export const GYM_RADIUS_M = 1609;
 /** How often the battle screen re-checks your location during a session. */
 export const HEARTBEAT_INTERVAL_MS = 60_000;
 /** The longest gap between location checks that still counts in full. */
 export const MAX_CREDITED_GAP_MINUTES = 30;
 /** Sessions stop earning after this long. */
 export const MAX_SESSION_MINUTES = 180;
+
+/** Great-circle distance in meters, matching distance_m() in SQL. */
+export function distanceMeters(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const rad = (d: number) => (d * Math.PI) / 180;
+  const a =
+    Math.sin(rad(lat2 - lat1) / 2) ** 2 +
+    Math.cos(rad(lat1)) * Math.cos(rad(lat2)) * Math.sin(rad(lng2 - lng1) / 2) ** 2;
+  return 2 * 6371000 * Math.asin(Math.sqrt(a));
+}
 
 export function formatOdds(weight: number): string {
   const pct = weight / 100;

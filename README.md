@@ -34,13 +34,13 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
 
 Run `supabase/migrations/20261106000000_onboarding.sql` in the Supabase SQL editor, or apply it with `supabase db push`. It creates the `profiles`, `couples` and `couple_members` tables with row-level security, the pairing functions (`create_couple`, `join_couple`) and a private `avatars` storage bucket.
 
-Then run `supabase/migrations/20261107000000_boss_battles.sql`. It adds the boss battle tables (`bosses`, `user_gyms`, `gym_sessions`, `boss_battles`, `boss_attacks`) and the functions the battle screen calls (`get_battle_state`, `set_my_gym`, `gym_check_in`, `gym_heartbeat`, `gym_check_out`, `roll_spin`). Clients can read these tables but never write them directly. Every write goes through those functions, so spins and damage can't be forged.
+Then run `supabase/migrations/20261107000000_boss_battles.sql`, then `supabase/migrations/20261108000000_gym_places.sql`. It adds the boss battle tables (`bosses`, `user_gyms`, `gym_sessions`, `boss_battles`, `boss_attacks`) and the functions the battle screen calls (`get_battle_state`, `set_my_gym`, `gym_check_in`, `gym_heartbeat`, `gym_check_out`, `roll_spin`). Clients can read these tables but never write them directly. Every write goes through those functions, so spins and damage can't be forged.
 
 ## Boss battles
 
 You and your partner share one boss each week (Monday to Monday, UTC). You damage it by spending spins:
 
-- **Earning spins:** save your gym's location once (you can change it once a week). Checking in within about 150 m of it gives you 1 spin, at most once every 6 hours. You then get 1 more spin for every 10 minutes you stay. While the battle screen is open it checks your location every minute. Browsers pause location in the background, so if your phone is locked, the time since the last check counts (up to 30 minutes) when you open the app again, as long as you're still at the gym. A location check away from the gym ends the session. Sessions stop earning after 3 hours. Spins expire at the end of the week.
+- **Earning spins:** pick your gym from the gyms Google Places lists within a mile of you (you can change it once a week). Without a Places key, you name it and the app saves where you're standing. Checking in within 1 mile of it gives you 1 spin, at most once every 6 hours. You then get 1 more spin for every 10 minutes you stay. While the battle screen is open it checks your location every minute. Browsers pause location in the background, so if your phone is locked, the time since the last check counts (up to 30 minutes) when you open the app again, as long as you're still at the gym. A location check away from the gym ends the session. Sessions stop earning after 3 hours. Spins expire at the end of the week.
 - **Spinning:** each spin rolls on a case-opening reel. The server picks the result; the reel only animates it.
 
 | Rarity | Colour | Odds | Damage (share of the boss's max HP) |
@@ -61,6 +61,15 @@ The onboarding goals step can turn a free-text description of your goals into a 
 
 Without a gateway key, the assistant shows a "not configured" message instead of building a plan.
 
+## Gym search (Google Places)
+
+The battle screen lets players pick their gym from nearby gyms using the [Places API (New)](https://developers.google.com/maps/documentation/places/web-service/nearby-search) Nearby Search, limited to the `gym` and `fitness_center` types. The server repeats the search when the player saves, so the gym has to be a real gym within a mile of them.
+
+- `GOOGLE_MAPS_API_KEY`: server-side only, never `NEXT_PUBLIC_`. In Google Cloud, enable **Places API (New)** and restrict the key to it.
+- Each gym search or save is one Nearby Search Pro call (5,000 free a month, then about $32 per 1,000). Check-ins don't call Google.
+
+Without the key, players type a gym name and the app saves where they're standing.
+
 ## Deploy to Vercel
 
 1. Push this repo to GitHub (or GitLab/Bitbucket).
@@ -68,6 +77,7 @@ Without a gateway key, the assistant shows a "not configured" message instead of
 3. Add the same environment variables under **Settings → Environment Variables**:
    - `NEXT_PUBLIC_SUPABASE_URL`
    - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+   - `GOOGLE_MAPS_API_KEY` (optional, for gym search)
 4. Deploy — Vercel auto-detects Next.js.
 
 Or use the Vercel CLI:

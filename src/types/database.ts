@@ -112,9 +112,23 @@ export interface Database {
         Relationships: [];
       };
       user_gyms: {
-        Row: { user_id: string; name: string; lat: number; lng: number; set_at: string };
-        Insert: { user_id: string; name: string; lat: number; lng: number; set_at?: string };
-        Update: { user_id?: string; name?: string; lat?: number; lng?: number; set_at?: string };
+        Row: { user_id: string; name: string; lat: number; lng: number; place_id: string | null; set_at: string };
+        Insert: {
+          user_id: string;
+          name: string;
+          lat: number;
+          lng: number;
+          place_id?: string | null;
+          set_at?: string;
+        };
+        Update: {
+          user_id?: string;
+          name?: string;
+          lat?: number;
+          lng?: number;
+          place_id?: string | null;
+          set_at?: string;
+        };
         Relationships: [];
       };
       gym_sessions: {
@@ -237,7 +251,7 @@ export interface Database {
         Returns: Json;
       };
       set_my_gym: {
-        Args: { p_name: string; p_lat: number; p_lng: number };
+        Args: { p_name: string; p_lat: number; p_lng: number; p_place_id?: string };
         Returns: undefined;
       };
       gym_check_in: {

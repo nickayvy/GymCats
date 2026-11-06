@@ -28,3 +28,8 @@ export function requireSupabaseConfig(): { url: string; anonKey: string } {
 
   return config;
 }
+
+/** Server-only key for the Places API (New). Null when gym search is off. */
+export function getGoogleMapsApiKey(): string | null {
+  return process.env.GOOGLE_MAPS_API_KEY || null;
+}
