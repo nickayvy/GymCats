@@ -19,7 +19,7 @@ export function SignupForm(): React.JSX.Element {
         type="email"
         autoComplete="email"
         required
-        className="rpg-input px-4 py-2"
+        className="w-full rounded-lg border border-accent/30 bg-background/60 px-4 py-2 text-foreground placeholder:text-foreground/40 focus:border-accent focus:outline-none"
       />
 
       <label htmlFor="password" className="font-mono text-xs uppercase tracking-widest text-accent/80">
@@ -32,7 +32,7 @@ export function SignupForm(): React.JSX.Element {
         autoComplete="new-password"
         required
         minLength={6}
-        className="rpg-input px-4 py-2"
+        className="w-full rounded-lg border border-accent/30 bg-background/60 px-4 py-2 text-foreground placeholder:text-foreground/40 focus:border-accent focus:outline-none"
       />
 
       <label htmlFor="confirmPassword" className="font-mono text-xs uppercase tracking-widest text-accent/80">
@@ -45,7 +45,7 @@ export function SignupForm(): React.JSX.Element {
         autoComplete="new-password"
         required
         minLength={6}
-        className="rpg-input px-4 py-2"
+        className="w-full rounded-lg border border-accent/30 bg-background/60 px-4 py-2 text-foreground placeholder:text-foreground/40 focus:border-accent focus:outline-none"
       />
 
       {state.error ? (
@@ -57,7 +57,7 @@ export function SignupForm(): React.JSX.Element {
       <button
         type="submit"
         disabled={pending}
-        className="rpg-btn rpg-btn-gold px-4 py-2"
+        className="rounded-lg bg-accent px-4 py-2 font-semibold text-background transition hover:bg-accent-glow disabled:opacity-50"
       >
         {pending ? "Creating account…" : "Create account"}
       </button>

@@ -14,8 +14,7 @@ export function Avatar({
   url: string | null;
   size?: keyof typeof SIZES;
 }): React.JSX.Element {
-  // Square portrait in a gilded bevel, like an RPG party portrait.
-  const base = `${SIZES[size]} shrink-0 rounded-sm border-2 border-t-accent-glow border-l-accent-glow border-b-[#6a4a17] border-r-[#6a4a17] shadow-[0_0_0_2px_#04050c]`;
+  const base = `${SIZES[size]} shrink-0 rounded-full border-2 border-accent/50`;
 
   if (url) {
     return (
@@ -28,7 +27,7 @@ export function Avatar({
     <span
       role="img"
       aria-label={name}
-      className={`${base} flex items-center justify-center bg-[#1a2559] font-mono font-bold uppercase text-accent-glow`}
+      className={`${base} flex items-center justify-center bg-accent/15 font-bold uppercase text-accent-glow`}
     >
       {name.trim().charAt(0) || "?"}
     </span>

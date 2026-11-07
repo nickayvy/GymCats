@@ -160,7 +160,7 @@ export function GymPanel({ state, preview, onState }: GymPanelProps): React.JSX.
   return (
     <section className="title-card w-full rounded-2xl px-5 py-5" aria-labelledby="gym-heading">
       <div className="flex items-center justify-between gap-3">
-        <h2 id="gym-heading" className="font-mono text-xs uppercase tracking-[0.15em] text-accent/80">
+        <h2 id="gym-heading" className="font-mono text-xs uppercase tracking-[0.3em] text-accent/80">
           Gym check-in
         </h2>
         {partner && (
@@ -277,9 +277,9 @@ function SessionView({
               : `Next attack in ${formatDuration(progress.secondsUntilNext)}`}
           </span>
         </div>
-        <div className="mt-1 h-2 overflow-hidden rounded-sm bg-white/10">
+        <div className="mt-1 h-2 overflow-hidden rounded-full bg-white/10">
           <div
-            className="h-full rounded-sm bg-accent transition-[width] duration-700"
+            className="h-full rounded-full bg-accent transition-[width] duration-700"
             style={{ width: `${progress.fraction * 100}%` }}
           />
         </div>

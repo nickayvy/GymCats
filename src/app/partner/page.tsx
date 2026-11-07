@@ -20,7 +20,7 @@ function PartnerProfile({ partner }: { partner: TeamMember }): React.JSX.Element
     <>
       <div className="flex flex-col items-center gap-3">
         <Avatar name={partner.displayName} url={partner.avatarUrl} size="lg" />
-        <h1 className="rpg-title text-3xl font-bold">{partner.displayName}</h1>
+        <h1 className="text-3xl font-bold tracking-tight">{partner.displayName}</h1>
         {since ? <p className="font-mono text-xs text-foreground/50">Teammates since {since}</p> : null}
       </div>
 
@@ -37,7 +37,7 @@ function PartnerProfile({ partner }: { partner: TeamMember }): React.JSX.Element
                 {partner.goalLabels.map((label) => (
                   <li
                     key={label}
-                    className="rounded-sm border border-accent/40 bg-accent/10 px-3 py-1 text-sm text-accent-glow"
+                    className="rounded-full border border-accent/40 bg-accent/10 px-3 py-1 text-sm text-accent-glow"
                   >
                     {label}
                   </li>
@@ -92,7 +92,7 @@ export default async function PartnerPage(): Promise<React.JSX.Element> {
         <Link href="/hub" className="font-mono text-xs uppercase tracking-widest text-foreground/60 hover:text-accent">
           ← Hub
         </Link>
-        <p className="font-mono text-xs uppercase tracking-[0.15em] text-accent/80">Your team</p>
+        <p className="font-mono text-xs uppercase tracking-[0.35em] text-accent/80">Your team</p>
       </header>
 
       <section className="title-card relative z-10 mt-8 flex w-full max-w-xl flex-col items-center gap-6 rounded-2xl px-6 py-8 text-center sm:px-10">
@@ -102,7 +102,7 @@ export default async function PartnerPage(): Promise<React.JSX.Element> {
           <p className="text-sm text-foreground/70">Preview mode: Supabase isn&apos;t configured.</p>
         ) : (
           <>
-            <h1 className="rpg-title text-2xl font-bold">Team up with your partner</h1>
+            <h1 className="text-2xl font-bold">Team up with your partner</h1>
             <p className="text-sm text-foreground/70">
               Send them your invite link. Once they join, you&apos;ll see their profile here and take on
               each week&apos;s boss together.

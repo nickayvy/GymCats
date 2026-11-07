@@ -1,39 +1,13 @@
 @import "tailwindcss";
 
-/*
- * Retro tactics-RPG theme.
- *
- * Night-blue backdrop, blue gradient windows in a gilded bevel frame,
- * parchment panels, pixel type with hard drop shadows, beveled command
- * buttons and a pixel pointing-hand cursor. Shared classes:
- *   .title-card / .rpg-window   blue framed window (most panels)
- *   .rpg-parchment              cream paper panel with brown ink
- *   .rpg-btn + .rpg-btn-{gold,blue,red,green}   beveled command buttons
- *   .rpg-input                  sunken text field
- *   .rpg-chip(.is-on)           small selectable tag
- *   .rpg-label                  gold small-caps label
- *   .rpg-cursor                 shows the pointing hand on hover/focus
- */
-
 :root {
-  --background: #0b0e1d;
-  --foreground: #f3ead2;
-  --card: #18245a;
-  --accent: #e0bb5e;
-  --accent-glow: #f8e4a3;
+  --background: #0f0f14;
+  --foreground: #f4f0e8;
+  --card: #1a1a24;
+  --accent: #c9a86c;
+  --accent-glow: #e8c98a;
   --siamese-cream: #e8dcc8;
   --siamese-point: #4a3728;
-
-  --window-top: #34509c;
-  --window-bottom: #111a45;
-  --frame-light: #fbeab4;
-  --frame-mid: #d4aa52;
-  --frame-dark: #6a4a17;
-  --frame-shadow: #04050c;
-  --parchment: #ecdfb8;
-  --parchment-dark: #d3bd88;
-  --ink: #3a2812;
-  --hand-cursor: url("/ui/hand.svg") 31 4, pointer;
 }
 
 @theme inline {
@@ -42,57 +16,14 @@
   --color-card: var(--card);
   --color-accent: var(--accent);
   --color-accent-glow: var(--accent-glow);
-  --color-ink: var(--ink);
-  --color-parchment: var(--parchment);
-  --font-sans: var(--font-pixel);
-  --font-mono: var(--font-pixel-caps);
-
-  /* Pixel UIs have tight corners: shrink every rounded-* step. */
-  --radius-sm: 2px;
-  --radius-md: 3px;
-  --radius-lg: 3px;
-  --radius-xl: 4px;
-  --radius-2xl: 5px;
-  --radius-3xl: 6px;
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
 }
 
 body {
-  min-height: 100vh;
-  background-color: var(--background);
-  /* Starry night: a soft blue dome plus a 1px dither. */
-  background-image:
-    radial-gradient(ellipse 120% 70% at 50% -10%, rgba(74, 104, 196, 0.35), transparent 65%),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4'%3E%3Crect x='0' y='0' width='1' height='1' fill='%23ffffff' fill-opacity='0.035'/%3E%3Crect x='2' y='2' width='1' height='1' fill='%23ffffff' fill-opacity='0.035'/%3E%3C/svg%3E");
-  background-attachment: fixed;
+  background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-pixel), system-ui, sans-serif;
-  /* Classic hard text shadow so text reads on any window. */
-  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.75);
-}
-
-a,
-button:not(:disabled),
-summary,
-label[for],
-[role="button"] {
-  cursor: var(--hand-cursor);
-}
-
-input,
-textarea,
-select {
-  text-shadow: none;
-}
-
-:focus-visible {
-  outline: 2px solid var(--accent-glow);
-  outline-offset: 2px;
-}
-
-::selection {
-  background: var(--accent);
-  color: var(--ink);
-  text-shadow: none;
+  font-family: var(--font-sans), system-ui, sans-serif;
 }
 
 .pixel-art {
@@ -102,325 +33,22 @@ select {
 
 .hero-glow {
   background: radial-gradient(
-    ellipse 70% 50% at 50% 40%,
-    rgba(96, 128, 224, 0.14) 0%,
+    ellipse 80% 60% at 50% 40%,
+    rgba(201, 168, 108, 0.15) 0%,
     transparent 70%
   );
 }
 
-@keyframes rpg-hand-bob {
-  0%,
-  100% {
-    transform: translate(0, -50%);
-  }
-  50% {
-    transform: translate(-4px, -50%);
-  }
-}
-
-/* Component classes live in a layer so Tailwind utilities can override them. */
-@layer components {
-  /* ---------------------------------------------------------------------------
-     Windows
-     ------------------------------------------------------------------------- */
-
-  .title-card,
-  .rpg-window {
-    position: relative;
-    background-color: var(--window-bottom);
-    background-image:
-      repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.025) 0 1px, transparent 1px 3px),
-      linear-gradient(180deg, var(--window-top) 0%, var(--window-bottom) 100%);
-    /* Gilded bevel: light on the top-left edges, dark on the bottom-right. */
-    border: 3px solid;
-    border-color: var(--frame-light) var(--frame-dark) var(--frame-dark) var(--frame-light);
-    border-radius: 5px;
-    box-shadow:
-      0 0 0 2px var(--frame-shadow),
-      inset 0 0 0 1px var(--frame-mid),
-      inset 0 0 0 2px var(--frame-shadow),
-      inset 0 2px 0 2px rgba(255, 255, 255, 0.12),
-      0 6px 0 2px rgba(0, 0, 0, 0.35);
-  }
-
-  .rpg-parchment {
-    position: relative;
-    color: var(--ink);
-    text-shadow: none;
-    background-color: var(--parchment);
-    background-image:
-      radial-gradient(ellipse at 30% 20%, rgba(255, 255, 255, 0.35), transparent 60%),
-      radial-gradient(ellipse at 80% 90%, rgba(120, 80, 30, 0.18), transparent 55%),
-      linear-gradient(180deg, var(--parchment) 0%, var(--parchment-dark) 100%);
-    border: 3px solid;
-    border-color: #a07a3c #4a3214 #4a3214 #a07a3c;
-    border-radius: 4px;
-    box-shadow:
-      0 0 0 2px var(--frame-shadow),
-      inset 0 0 0 1px rgba(255, 248, 225, 0.6),
-      0 6px 0 2px rgba(0, 0, 0, 0.35);
-  }
-
-  /* Gold small-caps label, e.g. "HP", "This week's boss". */
-  .rpg-label {
-    font-family: var(--font-pixel-caps), monospace;
-    font-size: 0.75rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--accent);
-  }
-
-  /* Big title text: gold fill with a dark pixel outline. */
-  .rpg-title {
-    color: var(--accent-glow);
-    text-shadow:
-      2px 0 0 var(--frame-shadow),
-      -2px 0 0 var(--frame-shadow),
-      0 2px 0 var(--frame-shadow),
-      0 -2px 0 var(--frame-shadow),
-      2px 2px 0 var(--frame-shadow),
-      -2px -2px 0 var(--frame-shadow),
-      2px -2px 0 var(--frame-shadow),
-      -2px 2px 0 var(--frame-shadow),
-      0 5px 0 rgba(0, 0, 0, 0.45);
-  }
-
-  /* ---------------------------------------------------------------------------
-     Buttons, inputs, chips
-     ------------------------------------------------------------------------- */
-
-  .rpg-btn {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    font-family: var(--font-pixel), sans-serif;
-    font-weight: 600;
-    letter-spacing: 0.04em;
-    border: 3px solid;
-    border-radius: 4px;
-    box-shadow:
-      0 0 0 2px var(--frame-shadow),
-      0 4px 0 2px rgba(0, 0, 0, 0.45);
-    transition:
-      transform 80ms ease-out,
-      box-shadow 80ms ease-out,
-      filter 120ms ease-out;
-  }
-
-  .rpg-btn:hover:not(:disabled) {
-    filter: brightness(1.1);
-  }
-
-  .rpg-btn:active:not(:disabled) {
-    transform: translateY(3px);
-    box-shadow:
-      0 0 0 2px var(--frame-shadow),
-      0 1px 0 2px rgba(0, 0, 0, 0.45);
-  }
-
-  .rpg-btn:disabled,
-  .rpg-btn[aria-disabled="true"] {
-    cursor: not-allowed;
-    filter: grayscale(0.7) brightness(0.7);
-  }
-
-  .rpg-btn-gold {
-    color: #2b1b06;
-    text-shadow: 0 1px 0 rgba(255, 250, 225, 0.55);
-    background: linear-gradient(180deg, #fbe7a0 0%, #e2b955 45%, #b6862e 100%);
-    border-color: #fff6cf #6e4a12 #6e4a12 #fff6cf;
-  }
-
-  .rpg-btn-blue {
-    color: var(--foreground);
-    background: linear-gradient(180deg, var(--window-top) 0%, var(--window-bottom) 100%);
-    border-color: var(--frame-light) var(--frame-dark) var(--frame-dark) var(--frame-light);
-  }
-
-  .rpg-btn-red {
-    color: #fff4e6;
-    text-shadow: 2px 2px 0 rgba(60, 0, 0, 0.8);
-    background: linear-gradient(180deg, #f0664b 0%, #c42d23 50%, #7d1414 100%);
-    border-color: #ffc2ae #3f0707 #3f0707 #ffc2ae;
-  }
-
-  .rpg-btn-green {
-    color: #f2ffe8;
-    text-shadow: 2px 2px 0 rgba(0, 40, 10, 0.8);
-    background: linear-gradient(180deg, #7fd86b 0%, #3a9a45 50%, #1a5a2a 100%);
-    border-color: #d8ffc4 #0b3315 #0b3315 #d8ffc4;
-  }
-
-  /* Sunken field: dark on the top-left edges, light on the bottom-right. */
-  .rpg-input {
-    width: 100%;
-    font-family: var(--font-pixel), sans-serif;
-    color: var(--foreground);
-    background: #070a1c;
-    border: 3px solid;
-    border-color: #02030a #4c5f9e #4c5f9e #02030a;
-    border-radius: 3px;
-    box-shadow: inset 0 2px 0 rgba(0, 0, 0, 0.5);
-  }
-
-  .rpg-input::placeholder {
-    color: rgba(243, 234, 210, 0.38);
-  }
-
-  .rpg-input:focus {
-    outline: none;
-    border-color: #02030a var(--accent) var(--accent) #02030a;
-    box-shadow:
-      inset 0 2px 0 rgba(0, 0, 0, 0.5),
-      0 0 0 2px var(--accent-glow);
-  }
-
-  .rpg-chip {
-    position: relative;
-    border: 2px solid;
-    border-color: #6d82c4 #0b1130 #0b1130 #6d82c4;
-    border-radius: 3px;
-    background: #1a2559;
-    color: rgba(243, 234, 210, 0.8);
-    transition: filter 120ms ease-out;
-  }
-
-  .rpg-chip:hover:not(:disabled) {
-    filter: brightness(1.2);
-  }
-
-  .rpg-chip.is-on {
-    color: #2b1b06;
-    text-shadow: none;
-    background: linear-gradient(180deg, #fbe7a0, #d6a943);
-    border-color: #fff6cf #6e4a12 #6e4a12 #fff6cf;
-  }
-
-  /* ---------------------------------------------------------------------------
-     Pointing-hand menu cursor
-     ------------------------------------------------------------------------- */
-
-
-  .rpg-btn::before,
-  .rpg-chip::before,
-  .rpg-cursor::before {
-    content: "";
-    position: absolute;
-    top: 50%;
-    left: -30px;
-    width: 32px;
-    height: 22px;
-    background: url("/ui/hand.svg") no-repeat center / contain;
-    image-rendering: pixelated;
-    opacity: 0;
-    pointer-events: none;
-    transform: translate(0, -50%);
-    z-index: 5;
-  }
-
-  .rpg-btn:hover:not(:disabled)::before,
-  .rpg-btn:focus-visible::before,
-  .rpg-chip:hover:not(:disabled)::before,
-  .rpg-chip:focus-visible::before,
-  .rpg-cursor:hover::before,
-  .rpg-cursor:focus-visible::before,
-  .rpg-cursor[aria-current]::before,
-  .rpg-cursor[aria-pressed="true"]::before {
-    opacity: 1;
-    animation: rpg-hand-bob 700ms steps(2, jump-none) infinite;
-  }
-
-  /* ---------------------------------------------------------------------------
-     Inventory slots
-     ------------------------------------------------------------------------- */
-
-  /* A sunken square cell; the hand cursor marks the selected one. */
-  .rpg-slot {
-    position: relative;
-    display: block;
-    width: 100%;
-    aspect-ratio: 1;
-    padding: 3px;
-    background: #070a1c;
-    border: 3px solid;
-    border-color: #02030a #4c5f9e #4c5f9e #02030a;
-    border-radius: 3px;
-    transition: filter 120ms ease-out;
-  }
-
-  .rpg-slot:hover {
-    filter: brightness(1.15);
-  }
-
-  .rpg-slot.is-selected {
-    border-color: var(--frame-light) var(--frame-dark) var(--frame-dark) var(--frame-light);
-    box-shadow: 0 0 0 2px var(--accent-glow);
-  }
-
-  .rpg-slot::before {
-    left: -20px;
-    width: 26px;
-    height: 18px;
-  }
-
-  .rpg-slot-inner {
-    position: relative;
-    display: flex;
-    width: 100%;
-    height: 100%;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    border-radius: 2px;
-    background-image: repeating-linear-gradient(
-      45deg,
-      rgba(255, 255, 255, 0.03) 0 3px,
-      transparent 3px 6px
-    );
-  }
-
-  .rpg-slot-locked {
-    background: #070a1c;
-    border: 3px solid;
-    border-color: #02030a #4c5f9e #4c5f9e #02030a;
-    border-radius: 4px;
-    background-image: repeating-linear-gradient(
-      45deg,
-      rgba(255, 255, 255, 0.03) 0 4px,
-      transparent 4px 8px
-    );
-  }
-
-  /* ---------------------------------------------------------------------------
-     HP bars
-     ------------------------------------------------------------------------- */
-
-  .rpg-bar {
-    position: relative;
-    height: 14px;
-    background: #1b0707;
-    border: 2px solid;
-    border-color: #02030a #5a6aa0 #5a6aa0 #02030a;
-    border-radius: 2px;
-    box-shadow: 0 0 0 1px var(--frame-shadow);
-    overflow: hidden;
-  }
-
-  .rpg-bar-fill {
-    height: 100%;
-    background: linear-gradient(180deg, #ffb49a 0%, #ef4b3a 35%, #a31a1a 100%);
-  }
-
-  /* 1px notches every 8px give the bar its segmented look. */
-  .rpg-bar::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: repeating-linear-gradient(90deg, transparent 0 7px, rgba(0, 0, 0, 0.35) 7px 8px);
-    pointer-events: none;
-  }
+.title-card {
+  background: linear-gradient(
+    145deg,
+    rgba(26, 26, 36, 0.95) 0%,
+    rgba(15, 15, 20, 0.98) 100%
+  );
+  border: 2px solid rgba(201, 168, 108, 0.35);
+  box-shadow:
+    0 0 40px rgba(201, 168, 108, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
 @keyframes boss-float {
@@ -555,9 +183,7 @@ select {
 
 .damage-pop {
   animation: damage-pop 1400ms ease-out forwards;
-  text-shadow:
-    3px 3px 0 #000,
-    -1px -1px 0 #000;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.8);
 }
 
 @keyframes reel-winner {
@@ -744,9 +370,6 @@ select {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .rpg-btn::before,
-  .rpg-chip::before,
-  .rpg-cursor::before,
   .boss-float,
   .spin-pop,
   .battle-enter-boss,

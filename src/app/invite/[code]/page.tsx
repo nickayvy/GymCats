@@ -75,11 +75,11 @@ export default async function InvitePage({
     <main className="relative flex min-h-screen items-center justify-center overflow-hidden px-6 py-16">
       <div className="hero-glow pointer-events-none absolute inset-0" />
       <section className="title-card relative z-10 flex w-full max-w-md flex-col items-center gap-6 rounded-2xl px-8 py-10 text-center">
-        <p className="font-mono text-xs uppercase tracking-[0.15em] text-accent/80">Team invite</p>
+        <p className="font-mono text-xs uppercase tracking-[0.35em] text-accent/80">Team invite</p>
 
         {view.kind === "open" ? (
           <>
-            <h1 className="rpg-title text-3xl font-bold">
+            <h1 className="text-3xl font-bold tracking-tight">
               {view.inviterName} wants you on their team
             </h1>
             <p className="text-sm text-foreground/70">
@@ -113,7 +113,7 @@ export default async function InvitePage({
 
         {view.kind === "own" ? (
           <>
-            <h1 className="rpg-title text-2xl font-bold">This is your invite link</h1>
+            <h1 className="text-2xl font-bold">This is your invite link</h1>
             <p className="text-sm text-foreground/70">Send it to your partner so they can join your team.</p>
             <InviteLinkCard code={view.code} />
             <Link href="/" className={linkClass}>
@@ -124,7 +124,7 @@ export default async function InvitePage({
 
         {view.kind === "alreadyPaired" ? (
           <>
-            <h1 className="rpg-title text-2xl font-bold">You&apos;re already on a team</h1>
+            <h1 className="text-2xl font-bold">You&apos;re already on a team</h1>
             <p className="text-sm text-foreground/70">
               Leave your current team from your partner&apos;s profile before joining another one.
             </p>
@@ -134,7 +134,7 @@ export default async function InvitePage({
 
         {view.kind === "full" || view.kind === "invalid" ? (
           <>
-            <h1 className="rpg-title text-2xl font-bold">
+            <h1 className="text-2xl font-bold">
               {view.kind === "full" ? "This team is already full" : "This invite link doesn't work"}
             </h1>
             <p className="text-sm text-foreground/70">
@@ -146,7 +146,7 @@ export default async function InvitePage({
 
         {view.kind === "preview" ? (
           <>
-            <h1 className="rpg-title text-2xl font-bold">Team invites need Supabase</h1>
+            <h1 className="text-2xl font-bold">Team invites need Supabase</h1>
             <p className="text-sm text-foreground/70">Preview mode: Supabase isn&apos;t configured.</p>
             <Link href="/" className={linkClass}>
               Back home

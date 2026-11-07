@@ -16,10 +16,10 @@ export function LogResult({
 
   return (
     <section className="title-card flex flex-col items-center gap-6 rounded-2xl p-6 text-center">
-      <p className="font-mono text-xs uppercase tracking-[0.15em] text-accent/80">Workout logged</p>
+      <p className="font-mono text-xs uppercase tracking-[0.35em] text-accent/80">Workout logged</p>
       <div role="status" className="flex flex-col items-center gap-1">
         <p
-          className={`spin-pop text-5xl font-bold ${earned > 0 ? "text-emerald-300" : "text-foreground/70"}`}
+          className={`spin-pop text-5xl font-black ${earned > 0 ? "text-emerald-300" : "text-foreground/70"}`}
         >
           +{earned} {earned === 1 ? "attack" : "attacks"}
         </p>
@@ -56,7 +56,7 @@ export function LogResult({
               <div className="flex items-center justify-between gap-2">
                 <span className="font-semibold">{e.name}</span>
                 {e.spinAwarded && (
-                  <span className="rounded-sm bg-emerald-500/20 px-2 py-0.5 font-mono text-xs text-emerald-200">
+                  <span className="rounded-full bg-emerald-500/20 px-2 py-0.5 font-mono text-xs text-emerald-200">
                     +1 attack
                   </span>
                 )}

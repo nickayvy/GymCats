@@ -6,9 +6,13 @@ export function SpinBadge({
   className?: string;
 }): React.JSX.Element {
   return (
-    <p className={`rpg-window inline-flex items-center gap-3 px-3 py-1 ${className}`}>
-      <span className="rpg-label">Attacks</span>
-      <span className="font-mono text-lg tabular-nums text-accent-glow">{spins}</span>
+    <p
+      className={`inline-flex items-center gap-2 rounded-full border border-accent/40 bg-card/80 px-3 py-1 font-mono text-xs uppercase tracking-widest text-accent-glow ${className}`}
+    >
+      <span aria-hidden="true">✦</span>
+      <span>
+        {spins} {spins === 1 ? "attack" : "attacks"}
+      </span>
     </p>
   );
 }

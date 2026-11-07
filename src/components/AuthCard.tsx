@@ -18,7 +18,7 @@ export function AuthCard({
 
   return (
     <div
-      className={`title-card relative z-10 flex w-full max-w-md flex-col items-center gap-6 rounded-2xl px-8 py-10 text-center`}
+      className={`title-card relative z-10 flex w-full max-w-md flex-col items-center gap-6 rounded-2xl px-8 py-10 text-center transition-shadow ${mode === "signup" ? "shadow-[0_0_60px_rgba(201,168,108,0.35)]" : ""}`}
     >
       {invitedBy ? (
         <p className="w-full rounded-lg border border-accent/40 bg-accent/10 px-4 py-2 text-sm text-accent-glow">
@@ -32,8 +32,8 @@ export function AuthCard({
       >
         {mode === "login" ? (
           <>
-            <p className="font-mono text-xs uppercase tracking-[0.15em] text-accent/80">Welcome back</p>
-            <h1 className="rpg-title text-3xl font-bold">Log in</h1>
+            <p className="font-mono text-xs uppercase tracking-[0.35em] text-accent/80">Welcome back</p>
+            <h1 className="text-3xl font-bold tracking-tight text-foreground">Log in</h1>
             <LoginForm notice={notice} />
             <p className="font-mono text-xs text-foreground/60">
               New here?{" "}
@@ -48,10 +48,10 @@ export function AuthCard({
           </>
         ) : (
           <>
-            <span className="rounded-sm border border-accent/50 bg-accent/15 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.15em] text-accent-glow">
+            <span className="rounded-full border border-accent/50 bg-accent/15 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.3em] text-accent-glow">
               Sign up is free
             </span>
-            <h1 className="rpg-title text-3xl font-bold">
+            <h1 className="bg-gradient-to-b from-accent-glow to-accent bg-clip-text text-3xl font-bold tracking-tight text-transparent">
               Begin your journey
             </h1>
             <p className="-mt-3 text-sm text-foreground/60">

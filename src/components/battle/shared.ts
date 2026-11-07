@@ -43,6 +43,6 @@ export function getFix(): Promise<LocationFix> {
 }
 
 export const buttonClass =
-  "rpg-btn rpg-btn-gold px-5 py-3";
+  "rounded-xl bg-accent px-5 py-3 font-semibold text-background transition hover:bg-accent-glow disabled:cursor-not-allowed disabled:opacity-50";
 export const ghostButtonClass =
-  "rpg-btn rpg-btn-blue px-5 py-3 text-sm";
+  "rounded-xl border border-white/15 px-5 py-3 text-sm text-foreground/80 transition hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:opacity-50";
