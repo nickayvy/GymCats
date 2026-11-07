@@ -58,10 +58,10 @@ export function PhotoStep({ file, onFileChange }: PhotoStepProps): React.JSX.Ele
             alt="Your profile photo preview"
             width={128}
             height={128}
-            className="h-32 w-32 rounded-full border-2 border-accent/40 object-cover"
+            className="h-32 w-32 rounded-sm border-2 border-accent/40 object-cover"
           />
         ) : (
-          <div className="flex h-32 w-32 items-center justify-center rounded-full border-2 border-dashed border-accent/40 font-mono text-xs uppercase tracking-widest text-foreground/50">
+          <div className="flex h-32 w-32 items-center justify-center rounded-sm border-2 border-dashed border-accent/40 font-mono text-xs uppercase tracking-widest text-foreground/50">
             No photo
           </div>
         )}

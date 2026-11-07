@@ -125,7 +125,7 @@ export function BattleScreen({ initialState, preview }: BattleScreenProps): Reac
         <Link href="/hub" className="font-mono text-xs uppercase tracking-widest text-foreground/60 hover:text-accent">
           ← Retreat
         </Link>
-        <p className="font-mono text-xs uppercase tracking-[0.35em] text-red-300/80">
+        <p className="font-mono text-xs uppercase tracking-[0.15em] text-red-300/80">
           Battle{preview ? " · Preview" : ""}
         </p>
       </header>
@@ -138,19 +138,19 @@ export function BattleScreen({ initialState, preview }: BattleScreenProps): Reac
           {phase === "revealed" && spin && resultStyle && (
             <span
               key={`pop-${hitKey}`}
-              className={`damage-pop pointer-events-none absolute left-1/2 top-1/3 text-5xl font-black ${resultStyle.text}`}
+              className={`damage-pop pointer-events-none absolute left-1/2 top-1/3 font-mono text-5xl font-bold ${resultStyle.text}`}
             >
               −{spin.appliedDamage}
             </span>
           )}
         </div>
-        <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">{battle.bossName}</h1>
+        <h1 className="rpg-title text-3xl font-bold sm:text-4xl">{battle.bossName}</h1>
         <HealthBar current={battle.currentHp} max={battle.maxHp} label="Boss HP" />
         {state.partner && !defeated && (
           <p className="text-sm text-foreground/60">You and {state.partner.displayName} stand ready.</p>
         )}
         {defeated && (
-          <p className="font-mono text-sm uppercase tracking-[0.3em] text-amber-300">
+          <p className="font-mono text-sm uppercase tracking-[0.15em] text-amber-300">
             Defeated! A new boss arrives Monday.
           </p>
         )}
@@ -159,7 +159,7 @@ export function BattleScreen({ initialState, preview }: BattleScreenProps): Reac
       <div className="battle-enter-panel relative z-10 mx-auto mt-8 flex w-full max-w-2xl flex-col gap-5">
         <section className="title-card rounded-2xl px-4 py-5 sm:px-6" aria-labelledby="attack-heading">
           <div className="mb-3 flex items-center justify-between">
-            <h2 id="attack-heading" className="font-mono text-xs uppercase tracking-[0.3em] text-accent/80">
+            <h2 id="attack-heading" className="font-mono text-xs uppercase tracking-[0.15em] text-accent/80">
               Attack
             </h2>
             <div className="text-right font-mono text-xs">
@@ -207,7 +207,7 @@ export function BattleScreen({ initialState, preview }: BattleScreenProps): Reac
               type="button"
               onClick={handleSpin}
               disabled={busy || defeated || attacks <= 0}
-              className="w-full max-w-xs rounded-2xl bg-gradient-to-b from-red-500 to-red-700 px-8 py-4 text-xl font-black uppercase tracking-[0.25em] text-white shadow-[0_0_32px_rgba(239,68,68,0.4)] transition hover:scale-105 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100"
+              className="rpg-btn rpg-btn-red w-full max-w-xs px-8 py-4 font-mono text-xl font-bold uppercase tracking-[0.2em]"
             >
               {phase === "requesting" ? "…" : phase === "spinning" ? "Rolling" : "Attack"}
             </button>
@@ -228,7 +228,7 @@ export function BattleScreen({ initialState, preview }: BattleScreenProps): Reac
 function DropRates({ maxHp }: { maxHp: number }): React.JSX.Element {
   return (
     <section className="title-card rounded-2xl px-5 py-4" aria-labelledby="odds-heading">
-      <h2 id="odds-heading" className="font-mono text-xs uppercase tracking-[0.3em] text-accent/80">
+      <h2 id="odds-heading" className="font-mono text-xs uppercase tracking-[0.15em] text-accent/80">
         Drop rates
       </h2>
       <table className="mt-3 w-full text-sm">
@@ -261,7 +261,7 @@ function DropRates({ maxHp }: { maxHp: number }): React.JSX.Element {
 function AttackLog({ attacks }: { attacks: BattleAttack[] }): React.JSX.Element {
   return (
     <section className="title-card rounded-2xl px-5 py-4" aria-labelledby="log-heading">
-      <h2 id="log-heading" className="font-mono text-xs uppercase tracking-[0.3em] text-accent/80">
+      <h2 id="log-heading" className="font-mono text-xs uppercase tracking-[0.15em] text-accent/80">
         Recent hits
       </h2>
       {attacks.length === 0 ? (

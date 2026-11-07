@@ -1,15 +1,18 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Pixelify_Sans, Silkscreen } from "next/font/google";
 import { RouteTransition } from "@/components/transition/RouteTransition";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+// Retro RPG type: a readable pixel face for text and headings, and a
+// blocky small-caps face for labels and numbers (Tailwind's font-mono).
+const pixelSans = Pixelify_Sans({
+  variable: "--font-pixel",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const pixelCaps = Silkscreen({
+  variable: "--font-pixel-caps",
+  weight: ["400", "700"],
   subsets: ["latin"],
 });
 
@@ -26,7 +29,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${pixelSans.variable} ${pixelCaps.variable}`}
       >
         {children}
         <RouteTransition />

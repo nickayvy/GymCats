@@ -14,7 +14,7 @@ export function TeamStrip({
 
   return (
     <div className="flex flex-col items-center gap-2">
-      <p className="font-mono text-[10px] uppercase tracking-[0.35em] text-accent/70">Your team</p>
+      <p className="font-mono text-[10px] uppercase tracking-[0.15em] text-accent/70">Your team</p>
       <div className="flex items-center gap-3">
         <div className="flex flex-col items-center gap-1">
           <Avatar name={myName} url={me?.avatarUrl ?? null} size="sm" />
@@ -28,7 +28,7 @@ export function TeamStrip({
           </Link>
         ) : (
           <Link href="/partner" className="flex flex-col items-center gap-1">
-            <span className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-dashed border-accent/40 text-accent/70">
+            <span className="flex h-10 w-10 items-center justify-center rounded-sm border-2 border-dashed border-accent/50 bg-[#0b1130] font-mono text-accent/80">
               ?
             </span>
             <span className="text-xs text-accent hover:text-accent-glow">Invite</span>

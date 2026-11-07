@@ -91,7 +91,7 @@ export function InvitePanel({
               autoComplete="off"
               value={inviteCode}
               onChange={(event) => setInviteCode(event.target.value.toUpperCase())}
-              className={`${inputClass} font-mono tracking-[0.3em]`}
+              className={`${inputClass} font-mono tracking-[0.15em]`}
             />
             <button
               type="button"

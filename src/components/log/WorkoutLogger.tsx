@@ -117,7 +117,7 @@ export function WorkoutLogger({
         </header>
 
         <div className="flex flex-col gap-2 text-center">
-          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
+          <h1 className="rpg-title text-3xl font-bold sm:text-4xl">
             Log <span className="text-emerald-300">&amp; Grow</span>
           </h1>
           <p className="text-sm text-foreground/60">

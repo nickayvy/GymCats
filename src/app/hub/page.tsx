@@ -1,6 +1,7 @@
 import { BossPlaceholder } from "@/components/boss/BossPlaceholder";
 import { HealthBar } from "@/components/boss/HealthBar";
 import { BattleButton } from "@/components/hub/BattleButton";
+import { HubTabs } from "@/components/hub/HubTabs";
 import { LogGrowButton } from "@/components/hub/LogGrowButton";
 import { SpinBadge } from "@/components/hub/SpinBadge";
 import { PartnerBadge } from "@/components/team/PartnerBadge";
@@ -43,11 +44,11 @@ export default async function HubPage(): Promise<React.JSX.Element> {
 
   return (
     <main
-      className={`relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 pb-24 ${preview ? "pt-44" : "pt-24"}`}
+      className={`relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 pb-36 ${preview ? "pt-44" : "pt-24"}`}
     >
       <div className="hero-glow pointer-events-none absolute inset-0" />
       {preview && (
-        <p className="absolute left-1/2 top-6 z-20 -translate-x-1/2 rounded-lg border border-accent/30 bg-card/80 px-4 py-2 font-mono text-xs text-accent">
+        <p className="rpg-window absolute left-1/2 top-6 z-20 w-max max-w-[calc(100%-2rem)] -translate-x-1/2 px-4 py-2 text-center text-sm text-accent-glow">
           Preview mode: Supabase isn&apos;t configured.
         </p>
       )}
@@ -55,23 +56,27 @@ export default async function HubPage(): Promise<React.JSX.Element> {
         <PartnerBadge partner={team.partner} />
       </div>
       <section className="relative z-10 flex w-full max-w-lg flex-col items-center gap-6 text-center">
-        <p className="font-mono text-xs uppercase tracking-[0.35em] text-accent/80">
-          This week&apos;s boss · {days} {days === 1 ? "day" : "days"} left
+        <p className="rpg-window px-4 py-1.5">
+          <span className="rpg-label">This week&apos;s boss</span>
+          <span className="mx-2 text-foreground/40">·</span>
+          <span className="text-sm text-foreground">
+            {days} {days === 1 ? "day" : "days"} left
+          </span>
         </p>
         <BossPlaceholder />
-        <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+        <h1 className="rpg-title text-3xl font-bold sm:text-4xl">
           {boss.name}
         </h1>
         <HealthBar current={currentHp} max={maxHp} label="Boss HP" />
         <TeamStrip me={team.me} partner={team.partner} />
-        <div className="mt-4 flex w-full max-w-sm items-stretch gap-3">
+        <nav aria-label="Commands" className="rpg-window mt-2 flex w-full max-w-sm items-stretch gap-4 p-4">
           <BattleButton />
           <LogGrowButton />
-        </div>
+        </nav>
         {spins !== null && (
           <div className="flex flex-col items-center gap-2">
             <SpinBadge spins={spins} />
-            <p className="font-mono text-xs uppercase tracking-widest text-foreground/60">
+            <p className="text-sm text-foreground/70">
               {spins > 0
                 ? "Ready to attack"
                 : currentHp > 0
@@ -81,6 +86,7 @@ export default async function HubPage(): Promise<React.JSX.Element> {
           </div>
         )}
       </section>
+      <HubTabs active="hub" />
     </main>
   );
 }
