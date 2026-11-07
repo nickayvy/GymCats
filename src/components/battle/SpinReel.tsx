@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { RARITY_LOOK } from "@/components/battle/rarity";
+import { ITEM_SPRITES, PixelSprite } from "@/components/sprites";
+import { Starburst } from "@/components/ui";
 import {
   RARITY_BY_ID,
-  RARITY_STYLES,
   rollDamage,
   rollRarity,
   type Rarity,
@@ -68,6 +70,7 @@ export function SpinReel({ maxHp, spinId, result, onDone }: SpinReelProps): Reac
   const [width, setWidth] = useState(0);
   const [offset, setOffset] = useState(0);
   const [animating, setAnimating] = useState(false);
+  const [landed, setLanded] = useState(false);
   const onDoneRef = useRef(onDone);
   onDoneRef.current = onDone;
 
@@ -93,6 +96,7 @@ export function SpinReel({ maxHp, spinId, result, onDone }: SpinReelProps): Reac
   }
 
   useEffect(() => {
+    setLanded(false);
     if (result === null || width === 0) {
       setAnimating(false);
       setOffset(offsetFor(3));
@@ -102,7 +106,10 @@ export function SpinReel({ maxHp, spinId, result, onDone }: SpinReelProps): Reac
     if (reduced) {
       setAnimating(false);
       setOffset(offsetFor(WINNER_INDEX));
-      const t = window.setTimeout(() => onDoneRef.current(), 300);
+      const t = window.setTimeout(() => {
+        setLanded(true);
+        onDoneRef.current();
+      }, 300);
       return () => window.clearTimeout(t);
     }
 
@@ -116,7 +123,10 @@ export function SpinReel({ maxHp, spinId, result, onDone }: SpinReelProps): Reac
         setOffset(offsetFor(WINNER_INDEX, jitter));
       });
     });
-    const t = window.setTimeout(() => onDoneRef.current(), SPIN_MS + 150);
+    const t = window.setTimeout(() => {
+      setLanded(true);
+      onDoneRef.current();
+    }, SPIN_MS + 150);
     return () => {
       cancelAnimationFrame(frame);
       window.clearTimeout(t);
@@ -125,43 +135,68 @@ export function SpinReel({ maxHp, spinId, result, onDone }: SpinReelProps): Reac
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [spinId, width === 0]);
 
+  // The winner card lights up once the reel has stopped and the result is shown.
+  const revealed = landed && result !== null;
+  const winnerLook = result ? RARITY_LOOK[result.rarity] : null;
+
   return (
     <div
       ref={viewportRef}
-      className="reel-viewport relative h-36 w-full overflow-hidden rounded-xl border border-white/10 bg-black/40"
+      className="reel-viewport relative h-40 w-full overflow-hidden rounded-[3px] border border-white/15 bg-black/55 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.6),inset_0_12px_30px_rgba(0,0,0,0.6)]"
       aria-hidden="true"
     >
-      <div
-        className="flex h-full items-center"
-        style={{
-          gap: ITEM_GAP,
-          transform: `translateX(${offset}px)`,
-          transition: animating ? `transform ${SPIN_MS}ms cubic-bezier(0.08, 0.82, 0.17, 1)` : "none",
-        }}
-      >
-        {items.map((item, i) => {
-          const style = RARITY_STYLES[item.rarity];
-          const isWinner = result !== null && !animating && i === WINNER_INDEX;
-          return (
-            <div
-              key={item.key}
-              className={`flex h-28 shrink-0 flex-col items-center justify-between rounded-lg border-2 bg-card/90 pt-3 ${style.border} ${
-                isWinner ? `reel-winner ${style.glow}` : ""
-              }`}
-              style={{ width: ITEM_WIDTH }}
-            >
-              <span className={`font-mono text-[10px] uppercase tracking-widest ${style.text}`}>
-                {RARITY_BY_ID[item.rarity].label}
-              </span>
-              <span className={`text-2xl font-black ${style.text}`}>−{item.damage}</span>
-              <span className={`h-2 w-full rounded-b-md ${style.bar}`} />
-            </div>
-          );
-        })}
+      {revealed && winnerLook && (
+        <div className="pointer-events-none absolute left-1/2 top-1/2 h-80 w-80 -translate-x-1/2 -translate-y-1/2">
+          <Starburst color={winnerLook.hex} className="h-full w-full" />
+        </div>
+      )}
+      <div className="absolute inset-0 [mask-image:linear-gradient(90deg,transparent,#000_14%,#000_86%,transparent)]">
+        <div
+          className="flex h-full items-center"
+          style={{
+            gap: ITEM_GAP,
+            transform: `translateX(${offset}px)`,
+            transition: animating ? `transform ${SPIN_MS}ms cubic-bezier(0.08, 0.82, 0.17, 1)` : "none",
+          }}
+        >
+          {items.map((item, i) => {
+            const look = RARITY_LOOK[item.rarity];
+            const isWinner = revealed && i === WINNER_INDEX;
+            return (
+              <div
+                key={item.key}
+                className={`relative flex h-32 shrink-0 flex-col items-center justify-center gap-1 rounded-[3px] border bg-gradient-to-b from-[#2a2922] to-[#0c0c0b] transition-opacity duration-500 ${
+                  isWinner ? "battle-reel-win z-10" : revealed ? "opacity-35" : ""
+                }`}
+                style={
+                  {
+                    width: ITEM_WIDTH,
+                    borderColor: isWinner ? look.hex : `${look.hex}99`,
+                    "--rg": look.glow,
+                    ...(isWinner
+                      ? {}
+                      : { boxShadow: `inset 0 0 0 2px rgba(0,0,0,0.5), inset 0 -22px 26px -16px ${look.glow}` }),
+                  } as React.CSSProperties
+                }
+              >
+                <PixelSprite sheet={ITEM_SPRITES[look.gem]} scale={3} />
+                <span className={`font-mono text-[10px] font-semibold uppercase tracking-[0.2em] ${look.text}`}>
+                  {RARITY_BY_ID[item.rarity].label}
+                </span>
+                <span className={`gc-num font-display text-2xl font-bold leading-none ${look.text}`}>
+                  −{item.damage}
+                </span>
+                <span
+                  aria-hidden="true"
+                  className="absolute inset-x-2 bottom-1 h-[2px] rounded-full"
+                  style={{ background: `linear-gradient(90deg, transparent, ${look.hex}, transparent)` }}
+                />
+              </div>
+            );
+          })}
+        </div>
       </div>
-      <div className="pointer-events-none absolute inset-y-0 left-1/2 w-0.5 -translate-x-1/2 bg-accent-glow shadow-[0_0_12px_rgba(232,201,138,0.9)]" />
-      <div className="pointer-events-none absolute inset-y-0 left-0 w-12 bg-gradient-to-r from-background to-transparent" />
-      <div className="pointer-events-none absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-background to-transparent" />
+      <div className="battle-reel-marker" />
     </div>
   );
 }

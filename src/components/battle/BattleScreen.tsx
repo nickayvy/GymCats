@@ -3,15 +3,17 @@
 import Link from "next/link";
 import { useCallback, useRef, useState } from "react";
 import { rollSpin } from "@/app/battle/actions";
-import { BossPlaceholder } from "@/components/boss/BossPlaceholder";
+import { BossSprite } from "@/components/boss/BossSprite";
 import { HealthBar } from "@/components/boss/HealthBar";
 import { GymPanel } from "@/components/battle/GymPanel";
+import { RARITY_LOOK } from "@/components/battle/rarity";
 import { SpinReel } from "@/components/battle/SpinReel";
 import { useNow } from "@/components/battle/shared";
+import { ITEM_SPRITES, PixelSprite } from "@/components/sprites";
+import { BossBanner, ButtonHint, HintBar, Panel, PanelHeading, Starburst } from "@/components/ui";
 import {
   RARITIES,
   RARITY_BY_ID,
-  RARITY_STYLES,
   damageRange,
   formatDuration,
   formatOdds,
@@ -116,90 +118,133 @@ export function BattleScreen({ initialState, preview }: BattleScreenProps): Reac
     if (pending) setState(pending);
   }, []);
 
-  const resultStyle = spin ? RARITY_STYLES[spin.rarity] : null;
+  const resultLook = spin ? RARITY_LOOK[spin.rarity] : null;
+  const hit = hitKey > 0 && phase === "revealed";
 
   return (
-    <main className="relative flex min-h-screen flex-col overflow-hidden bg-[radial-gradient(ellipse_at_top,rgba(127,29,29,0.35),transparent_60%)] px-4 py-8 sm:px-6">
+    <main className="relative mx-auto flex min-h-[100dvh] w-full max-w-3xl flex-col px-4 pb-6 pt-3 sm:px-6">
       <div className="battle-cover" aria-hidden="true" />
-      <header className="relative z-10 mx-auto flex w-full max-w-2xl items-center justify-between">
-        <Link href="/hub" className="font-mono text-xs uppercase tracking-widest text-foreground/60 hover:text-accent">
-          ← Retreat
+      <header className="relative z-10 flex items-center justify-between gap-3">
+        <Link href="/hub" className="gc-btn gc-btn-ghost gc-btn-sm -ml-2 gap-2 px-2.5">
+          <ButtonHint glyph="B" />
+          Retreat
         </Link>
-        <p className="font-mono text-xs uppercase tracking-[0.35em] text-red-300/80">
-          Battle{preview ? " · Preview" : ""}
-        </p>
+        <p className="gc-caps text-[#ff8a74]/90">Boss battle{preview ? " · Preview" : ""}</p>
       </header>
 
-      <section className="battle-enter-boss relative z-10 mt-6 flex flex-col items-center gap-4 text-center">
-        <div className="relative">
-          <div key={hitKey} className={hitKey > 0 && phase === "revealed" ? "boss-hit" : ""}>
-            <BossPlaceholder />
+      <section className="battle-enter-boss relative z-10 mt-2 flex flex-col items-center gap-2 text-center">
+        <BossBanner
+          epithet={defeated ? "Vanquished this week" : "Weekly boss"}
+          name={battle.bossName}
+          className="[&_h1]:text-2xl sm:[&_h1]:text-4xl"
+        />
+        <HealthBar current={battle.currentHp} max={battle.maxHp} label="Boss HP" className="mt-1" />
+
+        <div className="relative mt-1 flex w-full justify-center">
+          {defeated && (
+            <div className="pointer-events-none absolute left-1/2 top-1/2 h-[340px] w-[340px] -translate-x-1/2 -translate-y-1/2 sm:h-[440px] sm:w-[440px]">
+              <Starburst color="#ffe29a" className="h-full w-full" />
+            </div>
+          )}
+          <div key={hitKey} className={hit ? "boss-hit" : ""}>
+            <BossSprite
+              bossId={battle.bossId}
+              name={battle.bossName}
+              scale={4}
+              defeated={defeated}
+              className="sm:hidden"
+            />
+            <BossSprite
+              bossId={battle.bossId}
+              name={battle.bossName}
+              scale={5}
+              defeated={defeated}
+              className="hidden sm:flex"
+            />
           </div>
-          {phase === "revealed" && spin && resultStyle && (
+          {phase === "revealed" && spin && resultLook && (
             <span
               key={`pop-${hitKey}`}
-              className={`damage-pop pointer-events-none absolute left-1/2 top-1/3 text-5xl font-black ${resultStyle.text}`}
+              className={`damage-pop pointer-events-none absolute left-1/2 top-1/4 z-10 text-5xl font-black sm:text-6xl ${resultLook.text}`}
+              style={{ WebkitTextStroke: "6px #120806", paintOrder: "stroke fill" }}
             >
               −{spin.appliedDamage}
             </span>
           )}
         </div>
-        <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">{battle.bossName}</h1>
-        <HealthBar current={battle.currentHp} max={battle.maxHp} label="Boss HP" />
-        {state.partner && !defeated && (
-          <p className="text-sm text-foreground/60">You and {state.partner.displayName} stand ready.</p>
-        )}
-        {defeated && (
-          <p className="font-mono text-sm uppercase tracking-[0.3em] text-amber-300">
-            Defeated! A new boss arrives Monday.
-          </p>
+
+        {defeated ? (
+          <div className="relative flex flex-col items-center gap-1">
+            <p className="gc-eyebrow gc-fade">Victory</p>
+            <h2 className="gc-title battle-victory-title text-3xl uppercase sm:text-4xl">Boss Defeated</h2>
+            <p className="gc-eyebrow gc-fade" style={{ "--d": "500ms" } as React.CSSProperties}>
+              Defeated! A new boss arrives Monday.
+            </p>
+          </div>
+        ) : (
+          state.partner && (
+            <p className="gc-eyebrow">
+              You and <span className="gc-key">{state.partner.displayName}</span> stand ready.
+            </p>
+          )
         )}
       </section>
 
-      <div className="battle-enter-panel relative z-10 mx-auto mt-8 flex w-full max-w-2xl flex-col gap-5">
-        <section className="title-card rounded-2xl px-4 py-5 sm:px-6" aria-labelledby="attack-heading">
-          <div className="mb-3 flex items-center justify-between">
-            <h2 id="attack-heading" className="font-mono text-xs uppercase tracking-[0.3em] text-accent/80">
+      <div className="battle-enter-panel relative z-10 mt-3 flex w-full flex-col gap-4">
+        <Panel as="section" className="px-3 py-4 sm:px-5" aria-labelledby="attack-heading">
+          <div className="mb-2.5 flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5 px-1">
+            <h2 id="attack-heading" className="gc-title text-lg uppercase tracking-[0.12em]">
               Attack
             </h2>
-            <div className="text-right font-mono text-xs">
-              <p className="text-foreground/60">
-                {attacks} {attacks === 1 ? "attack" : "attacks"} left
-              </p>
+            <div className="flex flex-wrap items-center justify-end gap-x-3 gap-y-1">
               {!defeated && nextAttackIn !== null && (
-                <p className="text-accent-glow">Next attack in {formatDuration(nextAttackIn)}</p>
+                <p className="flex items-center gap-1.5 text-xs italic text-glow">
+                  <PixelSprite sheet={ITEM_SPRITES.hourglass} scale={1} />
+                  Next attack in <span className="gc-num font-mono not-italic">{formatDuration(nextAttackIn)}</span>
+                </p>
               )}
+              <p className="flex items-center gap-1.5 rounded-[3px] border border-[#f2c75c]/40 bg-black/50 py-0.5 pl-1 pr-2.5 text-xs italic text-white/75">
+                <PixelSprite sheet={ITEM_SPRITES.claw} scale={1.5} />
+                <span className="gc-num font-mono text-base font-bold not-italic text-gold">{attacks}</span>
+                {attacks === 1 ? "attack" : "attacks"} left
+              </p>
             </div>
           </div>
 
           <SpinReel maxHp={battle.maxHp} spinId={spinId} result={spin} onDone={handleReelDone} />
 
           <div className="mt-4 flex min-h-12 flex-col items-center gap-3 text-center">
-            <p role="status" aria-live="polite" className="text-sm">
-              {phase === "revealed" && spin && resultStyle ? (
-                <span className={`font-semibold ${resultStyle.text}`}>
-                  {RARITY_BY_ID[spin.rarity].label} hit! −{spin.appliedDamage} HP
-                  {spin.appliedDamage < spin.damage ? ` (rolled ${spin.damage})` : ""}
-                  {spin.hpAfter === 0 ? " · Boss defeated!" : ""}
+            <p role="status" aria-live="polite" className="min-h-6 text-sm italic">
+              {phase === "revealed" && spin && resultLook ? (
+                <span
+                  key={`result-${hitKey}`}
+                  className={`battle-result-in inline-flex items-center gap-2 font-semibold not-italic ${resultLook.text}`}
+                >
+                  <PixelSprite sheet={ITEM_SPRITES[resultLook.gem]} scale={1.5} />
+                  <span>
+                    {RARITY_BY_ID[spin.rarity].label} hit! −{spin.appliedDamage} HP
+                    {spin.appliedDamage < spin.damage ? ` (rolled ${spin.damage})` : ""}
+                    {spin.hpAfter === 0 ? " · Boss defeated!" : ""}
+                  </span>
                 </span>
               ) : phase === "spinning" ? (
-                <span className="text-foreground/60">Rolling…</span>
+                <span className="text-white/65">Rolling…</span>
               ) : defeated ? (
-                <span className="text-foreground/60">Nothing left to hit this week.</span>
+                <span className="text-white/65">Nothing left to hit this week.</span>
               ) : attacks > 0 ? (
-                <span className="text-foreground/60">Attack to deal damage.</span>
+                <span className="text-white/65">Attack to deal damage.</span>
               ) : nextAttackIn !== null ? (
-                <span className="text-foreground/60">
+                <span className="text-white/65">
                   Your next attack is ready in {formatDuration(nextAttackIn)}. Stay at the gym!
                 </span>
               ) : state.session ? (
-                <span className="text-foreground/60">This session is maxed. Log a workout to earn more attacks.</span>
+                <span className="text-white/65">This session is maxed. Log a workout to earn more attacks.</span>
               ) : (
-                <span className="text-foreground/60">No attacks yet. Check in at the gym or log a workout to earn some.</span>
+                <span className="text-white/65">No attacks yet. Check in at the gym or log a workout to earn some.</span>
               )}
             </p>
             {error && (
-              <p role="alert" className="text-sm text-red-300">
+              <p role="alert" className="text-sm italic text-[#ff8a74]">
                 {error}
               </p>
             )}
@@ -207,31 +252,43 @@ export function BattleScreen({ initialState, preview }: BattleScreenProps): Reac
               type="button"
               onClick={handleSpin}
               disabled={busy || defeated || attacks <= 0}
-              className="w-full max-w-xs rounded-2xl bg-gradient-to-b from-red-500 to-red-700 px-8 py-4 text-xl font-black uppercase tracking-[0.25em] text-white shadow-[0_0_32px_rgba(239,68,68,0.4)] transition hover:scale-105 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100"
+              className="gc-btn gc-btn-ember gc-btn-lg w-full max-w-xs font-display text-xl uppercase"
             >
-              {phase === "requesting" ? "…" : phase === "spinning" ? "Rolling" : "Attack"}
+              <span className="not-italic tracking-[0.24em]">
+                {phase === "requesting" ? "…" : phase === "spinning" ? "Rolling" : "Attack"}
+              </span>
+              {!busy && !defeated && attacks > 0 ? <ButtonHint glyph="A" /> : null}
             </button>
           </div>
-        </section>
+        </Panel>
 
         <GymPanel state={state} preview={preview} onState={handleGymState} />
 
-        <div className="grid gap-5 sm:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-2">
           <DropRates maxHp={battle.maxHp} />
           <AttackLog attacks={state.attacks} />
         </div>
       </div>
+
+      <footer className="relative z-10 mt-5 border-t border-white/10 pt-3">
+        <HintBar
+          hints={[
+            { glyph: "A", label: "Attack" },
+            { glyph: "B", label: "Retreat" },
+          ]}
+        />
+      </footer>
     </main>
   );
 }
 
 function DropRates({ maxHp }: { maxHp: number }): React.JSX.Element {
   return (
-    <section className="title-card rounded-2xl px-5 py-4" aria-labelledby="odds-heading">
-      <h2 id="odds-heading" className="font-mono text-xs uppercase tracking-[0.3em] text-accent/80">
-        Drop rates
-      </h2>
-      <table className="mt-3 w-full text-sm">
+    <Panel as="section" className="px-4 py-4" aria-labelledby="odds-heading">
+      <PanelHeading>
+        <span id="odds-heading">Drop Rates</span>
+      </PanelHeading>
+      <table className="w-full border-separate border-spacing-y-[3px] text-sm">
         <thead className="sr-only">
           <tr>
             <th>Rarity</th>
@@ -242,11 +299,17 @@ function DropRates({ maxHp }: { maxHp: number }): React.JSX.Element {
         <tbody>
           {RARITIES.map((r) => {
             const range = damageRange(r.id, maxHp);
+            const look = RARITY_LOOK[r.id];
             return (
-              <tr key={r.id} className="border-t border-white/5 first:border-0">
-                <td className={`py-1.5 font-semibold ${RARITY_STYLES[r.id].text}`}>{r.label}</td>
-                <td className="py-1.5 text-right font-mono text-foreground/70">{formatOdds(r.weight)}</td>
-                <td className="py-1.5 text-right font-mono text-foreground/70">
+              <tr key={r.id}>
+                <td className="rounded-l-[3px] bg-white/[0.07] py-1.5 pl-2 pr-2">
+                  <span className={`flex items-center gap-2 font-semibold italic ${look.text}`}>
+                    <PixelSprite sheet={ITEM_SPRITES[look.gem]} scale={1.5} />
+                    {r.label}
+                  </span>
+                </td>
+                <td className="gc-num bg-black/45 px-2 py-1.5 text-right font-mono text-white/75">{formatOdds(r.weight)}</td>
+                <td className="gc-num rounded-r-[3px] bg-black/45 py-1.5 pl-1 pr-2 text-right font-mono text-white/75">
                   {range.min === range.max ? range.min : `${range.min}–${range.max}`} HP
                 </td>
               </tr>
@@ -254,33 +317,40 @@ function DropRates({ maxHp }: { maxHp: number }): React.JSX.Element {
           })}
         </tbody>
       </table>
-    </section>
+    </Panel>
   );
 }
 
 function AttackLog({ attacks }: { attacks: BattleAttack[] }): React.JSX.Element {
   return (
-    <section className="title-card rounded-2xl px-5 py-4" aria-labelledby="log-heading">
-      <h2 id="log-heading" className="font-mono text-xs uppercase tracking-[0.3em] text-accent/80">
-        Recent hits
-      </h2>
+    <Panel as="section" className="px-4 py-4" aria-labelledby="log-heading">
+      <PanelHeading>
+        <span id="log-heading">Battle Log</span>
+      </PanelHeading>
       {attacks.length === 0 ? (
-        <p className="mt-3 text-sm text-foreground/50">No hits yet this week.</p>
+        <p className="text-sm italic text-white/50">No hits yet this week.</p>
       ) : (
-        <ul className="mt-3 space-y-1.5 text-sm">
-          {attacks.map((a) => (
-            <li key={a.id} className="flex items-center justify-between gap-2">
-              <span className="truncate text-foreground/80">
-                {a.mine ? "You" : a.displayName}{" "}
-                <span className={`font-mono text-xs ${RARITY_STYLES[a.rarity].text}`}>
-                  {RARITY_BY_ID[a.rarity].label}
+        <ul className="max-h-64 space-y-[3px] overflow-y-auto text-sm">
+          {attacks.map((a) => {
+            const look = RARITY_LOOK[a.rarity];
+            return (
+              <li
+                key={a.id}
+                className="flex items-center justify-between gap-2 rounded-[3px] bg-white/[0.06] px-2 py-1"
+              >
+                <span className="flex min-w-0 items-center gap-2">
+                  <PixelSprite sheet={ITEM_SPRITES[look.gem]} scale={1} />
+                  <span className="truncate italic text-ink">{a.mine ? "You" : a.displayName}</span>
+                  <span className={`shrink-0 font-mono text-[10px] uppercase tracking-[0.18em] ${look.text}`}>
+                    {RARITY_BY_ID[a.rarity].label}
+                  </span>
                 </span>
-              </span>
-              <span className={`font-mono font-semibold ${RARITY_STYLES[a.rarity].text}`}>−{a.damage}</span>
-            </li>
-          ))}
+                <span className={`gc-num shrink-0 font-mono font-semibold ${look.text}`}>−{a.damage}</span>
+              </li>
+            );
+          })}
         </ul>
       )}
-    </section>
+    </Panel>
   );
 }

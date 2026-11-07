@@ -44,6 +44,16 @@ const easeOut = (k: number): number => 1 - Math.pow(1 - k, 3);
 
 let nextRunId = 1;
 
+// One tip per run, picked by run id so the render stays deterministic.
+const TIPS = [
+  "Check in at the gym for an attack, then earn one more every 10 minutes.",
+  "Log & Grow turns a home workout into attacks too.",
+  "A legendary hit lands once in 10,000 spins and takes half the boss's HP.",
+  "A new boss arrives every Monday. Team up to finish this one first.",
+  "Keep the battle screen open at the gym so your time keeps counting.",
+  "Your partner's hits count against the same boss.",
+] as const;
+
 export function RouteTransition(): React.JSX.Element | null {
   const router = useRouter();
   const pathname = usePathname();
@@ -188,7 +198,6 @@ export function RouteTransition(): React.JSX.Element | null {
       aria-live="polite"
       aria-busy={!leaving}
     >
-      <div className="hero-glow pointer-events-none absolute inset-0" />
       <div
         ref={stageRef}
         className="relative w-full max-w-md px-6"
@@ -205,12 +214,19 @@ export function RouteTransition(): React.JSX.Element | null {
         <div className="route-transition-bar">
           <div className="route-transition-fill" />
         </div>
-        <p className="mt-4 flex justify-between font-mono text-xs uppercase tracking-[0.35em] text-accent/80">
-          <span>
+        <p className="mt-3 flex items-baseline justify-between">
+          <span className="text-base italic text-ink">
             Loading<span className="route-transition-dots" aria-hidden="true" />
           </span>
-          <span ref={percentRef} aria-hidden="true">
+          <span ref={percentRef} aria-hidden="true" className="gc-num font-mono text-sm text-glow">
             0%
+          </span>
+        </p>
+        <p className="mt-6 flex items-start gap-2 border-t border-white/10 pt-3 text-sm italic leading-relaxed text-white/60">
+          <span aria-hidden="true" className="mt-[0.45em] h-1.5 w-1.5 shrink-0 rotate-45 bg-gold/80" />
+          <span>
+            <span className="gc-caps mr-2 not-italic text-gold/80">Tip</span>
+            {TIPS[run.id % TIPS.length]}
           </span>
         </p>
       </div>

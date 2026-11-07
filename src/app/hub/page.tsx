@@ -1,12 +1,14 @@
-import { BossPlaceholder } from "@/components/boss/BossPlaceholder";
+import { BossSprite } from "@/components/boss/BossSprite";
 import { HealthBar } from "@/components/boss/HealthBar";
 import { BattleButton } from "@/components/hub/BattleButton";
 import { LogGrowButton } from "@/components/hub/LogGrowButton";
 import { SpinBadge } from "@/components/hub/SpinBadge";
 import { PartnerBadge } from "@/components/team/PartnerBadge";
 import { TeamStrip } from "@/components/team/TeamStrip";
+import { BossBanner, HintBar, Panel } from "@/components/ui";
 import { requireOnboardedUser } from "@/lib/auth/requireOnboardedUser";
 import { loadBattleState } from "@/lib/battle/server";
+import { PREVIEW_SPINS } from "@/lib/battle/state";
 import { daysRemaining, getCurrentBoss } from "@/lib/boss/currentBoss";
 import { createClient } from "@/lib/supabase/server";
 import { getTeam, type Team } from "@/lib/team/getTeam";
@@ -41,46 +43,82 @@ export default async function HubPage(): Promise<React.JSX.Element> {
     team = loadedTeam;
   }
 
+  // Preview mode has no wallet; show the demo attacks the battle screen hands out.
+  const shownSpins = spins ?? (preview ? PREVIEW_SPINS : null);
+  const defeated = currentHp <= 0;
+
   return (
-    <main
-      className={`relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 pb-24 ${preview ? "pt-44" : "pt-24"}`}
-    >
-      <div className="hero-glow pointer-events-none absolute inset-0" />
-      {preview && (
-        <p className="absolute left-1/2 top-6 z-20 -translate-x-1/2 rounded-lg border border-accent/30 bg-card/80 px-4 py-2 font-mono text-xs text-accent">
-          Preview mode: Supabase isn&apos;t configured.
-        </p>
-      )}
-      <div className={`absolute right-4 z-20 sm:right-6 ${preview ? "top-24" : "top-6"}`}>
-        <PartnerBadge partner={team.partner} />
+    <main className="relative mx-auto flex min-h-[100dvh] w-full max-w-5xl flex-col px-4 pb-5 pt-4 sm:px-8 sm:pt-6">
+      <header className="relative z-20 flex items-start justify-between gap-3">
+        <div className="flex min-w-0 flex-col gap-2 pt-1">
+          <p className="font-display text-sm font-bold tracking-[0.3em] text-white/80 sm:text-base">GymCats</p>
+          {preview && (
+            <p className="w-fit rounded-[3px] border border-glow/30 bg-black/55 px-2.5 py-1 font-mono text-[11px] tracking-[0.06em] text-glow/90">
+              Preview mode: Supabase isn&apos;t configured.
+            </p>
+          )}
+        </div>
+        <div className="shrink-0">
+          <PartnerBadge partner={team.partner} />
+        </div>
+      </header>
+
+      <section
+        className="relative z-10 mx-auto mt-5 flex w-full max-w-xl flex-col items-center gap-3 sm:mt-6"
+        aria-label="This week's boss"
+      >
+        <BossBanner
+          epithet={
+            <>
+              This week&apos;s boss · {days} {days === 1 ? "day" : "days"} left
+            </>
+          }
+          name={boss.name}
+        />
+        <HealthBar current={currentHp} max={maxHp} label="Boss HP" className="gc-rise mt-1" />
+      </section>
+
+      <div className="relative z-0 flex flex-1 items-center justify-center py-4 sm:py-2">
+        <div className="gc-rise" style={{ "--d": "150ms" } as React.CSSProperties}>
+          <BossSprite bossId={boss.id} name={boss.name} scale={5} defeated={defeated} className="sm:hidden" />
+          <BossSprite bossId={boss.id} name={boss.name} scale={6} defeated={defeated} className="hidden sm:flex" />
+        </div>
       </div>
-      <section className="relative z-10 flex w-full max-w-lg flex-col items-center gap-6 text-center">
-        <p className="font-mono text-xs uppercase tracking-[0.35em] text-accent/80">
-          This week&apos;s boss · {days} {days === 1 ? "day" : "days"} left
-        </p>
-        <BossPlaceholder />
-        <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-          {boss.name}
-        </h1>
-        <HealthBar current={currentHp} max={maxHp} label="Boss HP" />
-        <TeamStrip me={team.me} partner={team.partner} />
-        <div className="mt-4 flex w-full max-w-sm items-stretch gap-3">
+
+      <section
+        className="gc-rise relative z-10 grid w-full gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] sm:items-end sm:gap-6"
+        style={{ "--d": "280ms" } as React.CSSProperties}
+      >
+        <Panel className="flex items-center justify-between gap-4 px-4 py-3">
+          <TeamStrip me={team.me} partner={team.partner} />
+          {shownSpins !== null && (
+            <div className="flex flex-col items-end gap-1.5 text-right">
+              <span className="gc-caps">Attacks</span>
+              <SpinBadge spins={shownSpins} />
+              <p className="max-w-[11rem] text-xs italic leading-snug text-white/60">
+                {shownSpins > 0
+                  ? "Ready to attack"
+                  : !defeated
+                    ? "Check in at the gym or log a workout to earn attacks"
+                    : "Boss defeated!"}
+              </p>
+            </div>
+          )}
+        </Panel>
+        <div className="flex w-full items-stretch gap-3">
           <BattleButton />
           <LogGrowButton />
         </div>
-        {spins !== null && (
-          <div className="flex flex-col items-center gap-2">
-            <SpinBadge spins={spins} />
-            <p className="font-mono text-xs uppercase tracking-widest text-foreground/60">
-              {spins > 0
-                ? "Ready to attack"
-                : currentHp > 0
-                  ? "Check in at the gym or log a workout to earn attacks"
-                  : "Boss defeated!"}
-            </p>
-          </div>
-        )}
       </section>
+
+      <footer className="relative z-10 mt-4 border-t border-white/10 pt-3">
+        <HintBar
+          hints={[
+            { glyph: "A", label: "Battle" },
+            { glyph: "X", label: "Log & Grow" },
+          ]}
+        />
+      </footer>
     </main>
   );
 }

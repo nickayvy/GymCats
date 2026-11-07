@@ -4,6 +4,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { checkIn, checkOut, heartbeat, type LocationFix } from "@/app/battle/actions";
 import { GymPicker } from "@/components/battle/GymPicker";
 import { buttonClass, getFix, ghostButtonClass, useNow } from "@/components/battle/shared";
+import { ITEM_SPRITES, PixelSprite } from "@/components/sprites";
+import { Meter, Panel } from "@/components/ui";
 import {
   HEARTBEAT_INTERVAL_MS,
   MAX_CREDITED_GAP_MINUTES,
@@ -158,25 +160,34 @@ export function GymPanel({ state, preview, onState }: GymPanelProps): React.JSX.
   const partner = state.partner;
 
   return (
-    <section className="title-card w-full rounded-2xl px-5 py-5" aria-labelledby="gym-heading">
-      <div className="flex items-center justify-between gap-3">
-        <h2 id="gym-heading" className="font-mono text-xs uppercase tracking-[0.3em] text-accent/80">
-          Gym check-in
+    <Panel as="section" className="w-full px-4 py-4 sm:px-5" aria-labelledby="gym-heading">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+        <h2 id="gym-heading" className="gc-title flex items-center gap-2 text-lg">
+          <PixelSprite sheet={ITEM_SPRITES["map-pin"]} scale={1.5} />
+          Gym Check-in
         </h2>
         {partner && (
-          <p className="text-xs text-foreground/60">
+          <p className="text-xs italic">
             {partner.atGym ? (
-              <span className="text-green-400">● {partner.displayName} is at the gym</span>
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-moss/40 bg-black/45 px-2.5 py-1 text-moss">
+                <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-moss shadow-[0_0_8px_#9bd36a]" />
+                {partner.displayName} is at the gym
+              </span>
             ) : (
-              <span>○ {partner.displayName} isn&apos;t at the gym</span>
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-black/45 px-2.5 py-1 text-white/60">
+                <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full border border-white/50" />
+                {partner.displayName} isn&apos;t at the gym
+              </span>
             )}
           </p>
         )}
       </div>
+      <span aria-hidden="true" className="-mt-1 mb-3 block h-px w-full bg-gradient-to-r from-white/40 via-white/15 to-transparent" />
 
       {preview ? (
-        <p className="mt-3 text-sm text-foreground/60">
-          Gym check-ins need Supabase. Preview mode gives you {PREVIEW_SPINS} demo attacks and saves nothing.
+        <p className="text-sm italic text-white/65">
+          Gym check-ins need Supabase. Preview mode gives you <span className="gc-gold">{PREVIEW_SPINS} demo attacks</span>{" "}
+          and saves nothing.
         </p>
       ) : session === null && (state.gym === null || picking) ? (
         <GymPicker
@@ -185,13 +196,22 @@ export function GymPanel({ state, preview, onState }: GymPanelProps): React.JSX.
           onCancel={state.gym === null ? undefined : () => setPicking(false)}
         />
       ) : session === null ? (
-        <div className="mt-3 space-y-3">
+        <div className="space-y-3">
+          <div className="gc-row">
+            <span className="gap-2">
+              <PixelSprite sheet={ITEM_SPRITES["map-pin"]} scale={1} />
+              Your gym
+            </span>
+            <span className="px-3">
+              <span className="min-w-0 truncate font-semibold italic text-ink">{state.gym?.name}</span>
+            </span>
+          </div>
           <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-sm text-foreground/70">
-              At <span className="text-foreground">{state.gym?.name}</span>? Check in for an attack, then earn one more
-              every {MINUTES_PER_SPIN} minutes.
+            <p className="text-sm italic text-white/70">
+              At <span className="gc-key">{state.gym?.name}</span>? Check in for an attack, then earn one more every{" "}
+              {MINUTES_PER_SPIN} minutes.
             </p>
-            <button type="button" onClick={handleCheckIn} disabled={busy} className={buttonClass}>
+            <button type="button" onClick={handleCheckIn} disabled={busy} className={`${buttonClass} shrink-0`}>
               {busy ? "Locating…" : "Check in"}
             </button>
           </div>
@@ -203,7 +223,7 @@ export function GymPanel({ state, preview, onState }: GymPanelProps): React.JSX.
               setPicking(true);
             }}
             disabled={busy}
-            className="text-sm text-accent underline-offset-4 hover:underline disabled:opacity-50"
+            className="text-sm italic text-glow underline-offset-4 hover:underline disabled:opacity-50"
           >
             At a different gym? Switch gyms
           </button>
@@ -222,16 +242,16 @@ export function GymPanel({ state, preview, onState }: GymPanelProps): React.JSX.
       )}
 
       {notice && (
-        <p role="status" className="mt-3 text-sm text-accent-glow">
+        <p role="status" className="mt-3 text-sm italic text-glow">
           {notice}
         </p>
       )}
       {error && (
-        <p role="alert" className="mt-3 text-sm text-red-300">
+        <p role="alert" className="mt-3 text-sm italic text-[#ff8a74]">
           {error}
         </p>
       )}
-    </section>
+    </Panel>
   );
 }
 
@@ -254,37 +274,52 @@ function SessionView({
   const earned = progress.attacksFromTime + (session.bonusSpin ? 1 : 0);
 
   return (
-    <div className="mt-3 space-y-3">
+    <div className="space-y-3">
       <div className="flex items-end justify-between gap-3">
-        <div>
-          <p className="text-sm text-foreground/70">
-            <span className="text-green-400">●</span> At {gymName}
+        <div className="min-w-0">
+          <p className="flex items-center gap-1.5 text-sm italic text-white/70">
+            <span aria-hidden="true" className="h-2 w-2 shrink-0 rounded-full bg-moss shadow-[0_0_8px_#9bd36a]" />
+            <span className="truncate">At {gymName}</span>
           </p>
-          <p className="font-mono text-3xl font-bold tabular-nums">{formatDuration(elapsed)}</p>
+          <p className="gc-num font-mono text-4xl font-bold text-ink">{formatDuration(elapsed)}</p>
         </div>
-        <button type="button" onClick={onCheckOut} disabled={busy} className={ghostButtonClass}>
+        <button type="button" onClick={onCheckOut} disabled={busy} className={`${ghostButtonClass} shrink-0`}>
           {busy ? "Checking out…" : "Check out"}
         </button>
       </div>
-      <div>
-        <div className="flex justify-between font-mono text-[11px] uppercase tracking-widest text-foreground/60">
-          <span>
-            {Math.floor(progress.estimatedSeconds / 60)} min · {earned} {earned === 1 ? "attack" : "attacks"} earned
+      <div className="space-y-[3px]">
+        <div className="gc-row">
+          <span className="gap-2">
+            <PixelSprite sheet={ITEM_SPRITES.claw} scale={1} />
+            Earned
           </span>
-          <span className={progress.secondsUntilNext === null ? "" : "text-accent-glow"}>
+          <span className="gc-num px-3 font-mono text-sm text-white/80">
+            {Math.floor(progress.estimatedSeconds / 60)} min ·{" "}
+            <span className="ml-1 font-semibold text-gold">
+              {earned} {earned === 1 ? "attack" : "attacks"}
+            </span>
+          </span>
+        </div>
+        <div className="gc-row">
+          <span className="gap-2">
+            <PixelSprite sheet={ITEM_SPRITES.hourglass} scale={1} />
+            Next attack
+          </span>
+          <span className={`gc-num px-3 font-mono text-sm ${progress.secondsUntilNext === null ? "text-white/70" : "text-glow"}`}>
             {progress.secondsUntilNext === null
               ? "Session maxed"
-              : `Next attack in ${formatDuration(progress.secondsUntilNext)}`}
+              : `in ${formatDuration(progress.secondsUntilNext)}`}
           </span>
         </div>
-        <div className="mt-1 h-2 overflow-hidden rounded-full bg-white/10">
-          <div
-            className="h-full rounded-full bg-accent transition-[width] duration-700"
-            style={{ width: `${progress.fraction * 100}%` }}
-          />
-        </div>
       </div>
-      <p className="text-xs text-foreground/50">
+      <Meter
+        value={Math.round(progress.fraction * 1000)}
+        max={1000}
+        label="Progress to the next attack"
+        tone="glow"
+        height={10}
+      />
+      <p className="text-xs italic leading-relaxed text-white/50">
         Keep this screen open and we&apos;ll check your location every minute. Phone locked? Open GymCats at least
         every {MAX_CREDITED_GAP_MINUTES} minutes and before you leave, so your time counts.
       </p>

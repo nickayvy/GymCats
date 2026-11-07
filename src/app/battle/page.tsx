@@ -3,6 +3,7 @@ import { requireOnboardedUser } from "@/lib/auth/requireOnboardedUser";
 import { loadBattleState } from "@/lib/battle/server";
 import { previewBattleState } from "@/lib/battle/state";
 import { createClient } from "@/lib/supabase/server";
+import "@/app/styles/battle.css";
 
 export const metadata = { title: "Battle · GymCats" };
 

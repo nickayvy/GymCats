@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { checkInAtGym, findNearbyGyms } from "@/app/battle/actions";
 import { buttonClass, getFix, ghostButtonClass } from "@/components/battle/shared";
+import { ITEM_SPRITES, PixelSprite } from "@/components/sprites";
 import type { BattleState, NearbyGym } from "@/lib/battle/state";
 
 type Search = { kind: "idle" } | { kind: "results"; gyms: NearbyGym[] } | { kind: "manual" };
@@ -10,14 +11,6 @@ type Search = { kind: "idle" } | { kind: "results"; gyms: NearbyGym[] } | { kind
 function formatDistance(meters: number): string {
   const miles = meters / 1609.34;
   return miles < 0.1 ? `${Math.round(meters * 3.281)} ft` : `${miles.toFixed(1)} mi`;
-}
-
-function DumbbellIcon(): React.JSX.Element {
-  return (
-    <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden="true">
-      <path d="M6.5 6.5v11M17.5 6.5v11M3.5 9v6M20.5 9v6M6.5 12h11" strokeLinecap="round" />
-    </svg>
-  );
 }
 
 export interface GymPickerProps {
@@ -90,9 +83,9 @@ export function GymPicker({ currentGymName, onCheckedIn, onCancel }: GymPickerPr
   }
 
   return (
-    <div className="mt-3 space-y-3">
+    <div className="space-y-3">
       <div className="flex items-start justify-between gap-3">
-        <p className="text-sm text-foreground/70">
+        <p className="text-sm italic text-white/70">
           {search.kind === "results" && search.gyms.length > 0
             ? "Which gym are you at?"
             : currentGymName
@@ -104,9 +97,12 @@ export function GymPicker({ currentGymName, onCheckedIn, onCancel }: GymPickerPr
             type="button"
             onClick={onCancel}
             disabled={busy !== null}
-            className="shrink-0 font-mono text-xs uppercase tracking-widest text-foreground/60 hover:text-accent disabled:opacity-50"
+            className="gc-btn gc-btn-ghost gc-btn-sm shrink-0 gap-1.5 px-2"
           >
             Back
+            <span aria-hidden="true" className="gc-hint">
+              B
+            </span>
           </button>
         )}
       </div>
@@ -126,7 +122,7 @@ export function GymPicker({ currentGymName, onCheckedIn, onCancel }: GymPickerPr
             maxLength={100}
             placeholder="Gym name (optional)"
             aria-label="Search gyms by name"
-            className="flex-1 rounded-xl border border-white/15 bg-black/30 px-4 py-3 text-sm outline-none focus:border-accent"
+            className="gc-input flex-1 text-sm"
           />
           <button type="submit" disabled={busy !== null} className={search.kind === "idle" ? buttonClass : ghostButtonClass}>
             {busy === "search" ? "Searching…" : search.kind === "idle" ? "Find gyms near me" : "Search again"}
@@ -135,7 +131,7 @@ export function GymPicker({ currentGymName, onCheckedIn, onCancel }: GymPickerPr
       )}
 
       {search.kind === "results" && search.gyms.length === 0 && (
-        <p className="text-sm text-foreground/70">
+        <p className="text-sm italic text-white/70">
           {query.trim()
             ? "No gyms by that name within a mile of you. Try another name, or clear it to see every gym nearby."
             : "No gyms within a mile of you. Try again once you're closer to yours."}
@@ -144,7 +140,7 @@ export function GymPicker({ currentGymName, onCheckedIn, onCancel }: GymPickerPr
 
       {search.kind === "results" && search.gyms.length > 0 && (
         <>
-          <ul className="max-h-72 space-y-2 overflow-y-auto pr-1" aria-label="Nearby gyms">
+          <ul className="max-h-72 space-y-[3px] overflow-y-auto pr-1" aria-label="Nearby gyms">
             {search.gyms.map((gym) => {
               const active = selected?.placeId === gym.placeId;
               return (
@@ -153,24 +149,24 @@ export function GymPicker({ currentGymName, onCheckedIn, onCancel }: GymPickerPr
                     type="button"
                     onClick={() => handlePick(gym)}
                     aria-pressed={active}
-                    className={`flex w-full items-center gap-3 rounded-xl border px-3 py-2.5 text-left transition ${
+                    className={`flex w-full items-center gap-3 rounded-[3px] border px-2 py-2 text-left transition ${
                       active
-                        ? "border-accent bg-accent/10"
-                        : "border-white/10 bg-black/20 hover:border-white/25"
+                        ? "border-glow bg-[rgba(22,64,66,0.75)] shadow-[0_0_14px_rgba(116,230,226,0.35)]"
+                        : "border-transparent bg-white/[0.06] hover:border-white/25 hover:bg-white/[0.1]"
                     }`}
                   >
                     <span
-                      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${
-                        active ? "bg-accent text-background" : "bg-white/10 text-accent"
+                      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-[2px] border ${
+                        active ? "border-glow/70 bg-black/40" : "border-white/10 bg-black/50"
                       }`}
                     >
-                      <DumbbellIcon />
+                      <PixelSprite sheet={ITEM_SPRITES["map-pin"]} scale={1.5} />
                     </span>
                     <span className="min-w-0 flex-1">
-                      <span className="block truncate text-sm font-semibold">{gym.name}</span>
-                      {gym.address && <span className="block truncate text-xs text-foreground/50">{gym.address}</span>}
+                      <span className="block truncate text-sm font-semibold italic text-ink">{gym.name}</span>
+                      {gym.address && <span className="block truncate text-xs text-white/50">{gym.address}</span>}
                     </span>
-                    <span className="shrink-0 font-mono text-xs text-foreground/60">{formatDistance(gym.distanceM)}</span>
+                    <span className="gc-num shrink-0 font-mono text-xs text-white/65">{formatDistance(gym.distanceM)}</span>
                   </button>
                 </li>
               );
@@ -180,7 +176,7 @@ export function GymPicker({ currentGymName, onCheckedIn, onCancel }: GymPickerPr
       )}
 
       {search.kind === "manual" && (
-        <p className="text-sm text-foreground/70">
+        <p className="text-sm italic text-white/70">
           Gym search isn&apos;t set up, so name your gym and we&apos;ll use where you&apos;re standing.
         </p>
       )}
@@ -194,7 +190,7 @@ export function GymPicker({ currentGymName, onCheckedIn, onCancel }: GymPickerPr
             maxLength={60}
             placeholder="e.g. 24 Hour Fitness Downtown"
             aria-label="Gym name"
-            className="flex-1 rounded-xl border border-white/15 bg-black/30 px-4 py-3 text-sm outline-none focus:border-accent"
+            className="gc-input flex-1 text-sm"
           />
           <button type="button" onClick={handleCheckIn} disabled={busy !== null} className={buttonClass}>
             {busy === "checkin" ? "Checking in…" : "Check in here"}
@@ -209,7 +205,7 @@ export function GymPicker({ currentGymName, onCheckedIn, onCancel }: GymPickerPr
       )}
 
       {error && (
-        <p role="alert" className="text-sm text-red-300">
+        <p role="alert" className="text-sm italic text-[#ff8a74]">
           {error}
         </p>
       )}
