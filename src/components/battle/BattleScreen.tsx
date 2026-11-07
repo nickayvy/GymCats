@@ -125,7 +125,7 @@ export function BattleScreen({ initialState, preview }: BattleScreenProps): Reac
     <main className="relative mx-auto flex min-h-[100dvh] w-full max-w-3xl flex-col px-4 pb-6 pt-3 sm:px-6">
       <div className="battle-cover" aria-hidden="true" />
       <header className="relative z-10 flex items-center justify-between gap-3">
-        <Link href="/hub" className="gc-btn gc-btn-ghost gc-btn-sm -ml-2 gap-2 px-2.5">
+        <Link href="/hub" className="gc-btn gc-btn-sm">
           Retreat
         </Link>
         <p className="gc-caps text-[#ff8a74]/90">Boss battle</p>

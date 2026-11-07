@@ -1,6 +1,6 @@
 // Battle rules shared by the UI. The server enforces the same numbers in
 // supabase/migrations/20261107000000_boss_battles.sql (the gym radius is
-// overridden in 20261108000000_gym_places.sql, and roll_spin() was last
+// overridden in 20261114000000_gym_radius_150m.sql, and roll_spin() was last
 // replaced in 20261113000000_common_min_damage.sql); change both together.
 
 export type Rarity = "common" | "uncommon" | "rare" | "legendary";
@@ -58,8 +58,9 @@ export const RARITY_STYLES: Record<Rarity, { text: string; border: string; glow:
 export const CHECK_IN_BONUS_SPINS = 1;
 /** One more spin for every 10 verified minutes at the gym. */
 export const MINUTES_PER_SPIN = 10;
-/** How close (meters) a fix must be to your gym (1 mile), before accuracy slack. */
-export const GYM_RADIUS_M = 1609;
+/** How close (meters) a fix must be to your gym, before accuracy slack.
+ *  Must match assert_at_gym() in supabase/migrations/20261114000000_gym_radius_150m.sql. */
+export const GYM_RADIUS_M = 150;
 /** How often the battle screen re-checks your location during a session. */
 export const HEARTBEAT_INTERVAL_MS = 60_000;
 /** The longest gap between location checks that still counts in full. */

@@ -130,8 +130,8 @@ export function GymPicker({ currentGymName, onCheckedIn, onCancel }: GymPickerPr
       {search.kind === "results" && search.gyms.length === 0 && (
         <p className="text-sm italic text-white/70">
           {query.trim()
-            ? "No gyms by that name within a mile of you. Try another name, or clear it to see every gym nearby."
-            : "No gyms within a mile of you. Try again once you're closer to yours."}
+            ? "No gyms by that name within 150 m of you. Try another name, or clear it to see every gym nearby."
+            : "No gyms within 150 m of you. Try again once you're at your gym."}
         </p>
       )}
 

@@ -128,7 +128,7 @@ export default async function PartnerPage(): Promise<React.JSX.Element> {
   return (
     <main className="relative flex min-h-dvh flex-col items-center overflow-x-hidden px-4 pb-14 pt-4 sm:pt-6">
       <header className="relative z-10 flex w-full max-w-2xl items-center justify-between">
-        <Link href="/hub" className="gc-btn gc-btn-ghost gc-btn-sm -ml-2">
+        <Link href="/hub" className="gc-btn gc-btn-sm">
           Hub
         </Link>
         <p className="gc-caps">Your team</p>

@@ -108,7 +108,7 @@ export function WorkoutLogger({
     <main className="relative min-h-screen overflow-x-clip px-4 py-6 sm:px-6 sm:py-10">
       <div className="relative z-10 mx-auto flex w-full max-w-2xl flex-col gap-6">
         <header className="flex items-center justify-between gap-3">
-          <Link href="/hub" className="gc-btn gc-btn-ghost gc-btn-sm -ml-2">
+          <Link href="/hub" className="gc-btn gc-btn-sm">
             Hub
           </Link>
           <SpinBadge spins={result ? result.spinsBalance : spins} />

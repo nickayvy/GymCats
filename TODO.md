@@ -25,7 +25,7 @@ Also decide what happens to players outside SoCal under option A: block them, or
 
 - **Coordinates:** "Customer may temporarily cache latitude and longitude values from the Places API for up to 30 consecutive calendar days." `checkInAtGym` stores the gym's Google coordinates in `user_gyms.lat/lng` indefinitely.
 - **Names and addresses:** the general terms ban saving "business names, addresses". `GymPicker` prefills the gym name from Google and `user_gyms.name` stores it.
-- **Distance checks:** the general terms ban using "latitude/longitude values from the Places API as an input for point-in-polygon analysis". The 1-mile check against Google coordinates (in `checkInAtGym` and on every check-in) is close to that. It's a grey area, not a clear breach.
+- **Distance checks:** the general terms ban using "latitude/longitude values from the Places API as an input for point-in-polygon analysis". The radius check against Google coordinates (150 m since 20261114000000_gym_radius_150m.sql) (in `checkInAtGym` and on every check-in) is close to that. It's a grey area, not a clear breach.
 - **Attribution:** results shown without a Google Map must carry Google's attribution. `GymPicker` shows none. The exact styling rules are at https://developers.google.com/maps/documentation/places/web-service/policies (this environment couldn't reach that page).
 - **Place IDs are fine:** the terms allow caching `place_id` indefinitely.
 
@@ -37,7 +37,7 @@ Suggested fix (simplest fully compliant):
 - Verification is either the item 1 allowlist or "the place ID appears in a Google Nearby Search around the player's fix", so Google does the spatial filtering.
 - Add a "Google Maps" attribution under the picker list.
 
-If picking a gym from up to a mile away must stay, the alternative is:
+If picking a gym from a distance must stay, the alternative is:
 
 - Keep Google's coordinates with a `fetched_at`.
 - Refresh them by place ID before they're 30 days old, and have a scheduled job delete them once they're older than 30 days.

@@ -76,7 +76,7 @@ export async function findNearbyGyms(
 
 /**
  * Saves the gym the player picked. With a Places key, it must be a gym Google
- * lists within a mile of the player's fix, so you can't save your couch.
+ * lists within 150 m of the player's fix, so you can't save your couch.
  * Returns an error message, or null on success.
  */
 async function saveGym(supabase: Client, input: z.infer<typeof gymSchema>): Promise<string | null> {
@@ -95,7 +95,7 @@ async function saveGym(supabase: Client, input: z.infer<typeof gymSchema>): Prom
   } else if (lookup.status === "ok") {
     const { gym } = lookup;
     if (distanceMeters(fix.lat, fix.lng, gym.lat, gym.lng) > searchRadius(fix.accuracy)) {
-      return "That gym isn't within a mile of you. Pick one from the list.";
+      return "That gym isn't within 150 m of you. Pick one from the list.";
     }
     center = { lat: gym.lat, lng: gym.lng, placeId: gym.placeId };
   }

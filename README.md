@@ -43,12 +43,13 @@ The migrations:
 | `20261106000000_onboarding.sql` | `profiles`, `couples`, `couple_members` with row-level security, `create_couple` / `join_couple`, and a private `avatars` storage bucket |
 | `20261106230000_drop_free_time_requirement.sql` | Makes `profiles.weekly_free_minutes` optional |
 | `20261107000000_boss_battles.sql` | `bosses`, `user_gyms`, `gym_sessions`, `boss_battles`, `boss_attacks` and the battle functions (`get_battle_state`, `set_my_gym`, `gym_check_in`, `gym_heartbeat`, `gym_check_out`, `roll_spin`) |
-| `20261108000000_gym_places.sql` | `user_gyms.place_id` and the 1-mile check-in radius |
+| `20261108000000_gym_places.sql` | `user_gyms.place_id` and a 1-mile check-in radius (narrowed later) |
 | `20261109000000_partner_gyms.sql` | `partner_gyms`: Google place IDs of 104 24 Hour Fitness clubs in SoCal |
 | `20261110000000_workout_log.sql` | `workouts`, `workout_exercises`, `spin_wallets` and `log_workout` |
 | `20261111000000_partner_invites.sql` | `get_invite_preview`, `leave_couple`, and partners reading each other's avatar |
 | `20261112000000_unified_spins.sql` | Lets Log & Grow spins be spent on the boss (`boss_attacks.source`, new `roll_spin`) |
 | `20261113000000_free_gym_switching.sql` | Drops the once-a-week gym change limit from `set_my_gym`, so players can check in at whichever gym they're at |
+| `20261114000000_gym_radius_150m.sql` | Narrows the check-in radius in `assert_at_gym` from 1 mile to 150 m |
 
 Clients can read these tables (their own rows, or their partner's) but never write them directly. Every write goes through the functions above, so spins, damage and pairings can't be forged.
 
@@ -80,7 +81,7 @@ You and your partner share one boss each week (Monday to Monday, UTC). You damag
 
 - **Earning attacks:** there are two ways, and the hub shows one total.
   - **Log & Grow:** beat your last session of an exercise and earn an attack (see below). These sit in a wallet and carry over between weeks.
-  - **Gym check-ins:** your first check-in starts by picking the gym you're at from the gyms Google Places lists within a mile of you. Later check-ins go straight to that gym, with a "Switch gyms" option to pick another one any time you're not mid-session. Without a Places key, you name it and the app uses where you're standing. Checking in within 1 mile of the gym gives you 1 attack, at most once every 6 hours (per player, not per gym). You then get 1 more attack for every 10 minutes you stay; the battle screen counts down to the next one. While the battle screen is open it checks your location every minute. Browsers pause location in the background, so if your phone is locked, the time since the last check counts (up to 30 minutes) when you open the app again, as long as you're still at the gym. A location check away from the gym ends the session. Sessions stop earning after 3 hours. Gym attacks expire at the end of the week.
+  - **Gym check-ins:** your first check-in starts by picking the gym you're at from the gyms Google Places lists within 150 m of you. Later check-ins go straight to that gym, with a "Switch gyms" option to pick another one any time you're not mid-session. Without a Places key, you name it and the app uses where you're standing. Checking in within 150 m of the gym (plus up to 100 m of GPS accuracy) gives you 1 attack, at most once every 6 hours (per player, not per gym). You then get 1 more attack for every 10 minutes you stay; the battle screen counts down to the next one. While the battle screen is open it checks your location every minute. Browsers pause location in the background, so if your phone is locked, the time since the last check counts (up to 30 minutes) when you open the app again, as long as you're still at the gym. A location check away from the gym ends the session. Sessions stop earning after 3 hours. Gym attacks expire at the end of the week.
 - **Attacking:** each attack rolls on a case-opening reel. The server picks the result; the reel only animates it. This week's gym spins are spent first, then the wallet.
 
 | Rarity | Colour | Odds | Damage (share of the boss's max HP) |
@@ -113,7 +114,7 @@ Without a gateway key, the assistant shows a "not configured" message instead of
 
 ## Gym search (Google Places)
 
-The battle screen lets players pick their gym from nearby gyms using the [Places API (New)](https://developers.google.com/maps/documentation/places/web-service/nearby-search) Nearby Search, limited to the `gym` and `fitness_center` types. The server repeats the search when the player saves, so the gym has to be a real gym within a mile of them.
+The battle screen lets players pick their gym from nearby gyms using the [Places API (New)](https://developers.google.com/maps/documentation/places/web-service/nearby-search) Nearby Search, limited to the `gym` and `fitness_center` types. The server repeats the search when the player saves, so the gym has to be a real gym within 150 m of them.
 
 - `GOOGLE_MAPS_API_KEY`: server-side only, never `NEXT_PUBLIC_`. In Google Cloud, enable **Places API (New)** and restrict the key to it.
 - Each gym search or save is one Nearby Search Pro call (5,000 free a month, then about $32 per 1,000). Check-ins don't call Google.
