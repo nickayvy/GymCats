@@ -1,6 +1,8 @@
 import { BossPlaceholder } from "@/components/boss/BossPlaceholder";
 import { HealthBar } from "@/components/boss/HealthBar";
 import { BattleButton } from "@/components/hub/BattleButton";
+import { LogGrowButton } from "@/components/hub/LogGrowButton";
+import { SpinBadge } from "@/components/hub/SpinBadge";
 import { requireOnboardedUser } from "@/lib/auth/requireOnboardedUser";
 import { loadBattleState } from "@/lib/battle/server";
 import { daysRemaining, getCurrentBoss } from "@/lib/boss/currentBoss";
@@ -14,6 +16,8 @@ export default async function HubPage(): Promise<React.JSX.Element> {
   const days = daysRemaining(boss);
 
   // Real HP and spins for signed-in players; full HP in preview mode.
+  // Spins come from one place (get_battle_state): gym check-ins this week
+  // plus the workout-log wallet.
   let currentHp = boss.currentHp;
   let maxHp = boss.maxHp;
   let spins: number | null = null;
@@ -43,16 +47,22 @@ export default async function HubPage(): Promise<React.JSX.Element> {
           {boss.name}
         </h1>
         <HealthBar current={currentHp} max={maxHp} label="Boss HP" />
+        <div className="mt-4 flex w-full max-w-sm items-stretch gap-3">
+          <BattleButton />
+          <LogGrowButton />
+        </div>
         {spins !== null && (
-          <p className="font-mono text-xs uppercase tracking-widest text-foreground/60">
-            {spins > 0
-              ? `${spins} ${spins === 1 ? "spin" : "spins"} ready`
-              : currentHp > 0
-                ? "Check in at the gym to earn spins"
-                : "Boss defeated!"}
-          </p>
+          <div className="flex flex-col items-center gap-2">
+            <SpinBadge spins={spins} />
+            <p className="font-mono text-xs uppercase tracking-widest text-foreground/60">
+              {spins > 0
+                ? "Ready to spin"
+                : currentHp > 0
+                  ? "Check in at the gym or log a workout to earn spins"
+                  : "Boss defeated!"}
+            </p>
+          </div>
         )}
-        <BattleButton />
       </section>
     </main>
   );

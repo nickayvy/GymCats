@@ -89,7 +89,7 @@ Revisit after real use:
 
 - Boss HP per partner count (solo players face the same 1000 HP).
 - Spin interval.
-- Whether unspent spins should carry over between weeks.
+- Whether unspent gym spins should carry over between weeks. (Log & Grow spins already do: they live in `spin_wallets` and `roll_spin` spends them after this week's gym spins. See `supabase/migrations/20261112000000_unified_spins.sql`.)
 
 ## 6. Capacitor (native wrapper) evaluation
 
@@ -111,8 +111,7 @@ Costs:
 ## 7. Smaller known issues
 
 - **Solo players lose the week's progress when they pair up.** `boss_battles.party_id` is the user ID for solo players and the couple ID once paired, so pairing mid-week starts a new battle. Decide whether to migrate the solo battle (`my_party_id()`, `ensure_current_battle()` in the boss battles migration).
-- **Checking in while away from the gym looks like a success.** If a session is already active, `gym_check_in` falls through to `gym_heartbeat`, which ends the session on an away fix and returns success. The UI then shows no session and no error. It should raise `not_at_gym` instead.
 - **The reel doesn't re-centre on resize.** `SpinReel` measures the viewport width but doesn't recompute its offset if the width changes mid-spin.
 - **No live partner updates.** Partner hits only appear after a reload or the next action. Consider Supabase Realtime on `boss_attacks`.
-- **Rules are duplicated between TS and SQL.** Gym radius, odds and damage bounds are in `rules.ts` and the migrations. Add a check (for example, a test that reads both) so they can't drift.
+- **Rules are duplicated between TS and SQL.** Gym radius, odds and damage bounds are in `rules.ts` and the migrations (`roll_spin` now lives in the unified spins migration). Add a check (for example, a test that reads both) so they can't drift.
 - **No automated tests.** The repo has no test runner. The SQL was tested with ad-hoc scripts on a local Postgres with stubbed `auth.uid()` and `storage`. Formalise that, for example with pgTAP or a Node script run in CI, and add unit tests for `rules.ts`.

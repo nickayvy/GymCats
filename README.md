@@ -32,16 +32,28 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
 
 ## Database setup
 
-Run `supabase/migrations/20261106000000_onboarding.sql` in the Supabase SQL editor, or apply it with `supabase db push`. It creates the `profiles`, `couples` and `couple_members` tables with row-level security, the pairing functions (`create_couple`, `join_couple`) and a private `avatars` storage bucket.
+Run every file in `supabase/migrations/` in order in the Supabase SQL editor, or apply them with `supabase db push`:
 
-Then run `supabase/migrations/20261107000000_boss_battles.sql`, `supabase/migrations/20261108000000_gym_places.sql` and `supabase/migrations/20261109000000_partner_gyms.sql`, in that order. It adds the boss battle tables (`bosses`, `user_gyms`, `gym_sessions`, `boss_battles`, `boss_attacks`) and the functions the battle screen calls (`get_battle_state`, `set_my_gym`, `gym_check_in`, `gym_heartbeat`, `gym_check_out`, `roll_spin`). Clients can read these tables but never write them directly. Every write goes through those functions, so spins and damage can't be forged.
+| Migration | What it adds |
+|---|---|
+| `20261106000000_onboarding.sql` | `profiles`, `couples`, `couple_members` with row-level security, `create_couple` / `join_couple`, and a private `avatars` storage bucket |
+| `20261106230000_drop_free_time_requirement.sql` | Makes `profiles.weekly_free_minutes` optional |
+| `20261107000000_boss_battles.sql` | `bosses`, `user_gyms`, `gym_sessions`, `boss_battles`, `boss_attacks` and the battle functions (`get_battle_state`, `set_my_gym`, `gym_check_in`, `gym_heartbeat`, `gym_check_out`, `roll_spin`) |
+| `20261108000000_gym_places.sql` | `user_gyms.place_id` and the 1-mile check-in radius |
+| `20261109000000_partner_gyms.sql` | `partner_gyms`: Google place IDs of 104 24 Hour Fitness clubs in SoCal |
+| `20261110000000_workout_log.sql` | `workouts`, `workout_exercises`, `spin_wallets` and `log_workout` |
+| `20261112000000_unified_spins.sql` | Lets Log & Grow spins be spent on the boss (`boss_attacks.source`, new `roll_spin`) |
+
+Clients can read these tables (their own rows, or their partner's) but never write them directly. Every write goes through the functions above, so spins and damage can't be forged.
 
 ## Boss battles
 
 You and your partner share one boss each week (Monday to Monday, UTC). You damage it by spending spins:
 
-- **Earning spins:** pick your gym from the gyms Google Places lists within a mile of you (you can change it once a week). Without a Places key, you name it and the app saves where you're standing. Checking in within 1 mile of it gives you 1 spin, at most once every 6 hours. You then get 1 more spin for every 10 minutes you stay. While the battle screen is open it checks your location every minute. Browsers pause location in the background, so if your phone is locked, the time since the last check counts (up to 30 minutes) when you open the app again, as long as you're still at the gym. A location check away from the gym ends the session. Sessions stop earning after 3 hours. Spins expire at the end of the week.
-- **Spinning:** each spin rolls on a case-opening reel. The server picks the result; the reel only animates it.
+- **Earning spins:** there are two ways, and the hub shows one total.
+  - **Log & Grow:** beat your last session of an exercise and earn a spin (see below). These spins sit in a wallet and carry over between weeks.
+  - **Gym check-ins:** pick your gym from the gyms Google Places lists within a mile of you (you can change it once a week). Without a Places key, you name it and the app saves where you're standing. Checking in within 1 mile of it gives you 1 spin, at most once every 6 hours. You then get 1 more spin for every 10 minutes you stay. While the battle screen is open it checks your location every minute. Browsers pause location in the background, so if your phone is locked, the time since the last check counts (up to 30 minutes) when you open the app again, as long as you're still at the gym. A location check away from the gym ends the session. Sessions stop earning after 3 hours. Gym spins expire at the end of the week.
+- **Spinning:** each spin rolls on a case-opening reel. The server picks the result; the reel only animates it. This week's gym spins are spent first, then the wallet.
 
 | Rarity | Colour | Odds | Damage (share of the boss's max HP) |
 |---|---|---|---|
@@ -50,7 +62,17 @@ You and your partner share one boss each week (Monday to Monday, UTC). You damag
 | Rare | Blue | 10% | over 10%, up to 30% |
 | Legendary | Gold | 0.01% | a flat 50% |
 
-The rules live in `src/lib/battle/rules.ts` (UI) and the boss battles migration (enforcement). Change both together.
+The rules live in `src/lib/battle/rules.ts` (UI) and the boss battles and unified spins migrations (enforcement). Change both together.
+
+## Log & Grow
+
+From the hub, **Log & Grow** opens `/log`, where you log each exercise as sets of weight × reps. Each exercise is compared with your previous session of the same exercise (names are matched case-insensitively). It counts as **growth** if you:
+
+- lift a heavier top set (even with fewer sets or reps), or
+- move more total volume (reps × weight): +1 rep, +2 reps, an extra set, or an extra set at a lighter weight, or
+- for bodyweight work (weight left blank), do more total reps.
+
+Each exercise that grows earns **1 spin**. An exercise can earn at most one spin every 20 hours, so logging the same lift twice in a row doesn't pay out twice. The first time you log an exercise sets your baseline. The log screen shows your last session and one-tap "Grow it" targets (+1 rep, +2 reps, +5 lb, +1 set).
 
 ## Goal assistant (AI)
 
@@ -116,17 +138,29 @@ src/
     boss/             # Boss placeholder and HP bar
     hub/              # Hub battle button
     battle/           # Battle screen, spin reel, gym check-in panel
+
+    battle/           # Battle screen against the weekly boss
+    log/              # Log & Grow: workout logging and its server action
+  components/
+    onboarding/       # Onboarding wizard and form steps
+    boss/             # Boss placeholder and HP bar
+    hub/              # Hub battle and Log & Grow buttons, spin badge
+    battle/           # Battle screen
+    log/              # Workout logger, exercise cards, results
   lib/
     supabase/         # Supabase client helpers
     onboarding/       # Onboarding validation schemas and types
     boss/             # Weekly boss roster and week helpers
     battle/           # Spin odds and damage rules, battle state types
     auth/             # Onboarded-user route guard
+    workouts/         # Growth rules, schemas and workout queries
   middleware.ts       # Session refresh
 scripts/
   fetch-24hf-socal.mjs  # Rebuilds the 24 Hour Fitness place ID list
 supabase/
   migrations/         # Schema, RLS policies, game functions and seed data
+
+  migrations/         # Schema, RLS policies, pairing and workout-logging functions
 public/
   gymcats-hero-cat.png
 ```
