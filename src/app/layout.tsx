@@ -1,16 +1,29 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Cinzel, Roboto, Roboto_Condensed } from "next/font/google";
 import { RouteTransition } from "@/components/transition/RouteTransition";
+import { WorldBackdrop } from "@/components/ui/WorldBackdrop";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+// Display titles.
+const cinzel = Cinzel({
+  variable: "--font-title",
   subsets: ["latin"],
+  weight: ["500", "600", "700", "800"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+// Body copy and italic in-game labels.
+const roboto = Roboto({
+  variable: "--font-body",
   subsets: ["latin"],
+  weight: ["400", "500", "700", "900"],
+  style: ["normal", "italic"],
+});
+
+// Small caps labels, numbers and badges (Tailwind's font-mono).
+const robotoCondensed = Roboto_Condensed({
+  variable: "--font-label",
+  subsets: ["latin"],
+  weight: ["400", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -26,8 +39,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${cinzel.variable} ${roboto.variable} ${robotoCondensed.variable} antialiased`}
       >
+        <WorldBackdrop />
         {children}
         <RouteTransition />
       </body>

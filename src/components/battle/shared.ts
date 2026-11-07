@@ -42,7 +42,5 @@ export function getFix(): Promise<LocationFix> {
   });
 }
 
-export const buttonClass =
-  "rounded-xl bg-accent px-5 py-3 font-semibold text-background transition hover:bg-accent-glow disabled:cursor-not-allowed disabled:opacity-50";
-export const ghostButtonClass =
-  "rounded-xl border border-white/15 px-5 py-3 text-sm text-foreground/80 transition hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:opacity-50";
+export const buttonClass = "gc-btn gc-btn-primary";
+export const ghostButtonClass = "gc-btn gc-btn-sm";
