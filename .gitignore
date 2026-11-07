@@ -39,3 +39,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 e2e/shots/
+
+# Supabase CLI local state
+supabase/.branches/
+supabase/.temp/
