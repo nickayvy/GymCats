@@ -4,18 +4,31 @@ import { BattleButton } from "@/components/hub/BattleButton";
 import { LogGrowButton } from "@/components/hub/LogGrowButton";
 import { SpinBadge } from "@/components/hub/SpinBadge";
 import { requireOnboardedUser } from "@/lib/auth/requireOnboardedUser";
+import { loadBattleState } from "@/lib/battle/server";
 import { daysRemaining, getCurrentBoss } from "@/lib/boss/currentBoss";
 import { createClient } from "@/lib/supabase/server";
-import { getSpinBalance } from "@/lib/workouts/queries";
 
 export const metadata = { title: "Hub · GymCats" };
 
 export default async function HubPage(): Promise<React.JSX.Element> {
-  const { preview, userId } = await requireOnboardedUser();
+  const { preview } = await requireOnboardedUser();
   const boss = getCurrentBoss();
   const days = daysRemaining(boss);
-  const spins =
-    !preview && userId ? await getSpinBalance(await createClient(), userId) : 0;
+
+  // Real HP and spins for signed-in players; full HP in preview mode.
+  // Spins come from one place (get_battle_state): gym check-ins this week
+  // plus the workout-log wallet.
+  let currentHp = boss.currentHp;
+  let maxHp = boss.maxHp;
+  let spins: number | null = null;
+  if (!preview) {
+    const result = await loadBattleState(await createClient());
+    if (result.ok) {
+      currentHp = result.data.battle.currentHp;
+      maxHp = result.data.battle.maxHp;
+      spins = result.data.spinsAvailable;
+    }
+  }
 
   return (
     <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 py-16">
@@ -33,16 +46,23 @@ export default async function HubPage(): Promise<React.JSX.Element> {
         <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
           {boss.name}
         </h1>
-        <HealthBar
-          current={boss.currentHp}
-          max={boss.maxHp}
-          label="Boss HP"
-        />
+        <HealthBar current={currentHp} max={maxHp} label="Boss HP" />
         <div className="mt-4 flex w-full max-w-sm items-stretch gap-3">
           <BattleButton />
           <LogGrowButton />
         </div>
-        <SpinBadge spins={spins} />
+        {spins !== null && (
+          <div className="flex flex-col items-center gap-2">
+            <SpinBadge spins={spins} />
+            <p className="font-mono text-xs uppercase tracking-widest text-foreground/60">
+              {spins > 0
+                ? "Ready to spin"
+                : currentHp > 0
+                  ? "Check in at the gym or log a workout to earn spins"
+                  : "Boss defeated!"}
+            </p>
+          </div>
+        )}
       </section>
     </main>
   );
