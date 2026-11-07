@@ -11,7 +11,7 @@ export function Ornament({
     <svg
       viewBox="0 0 120 16"
       aria-hidden="true"
-      className={`h-3 w-24 shrink-0 text-white/55 ${className}`}
+      className={`h-3 text-white/55 ${className}`}
       fill="none"
       stroke="currentColor"
     >

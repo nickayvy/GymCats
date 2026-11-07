@@ -38,9 +38,13 @@ export function TitleBanner({
     <div className={`flex flex-col items-center text-center ${className}`}>
       {eyebrow && <p className={`gc-eyebrow ${animate ? "gc-fade" : ""}`}>{eyebrow}</p>}
       <div className="flex w-full items-center justify-center gap-3">
-        <Ornament side="left" className={`hidden sm:block ${animate ? "gc-line-grow-left" : ""}`} />
+        <span aria-hidden="true" className="hidden min-w-6 max-w-24 flex-1 sm:block">
+          <Ornament side="left" className={`block w-full ${animate ? "gc-line-grow-left" : ""}`} />
+        </span>
         <Heading className={`gc-title ${SIZES[size]} ${animate ? "gc-title-in" : ""}`}>{title}</Heading>
-        <Ornament side="right" className={`hidden sm:block ${animate ? "gc-line-grow-right" : ""}`} />
+        <span aria-hidden="true" className="hidden min-w-6 max-w-24 flex-1 sm:block">
+          <Ornament side="right" className={`block w-full ${animate ? "gc-line-grow-right" : ""}`} />
+        </span>
       </div>
       {subtitle && (
         <p className={`gc-eyebrow mt-1 ${animate ? "gc-fade" : ""}`} style={{ "--d": "500ms" } as React.CSSProperties}>

@@ -1,3 +1,4 @@
+import { PREVIEW_SPINS } from "@/lib/battle/state";
 import { WorkoutLogger } from "@/components/log/WorkoutLogger";
 import { requireOnboardedUser } from "@/lib/auth/requireOnboardedUser";
 import { createClient } from "@/lib/supabase/server";
@@ -12,7 +13,8 @@ export default async function LogPage(): Promise<React.JSX.Element> {
 
   let lastSessions: ExerciseHistoryEntry[] = [];
   let recentWorkouts: RecentWorkout[] = [];
-  let spins = 0;
+  // Preview mode shows the same demo attacks as the hub and battle screens.
+  let spins = preview ? PREVIEW_SPINS : 0;
 
   if (!preview && userId) {
     const supabase = await createClient();

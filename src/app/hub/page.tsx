@@ -80,13 +80,14 @@ export default async function HubPage(): Promise<React.JSX.Element> {
 
       <div className="relative z-0 flex flex-1 items-center justify-center py-4 sm:py-2">
         <div className="gc-rise" style={{ "--d": "150ms" } as React.CSSProperties}>
-          <BossSprite bossId={boss.id} name={boss.name} scale={5} defeated={defeated} className="sm:hidden" />
+          <BossSprite bossId={boss.id} name={boss.name} scale={4} defeated={defeated} className="min-[380px]:hidden" />
+          <BossSprite bossId={boss.id} name={boss.name} scale={5} defeated={defeated} className="hidden min-[380px]:flex sm:hidden" />
           <BossSprite bossId={boss.id} name={boss.name} scale={6} defeated={defeated} className="hidden sm:flex" />
         </div>
       </div>
 
       <section
-        className="gc-rise relative z-10 grid w-full gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] sm:items-end sm:gap-6"
+        className="gc-rise relative z-10 grid w-full gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:items-end lg:gap-6"
         style={{ "--d": "280ms" } as React.CSSProperties}
       >
         <Panel className="flex items-center justify-between gap-4 px-4 py-3">

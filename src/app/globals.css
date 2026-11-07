@@ -356,7 +356,6 @@ body {
     box-shadow:
       0 0 0 1px rgba(255, 248, 224, 0.5),
       0 0 18px rgba(255, 236, 170, 0.35);
-    outline: none;
   }
 
   .gc-btn:active:not(:disabled) {
@@ -852,7 +851,25 @@ body {
     animation: gc-title-in 1100ms cubic-bezier(0.22, 1, 0.36, 1) both;
   }
 
+  /* Phones: fade and sharpen only. Animating letter-spacing there makes long
+     titles wrap mid-animation and push the content below. */
   @keyframes gc-title-in {
+    0% {
+      opacity: 0;
+      filter: blur(6px);
+      transform: translateY(6px);
+    }
+    60% {
+      opacity: 1;
+      filter: blur(0);
+    }
+    100% {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes gc-title-in-wide {
     0% {
       opacity: 0;
       letter-spacing: 0.4em;
@@ -865,6 +882,12 @@ body {
     100% {
       opacity: 1;
       letter-spacing: 0.04em;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .gc-title-in {
+      animation-name: gc-title-in-wide;
     }
   }
 

@@ -52,8 +52,7 @@ export function WorldBackdrop(): React.JSX.Element {
         {/* far ridge with cat-ear peaks */}
         <path
           d="M0 610 L120 560 L230 585 L360 520 L470 560 L560 540 L640 470 L700 420 L760 500 L820 495 L880 410 L940 480 L1010 520 L1120 500 L1240 545 L1360 520 L1480 560 L1600 540 L1600 900 L0 900 Z"
-          fill="#3e4d4a"
-          opacity="0.75"
+          fill="#34423f"
         />
 
         <rect x="0" y="520" width="1600" height="140" fill="url(#gc-mist)" />

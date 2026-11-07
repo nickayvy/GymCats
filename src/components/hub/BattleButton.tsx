@@ -39,12 +39,12 @@ export function BattleButton(): React.JSX.Element {
         aria-label="Battle"
         disabled={launching}
         onClick={handleClick}
-        className="gc-btn gc-btn-ember gc-btn-lg gc-shine min-w-0 flex-1 font-display text-xl uppercase sm:text-2xl"
+        className="gc-btn gc-btn-ember gc-btn-lg gc-shine min-w-0 flex-1 px-4 font-display text-xl uppercase sm:px-8 sm:text-2xl"
       >
         <span aria-hidden="true">
           <PixelSprite sheet={ITEM_SPRITES.claw} scale={2} />
         </span>
-        <span className="not-italic tracking-[0.24em]">Battle</span>
+        <span className="not-italic tracking-[0.14em] sm:tracking-[0.24em]">Battle</span>
       </button>
       {/* Portaled so no ancestor's stacking context or transform can clip the full-screen wipe. */}
       {launching && createPortal(<div className="battle-wipe" aria-hidden="true" />, document.body)}
