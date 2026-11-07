@@ -1,7 +1,8 @@
 import { WorkoutLogger } from "@/components/log/WorkoutLogger";
 import { requireOnboardedUser } from "@/lib/auth/requireOnboardedUser";
 import { createClient } from "@/lib/supabase/server";
-import { getSpinBalance, getWorkoutHistory } from "@/lib/workouts/queries";
+import { loadBattleState } from "@/lib/battle/server";
+import { getWorkoutHistory } from "@/lib/workouts/queries";
 import type { ExerciseHistoryEntry, RecentWorkout } from "@/lib/workouts/schema";
 
 export const metadata = { title: "Log & Grow · GymCats" };
@@ -15,13 +16,15 @@ export default async function LogPage(): Promise<React.JSX.Element> {
 
   if (!preview && userId) {
     const supabase = await createClient();
-    const [history, balance] = await Promise.all([
+    // Spins come from one place (get_battle_state): this week's gym spins
+    // plus the Log & Grow wallet.
+    const [history, battle] = await Promise.all([
       getWorkoutHistory(supabase, userId),
-      getSpinBalance(supabase, userId),
+      loadBattleState(supabase),
     ]);
     lastSessions = history.lastSessions;
     recentWorkouts = history.recentWorkouts;
-    spins = balance;
+    spins = battle.ok ? battle.data.spinsAvailable : 0;
   }
 
   return (

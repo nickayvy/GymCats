@@ -58,6 +58,7 @@ export type ExerciseOutcome = {
 
 export type LogWorkoutResult = {
   spinsEarned: number;
+  /** Everything the player can spend now: wallet plus this week's gym spins. */
   spinsBalance: number;
   exercises: ExerciseOutcome[];
 };

@@ -41,6 +41,8 @@ export interface SpinResult {
   /** What actually came off the boss (less if it had less HP left). */
   appliedDamage: number;
   hpAfter: number;
+  /** Which spin paid: this week's gym spins or the Log & Grow wallet. Absent in preview. */
+  source?: "gym" | "wallet";
 }
 
 /** A gym from Google Places near the player's location. */

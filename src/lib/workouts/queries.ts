@@ -10,19 +10,6 @@ type Supabase = Awaited<ReturnType<typeof createClient>>;
 const HISTORY_ROWS = 300;
 const RECENT_WORKOUTS = 5;
 
-export async function getSpinBalance(supabase: Supabase, userId: string): Promise<number> {
-  const { data, error } = await supabase
-    .from("spin_wallets")
-    .select("spins")
-    .eq("user_id", userId)
-    .maybeSingle();
-  if (error) {
-    console.error("getSpinBalance failed", error);
-    return 0;
-  }
-  return data?.spins ?? 0;
-}
-
 /**
  * The user's latest session of each exercise they have logged, newest first,
  * plus their most recent workouts. Partner rows are readable under RLS, so
