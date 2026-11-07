@@ -218,6 +218,157 @@ body {
   animation: spin-pop 600ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
 
+/* Route transition: the hero Siamese runs along a loading bar between pages
+   (src/components/transition/RouteTransition.tsx). */
+.route-transition {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--background);
+  animation: route-transition-in 150ms ease-out both;
+}
+
+.route-transition[data-mode="arrive"] {
+  animation: none;
+}
+
+.route-transition[data-leaving] {
+  animation: route-transition-out 280ms ease-in forwards;
+  pointer-events: none;
+}
+
+@keyframes route-transition-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes route-transition-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.route-transition-track {
+  position: relative;
+  height: 104px; /* sprite height at 4x */
+}
+
+.route-transition-runner {
+  position: absolute;
+  bottom: 0;
+  left: calc((100% - 144px) * var(--progress, 0)); /* 144px = sprite width */
+}
+
+.cat-run-sheet {
+  animation: cat-run 440ms steps(4) infinite; /* 4 = CAT_FRAMES.length */
+}
+
+@keyframes cat-run {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+.route-transition-shadow {
+  position: absolute;
+  bottom: 2px;
+  left: 18%;
+  width: 64%;
+  height: 6px;
+  border-radius: 9999px;
+  background: rgba(0, 0, 0, 0.45);
+  filter: blur(2px);
+  z-index: -1;
+}
+
+.route-transition-dust {
+  position: absolute;
+  bottom: 6px;
+  left: 6px;
+  width: 6px;
+  height: 6px;
+  background: rgba(232, 220, 200, 0.55);
+  animation: route-transition-dust 440ms linear infinite;
+}
+
+.route-transition-dust-late {
+  bottom: 10px;
+  width: 4px;
+  height: 4px;
+  animation-delay: 220ms;
+}
+
+@keyframes route-transition-dust {
+  from {
+    opacity: 0.8;
+    transform: translate(0, 0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-28px, -10px) scale(0.4);
+  }
+}
+
+.route-transition-bar {
+  height: 18px;
+  padding: 3px;
+  border: 2px solid rgba(201, 168, 108, 0.55);
+  border-radius: 4px;
+  background: var(--card);
+  box-shadow: 0 0 30px rgba(201, 168, 108, 0.15);
+}
+
+.route-transition-fill {
+  height: 100%;
+  width: calc(var(--progress, 0) * 100%);
+  border-radius: 1px;
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--accent-glow) 0 6px,
+    var(--accent) 6px 12px
+  );
+  background-size: 17px 100%;
+  box-shadow: 0 0 14px rgba(232, 201, 138, 0.45);
+  animation: route-transition-stripes 500ms linear infinite;
+}
+
+@keyframes route-transition-stripes {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 17px 0;
+  }
+}
+
+.route-transition-dots::after {
+  content: "...";
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+  width: 0;
+  animation: route-transition-dots 1.2s steps(4) infinite;
+}
+
+@keyframes route-transition-dots {
+  to {
+    width: 4ch;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .boss-float,
   .spin-pop,
@@ -238,7 +389,8 @@ body {
   }
 
   .battle-wipe,
-  .battle-cover {
+  .battle-cover,
+  .route-transition {
     display: none;
   }
 }
