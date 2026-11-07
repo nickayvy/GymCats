@@ -7,7 +7,7 @@ export function RecentWorkouts({ workouts }: { workouts: RecentWorkout[] }): Rea
 
   return (
     <section className="flex flex-col gap-3 text-left">
-      <h2 className="font-mono text-xs uppercase tracking-[0.35em] text-accent/80">Recent workouts</h2>
+      <h2 className="font-mono text-xs uppercase tracking-[0.15em] text-accent/80">Recent workouts</h2>
       <ul className="flex flex-col gap-3">
         {workouts.map((w) => (
           <li key={w.id} className="rounded-xl border border-accent/20 bg-card/60 p-3">

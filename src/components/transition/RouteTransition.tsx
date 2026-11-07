@@ -205,7 +205,7 @@ export function RouteTransition(): React.JSX.Element | null {
         <div className="route-transition-bar">
           <div className="route-transition-fill" />
         </div>
-        <p className="mt-4 flex justify-between font-mono text-xs uppercase tracking-[0.35em] text-accent/80">
+        <p className="mt-4 flex justify-between font-mono text-xs uppercase tracking-[0.15em] text-accent/80">
           <span>
             Loading<span className="route-transition-dots" aria-hidden="true" />
           </span>

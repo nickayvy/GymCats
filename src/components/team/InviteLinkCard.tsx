@@ -49,7 +49,7 @@ export function InviteLinkCard({ code }: { code: string }): React.JSX.Element {
     <div className="flex w-full flex-col items-center gap-3">
       <p
         data-testid="invite-link"
-        className="w-full select-all break-all rounded-lg border border-accent/30 bg-background/60 px-3 py-2 text-center font-mono text-sm text-foreground/80"
+        className="rpg-input select-all break-all px-3 py-2 text-center font-mono text-sm text-foreground/80"
       >
         {link}
       </p>
@@ -64,7 +64,7 @@ export function InviteLinkCard({ code }: { code: string }): React.JSX.Element {
         ) : null}
       </div>
       <p className="font-mono text-xs text-foreground/50">
-        or share code <span className="tracking-[0.3em] text-accent-glow">{code}</span>
+        or share code <span className="tracking-[0.15em] text-accent-glow">{code}</span>
       </p>
     </div>
   );

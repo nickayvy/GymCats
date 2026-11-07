@@ -129,10 +129,10 @@ export function OnboardingWizard({
   return (
     <div className="title-card relative z-10 flex w-full max-w-xl flex-col gap-6 rounded-2xl px-6 py-8 sm:px-10">
       <header className="flex flex-col gap-3">
-        <p className="font-mono text-xs uppercase tracking-[0.35em] text-accent/80">
+        <p className="font-mono text-xs uppercase tracking-[0.15em] text-accent/80">
           Step {step + 1} of {TOTAL_STEPS}
         </p>
-        <h1 className="text-2xl font-bold">{TITLES[step]}</h1>
+        <h1 className="rpg-title text-2xl font-bold">{TITLES[step]}</h1>
         <div className="h-1 w-full rounded bg-accent/15">
           <div
             className="h-1 rounded bg-accent"

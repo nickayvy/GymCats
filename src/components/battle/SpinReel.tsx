@@ -153,7 +153,7 @@ export function SpinReel({ maxHp, spinId, result, onDone }: SpinReelProps): Reac
               <span className={`font-mono text-[10px] uppercase tracking-widest ${style.text}`}>
                 {RARITY_BY_ID[item.rarity].label}
               </span>
-              <span className={`text-2xl font-black ${style.text}`}>−{item.damage}</span>
+              <span className={`text-2xl font-bold ${style.text}`}>−{item.damage}</span>
               <span className={`h-2 w-full rounded-b-md ${style.bar}`} />
             </div>
           );

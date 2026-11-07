@@ -6,7 +6,7 @@ export interface AuthButtonProps {
 }
 
 const buttonClass =
-  "rounded-lg border border-accent/40 bg-card/80 px-4 py-2 font-mono text-xs uppercase tracking-widest text-accent transition hover:border-accent hover:text-accent-glow";
+  "rpg-btn rpg-btn-blue px-4 py-2 text-sm text-accent-glow";
 
 export function AuthButton({ email }: AuthButtonProps): React.JSX.Element {
   if (email === null) {

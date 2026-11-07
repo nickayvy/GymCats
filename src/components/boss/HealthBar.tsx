@@ -1,3 +1,4 @@
+/** Segmented RPG-style HP gauge with the numbers above it. */
 export function HealthBar({
   current,
   max,
@@ -11,10 +12,11 @@ export function HealthBar({
 
   return (
     <div className="w-full max-w-md">
-      <div className="flex items-center justify-between font-mono text-xs uppercase tracking-widest text-foreground/70">
-        <span>{label}</span>
-        <span>
-          {current} / {max} HP
+      <div className="flex items-end justify-between">
+        <span className="rpg-label">{label}</span>
+        <span className="font-mono tabular-nums text-foreground">
+          <span className="text-lg">{current}</span>
+          <span className="text-xs text-foreground/60"> / {max}</span>
         </span>
       </div>
       <div
@@ -23,12 +25,9 @@ export function HealthBar({
         aria-valuemin={0}
         aria-valuemax={max}
         aria-valuenow={current}
-        className="mt-2 h-4 w-full overflow-hidden rounded-full border border-red-400/40 bg-red-950/50"
+        className="rpg-bar mt-1 w-full"
       >
-        <div
-          className="health-fill h-full rounded-full bg-gradient-to-r from-red-600 to-red-400"
-          style={{ width: `${pct}%` }}
-        />
+        <div className="health-fill rpg-bar-fill" style={{ width: `${pct}%` }} />
       </div>
     </div>
   );
