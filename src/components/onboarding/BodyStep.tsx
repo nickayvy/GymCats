@@ -2,8 +2,18 @@
 
 import { useState } from "react";
 import { cmToFeetInches, feetInchesToCm, kgToLb, lbToKg } from "@/lib/units";
+import { RangeSlider } from "@/components/ui";
 import type { StepProps } from "./types";
-import { fieldClass, inputClass, labelClass } from "./styles";
+import { inputClass } from "./styles";
+
+// Slider ranges. The number inputs stay the source of truth; the sliders just
+// write the same text state, so any value the inputs accept still works.
+const HEIGHT_MIN_IN = 48; // 4'0"
+const HEIGHT_MAX_IN = 90; // 7'6"
+const HEIGHT_REST_IN = 67;
+const WEIGHT_MIN_LB = 70;
+const WEIGHT_MAX_LB = 450;
+const WEIGHT_REST_LB = 160;
 
 function parseNumber(raw: string): number | null {
   if (raw.trim() === "") return null;
@@ -40,55 +50,101 @@ export function BodyStep({ draft, onChange }: StepProps): React.JSX.Element {
     onChange({ weightKg: lb === null ? null : lbToKg(lb) });
   }
 
+  const feet = parseNumber(heightText.feet);
+  const inches = parseNumber(heightText.inches);
+  const totalInches = feet === null || inches === null ? null : feet * 12 + inches;
+  const weightLb = parseNumber(weightLbText);
+
   return (
     <div className="flex flex-col gap-5">
-      <div className="grid grid-cols-2 gap-4">
-        <div className={fieldClass}>
-          <label htmlFor="heightFeet" className={labelClass}>
-            Height (ft)
-          </label>
-          <input
-            id="heightFeet"
-            type="number"
-            inputMode="numeric"
-            min={0}
-            max={8}
-            className={inputClass}
-            value={heightText.feet}
-            onChange={(e) => updateHeightText({ ...heightText, feet: e.target.value })}
-          />
+      <section aria-label="Height" className="ob-stat gc-rise">
+        <div className="flex items-baseline justify-between gap-3 px-1">
+          <span className="gc-label">Height</span>
+          <span className="ob-readout" data-empty={totalInches === null || undefined}>
+            {totalInches === null ? "—" : `${feet}′ ${inches}″`}
+          </span>
         </div>
-        <div className={fieldClass}>
-          <label htmlFor="heightInches" className={labelClass}>
-            Height (in)
-          </label>
-          <input
-            id="heightInches"
-            type="number"
-            inputMode="numeric"
-            min={0}
-            max={11}
-            className={inputClass}
-            value={heightText.inches}
-            onChange={(e) => updateHeightText({ ...heightText, inches: e.target.value })}
-          />
-        </div>
-      </div>
-
-      <div className={fieldClass}>
-        <label htmlFor="weightLb" className={labelClass}>
-          Weight (lb)
-        </label>
-        <input
-          id="weightLb"
-          type="number"
-          inputMode="decimal"
-          step="0.1"
-          className={inputClass}
-          value={weightLbText}
-          onChange={(e) => updateWeightLbText(e.target.value)}
+        <RangeSlider
+          aria-label="Adjust height"
+          aria-valuetext={
+            totalInches === null ? undefined : `${Math.floor(totalInches / 12)} feet ${totalInches % 12} inches`
+          }
+          min={HEIGHT_MIN_IN}
+          max={HEIGHT_MAX_IN}
+          value={totalInches ?? HEIGHT_REST_IN}
+          data-empty={totalInches === null || undefined}
+          onValueChange={(total) =>
+            updateHeightText({ feet: String(Math.floor(total / 12)), inches: String(total % 12) })
+          }
         />
-      </div>
+        <div className="grid gap-2 sm:grid-cols-2">
+          <div className="gc-row ob-row">
+            <label htmlFor="heightFeet">Height (ft)</label>
+            <div>
+              <input
+                id="heightFeet"
+                type="number"
+                inputMode="numeric"
+                min={0}
+                max={8}
+                placeholder="—"
+                className={inputClass}
+                value={heightText.feet}
+                onChange={(e) => updateHeightText({ ...heightText, feet: e.target.value })}
+              />
+            </div>
+          </div>
+          <div className="gc-row ob-row">
+            <label htmlFor="heightInches">Height (in)</label>
+            <div>
+              <input
+                id="heightInches"
+                type="number"
+                inputMode="numeric"
+                min={0}
+                max={11}
+                placeholder="—"
+                className={inputClass}
+                value={heightText.inches}
+                onChange={(e) => updateHeightText({ ...heightText, inches: e.target.value })}
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section aria-label="Weight" className="ob-stat gc-rise" style={{ "--d": "90ms" } as React.CSSProperties}>
+        <div className="flex items-baseline justify-between gap-3 px-1">
+          <span className="gc-label">Weight</span>
+          <span className="ob-readout" data-empty={weightLb === null || undefined}>
+            {weightLb === null ? "—" : `${weightLb} lb`}
+          </span>
+        </div>
+        <RangeSlider
+          aria-label="Adjust weight"
+          aria-valuetext={weightLb === null ? undefined : `${weightLb} pounds`}
+          min={WEIGHT_MIN_LB}
+          max={WEIGHT_MAX_LB}
+          value={weightLb === null ? WEIGHT_REST_LB : Math.round(weightLb)}
+          data-empty={weightLb === null || undefined}
+          onValueChange={(lb) => updateWeightLbText(String(lb))}
+        />
+        <div className="gc-row ob-row">
+          <label htmlFor="weightLb">Weight (lb)</label>
+          <div>
+            <input
+              id="weightLb"
+              type="number"
+              inputMode="decimal"
+              step="0.1"
+              placeholder="—"
+              className={inputClass}
+              value={weightLbText}
+              onChange={(e) => updateWeightLbText(e.target.value)}
+            />
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

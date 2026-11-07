@@ -4,7 +4,9 @@ import Link from "next/link";
 import { useMemo, useRef, useState, useTransition } from "react";
 import { logWorkout } from "@/app/log/actions";
 import { SpinBadge } from "@/components/hub/SpinBadge";
-import { errorClass, primaryButtonClass, secondaryButtonClass } from "@/components/onboarding/styles";
+import { ButtonHint, TitleBanner } from "@/components/ui";
+import "@/app/styles/log.css";
+import { errorClass, secondaryButtonClass } from "@/components/onboarding/styles";
 import { COMMON_EXERCISES, exerciseKey, MAX_EXERCISES } from "@/lib/workouts/growth";
 import {
   workoutLogSchema,
@@ -103,31 +105,30 @@ export function WorkoutLogger({
   }
 
   return (
-    <main className="relative min-h-screen overflow-hidden px-4 py-8 sm:px-6">
-      <div className="hero-glow pointer-events-none absolute inset-0" />
+    <main className="relative min-h-screen overflow-x-clip px-4 py-6 sm:px-6 sm:py-10">
       <div className="relative z-10 mx-auto flex w-full max-w-2xl flex-col gap-6">
-        <header className="flex items-center justify-between">
-          <Link
-            href="/hub"
-            className="font-mono text-xs uppercase tracking-widest text-foreground/60 hover:text-accent"
-          >
-            ← Hub
+        <header className="flex items-center justify-between gap-3">
+          <Link href="/hub" className="gc-btn gc-btn-ghost gc-btn-sm -ml-2">
+            <ButtonHint glyph="B" />
+            Hub
           </Link>
           <SpinBadge spins={result ? result.spinsBalance : spins} />
         </header>
 
-        <div className="flex flex-col gap-2 text-center">
-          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
-            Log <span className="text-emerald-300">&amp; Grow</span>
-          </h1>
-          <p className="text-sm text-foreground/60">
-            Beat your last session on any lift (one more rep, a little more weight, or an extra set)
-            and earn an attack.
-          </p>
-        </div>
+        <TitleBanner
+          eyebrow="Quest Log"
+          title={
+            <>
+              Log <span className="text-moss">&amp; Grow</span>
+            </>
+          }
+          subtitle="Beat your last session on any lift (one more rep, a little more weight, or an extra set) and earn an attack."
+          size="md"
+        />
 
         {preview && (
-          <p className="rounded-lg border border-accent/30 bg-card/80 px-4 py-2 text-center font-mono text-xs text-accent">
+          <p className="gc-panel gc-fade flex items-center justify-center gap-2 self-center rounded-sm px-4 py-2 text-center text-xs italic text-gold">
+            <span aria-hidden="true">◆</span>
             Preview mode: Supabase isn&apos;t configured, so workouts can&apos;t be saved.
           </p>
         )}
@@ -165,14 +166,15 @@ export function WorkoutLogger({
               <button
                 type="button"
                 onClick={() => setExercises((list) => [...list, blankExercise()])}
-                className={secondaryButtonClass}
+                className={`${secondaryButtonClass} lg-add`}
               >
                 + Add exercise
               </button>
             )}
 
             {error && (
-              <p role="alert" className={errorClass}>
+              <p role="alert" className={`${errorClass} gc-fade flex items-center gap-2`}>
+                <span aria-hidden="true">◆</span>
                 {error}
               </p>
             )}
@@ -180,9 +182,10 @@ export function WorkoutLogger({
             <button
               type="submit"
               disabled={pending || preview}
-              className={`${primaryButtonClass} py-3 text-lg`}
+              className="gc-btn gc-btn-moss gc-btn-lg"
             >
               {pending ? "Saving…" : "Log workout"}
+              <ButtonHint glyph="A" />
             </button>
           </form>
         )}

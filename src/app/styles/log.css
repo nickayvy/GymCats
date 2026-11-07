@@ -1,0 +1,237 @@
+/* Log & Grow "quest log" screen (src/components/log/*).
+   Loaded by src/components/log/WorkoutLogger.tsx. Moss green = growth. */
+
+/* ---------- Exercise card ---------- */
+
+.lg-card {
+  overflow: hidden;
+}
+
+.lg-card::before {
+  /* moss rule along the top edge, like a quest entry header */
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(155, 211, 106, 0.85), transparent);
+  opacity: 0.7;
+}
+
+.gc-slot.lg-slot {
+  flex-shrink: 0;
+  border-radius: 3px;
+  border-color: rgba(155, 211, 106, 0.32);
+  background: linear-gradient(160deg, rgba(58, 86, 38, 0.7), rgba(8, 12, 7, 0.92));
+}
+
+.gc-slot.lg-slot[data-empty] {
+  border-style: dashed;
+  border-color: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.gc-slot.lg-slot[data-selected] {
+  border-color: #e6ffd0;
+  animation: lg-moss-glow 1.6s ease-in-out infinite;
+}
+
+@keyframes lg-moss-glow {
+  0%,
+  100% {
+    box-shadow:
+      inset 0 0 0 1px rgba(230, 255, 208, 0.25),
+      0 0 8px rgba(155, 211, 106, 0.3);
+  }
+  50% {
+    box-shadow:
+      inset 0 0 0 1px rgba(230, 255, 208, 0.45),
+      0 0 20px rgba(155, 211, 106, 0.6);
+  }
+}
+
+.lg-card .lg-name {
+  font-weight: 600;
+  font-style: normal;
+}
+
+.lg-card .lg-cell {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.lg-card .lg-cell::placeholder {
+  font-style: normal;
+}
+
+/* Set number tile in the sets table. */
+.lg-setno {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 2px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.06);
+  font-family: var(--font-label), system-ui, sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--ink-dim);
+}
+
+/* Round ✕ buttons (remove set / exercise). */
+.lg-x {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 9999px;
+  border: 1px solid transparent;
+  color: var(--ink-faint);
+  font-size: 0.8rem;
+  transition:
+    color 150ms ease,
+    border-color 150ms ease,
+    background 150ms ease;
+}
+
+.lg-x:hover,
+.lg-x:focus-visible {
+  color: #ffd2c9;
+  border-color: rgba(232, 80, 63, 0.6);
+  background: rgba(232, 80, 63, 0.14);
+}
+
+/* "Last time" sunken box. */
+.lg-last {
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.4);
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+/* "Grow it" target chips lean moss. */
+.gc-chip.lg-grow {
+  font-style: normal;
+  font-weight: 600;
+  font-size: 0.8rem;
+  border-color: rgba(155, 211, 106, 0.35);
+  color: #d4f5b0;
+}
+
+.gc-chip.lg-grow:hover:not(:disabled),
+.gc-chip.lg-grow:focus-visible {
+  border-color: var(--moss);
+  color: #f5ffe9;
+  background: rgba(45, 84, 25, 0.6);
+  box-shadow: 0 0 12px rgba(155, 211, 106, 0.35);
+}
+
+/* "+ Add set" chip. */
+.gc-chip.lg-add-set {
+  font-size: 0.8rem;
+  border-style: dashed;
+}
+
+/* Live growth status line. */
+.lg-status {
+  border-radius: 3px;
+  border: 1px solid var(--line);
+  background: rgba(0, 0, 0, 0.35);
+  color: var(--ink-dim);
+}
+
+.lg-status[data-grows] {
+  border-color: rgba(155, 211, 106, 0.55);
+  background: linear-gradient(90deg, rgba(58, 96, 34, 0.55), rgba(20, 34, 12, 0.45));
+  color: #e6ffd0;
+  box-shadow: 0 0 14px rgba(155, 211, 106, 0.18);
+}
+
+/* Dashed "+ Add exercise" slot button. */
+.gc-btn.lg-add {
+  border-style: dashed;
+  border-color: rgba(155, 211, 106, 0.45);
+  background: rgba(0, 0, 0, 0.35);
+  color: #d4f5b0;
+}
+
+.gc-btn.lg-add:hover:not(:disabled),
+.gc-btn.lg-add:focus-visible {
+  border-color: var(--moss);
+  background: rgba(45, 84, 25, 0.45);
+  color: #f5ffe9;
+  box-shadow: 0 0 18px rgba(155, 211, 106, 0.3);
+}
+
+/* Key glyphs inside parchment buttons. */
+.gc-btn-primary .gc-hint {
+  background: #17140c;
+  color: #fbf3dc;
+}
+
+/* ---------- Result (reward moment) ---------- */
+
+.lg-reward {
+  font-family: var(--font-title), Georgia, serif;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--gold);
+  text-shadow:
+    0 0 2px rgba(0, 0, 0, 0.8),
+    0 0 24px rgba(242, 199, 92, 0.55);
+  font-variant-numeric: tabular-nums;
+}
+
+.lg-reward[data-zero] {
+  color: var(--ink-dim);
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.8);
+}
+
+.lg-badge-gold {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.15rem 0.55rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(242, 199, 92, 0.6);
+  background: rgba(90, 66, 14, 0.55);
+  color: #ffe9a8;
+  font-family: var(--font-label), system-ui, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* ---------- Recent workouts ---------- */
+
+.lg-date {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 3.5rem;
+  min-height: 3.5rem;
+  flex-shrink: 0;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.45);
+  font-family: var(--font-label), system-ui, sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gc-slot.lg-slot[data-selected] {
+    animation: none !important;
+  }
+}

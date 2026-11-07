@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { generateGoalPlan } from "@/app/onboarding/actions/goalPlan";
 import { GOAL_PRESETS, type GoalPresetId } from "@/lib/onboarding/schema";
+import { Diamond } from "@/components/ui";
 import type { StepProps } from "./types";
 import {
   chipClass,
@@ -56,8 +57,13 @@ export function GoalsStep({ draft, onChange }: StepProps) {
 
   return (
     <div className="flex flex-col gap-6">
-      <fieldset className={fieldClass}>
-        <legend className={labelClass}>Pick your goals (up to 4)</legend>
+      <fieldset className={`${fieldClass} gc-rise`}>
+        <legend className={`${labelClass} mb-2 flex w-full items-baseline justify-between gap-3`}>
+          Pick your goals (up to 4)
+          <span aria-hidden="true" className="gc-caps gc-num not-italic">
+            {`${draft.goalPresets.length}/${MAX_PRESETS}`}
+          </span>
+        </legend>
         <div className="flex flex-wrap gap-2">
           {GOAL_PRESETS.map((preset) => {
             const on = draft.goalPresets.includes(preset.id);
@@ -70,6 +76,7 @@ export function GoalsStep({ draft, onChange }: StepProps) {
                 onClick={() => togglePreset(preset.id)}
                 className={`${chipClass} ${on ? chipOnClass : chipOffClass} disabled:cursor-not-allowed disabled:opacity-40`}
               >
+                <Diamond className={on ? "text-glow" : "text-white/30"} />
                 {preset.label}
               </button>
             );
@@ -77,33 +84,33 @@ export function GoalsStep({ draft, onChange }: StepProps) {
         </div>
       </fieldset>
 
-      <div className={fieldClass}>
-        <label htmlFor="workoutsPerWeek" className={labelClass}>
-          Workouts per week
-        </label>
-        <select
-          id="workoutsPerWeek"
-          className={inputClass}
-          value={draft.workoutsPerWeek ?? ""}
-          onChange={(e) =>
-            onChange({
-              workoutsPerWeek:
-                e.target.value === "" ? null : Number(e.target.value),
-            })
-          }
-        >
-          <option value="" disabled>
-            Choose…
-          </option>
-          {[1, 2, 3, 4, 5, 6, 7].map((n) => (
-            <option key={n} value={n}>
-              {`${n} × per week`}
+      <div className="gc-row ob-row gc-rise" style={{ "--d": "80ms" } as React.CSSProperties}>
+        <label htmlFor="workoutsPerWeek">Workouts per week</label>
+        <div>
+          <select
+            id="workoutsPerWeek"
+            className={inputClass}
+            value={draft.workoutsPerWeek ?? ""}
+            onChange={(e) =>
+              onChange({
+                workoutsPerWeek:
+                  e.target.value === "" ? null : Number(e.target.value),
+              })
+            }
+          >
+            <option value="" disabled>
+              Choose…
             </option>
-          ))}
-        </select>
+            {[1, 2, 3, 4, 5, 6, 7].map((n) => (
+              <option key={n} value={n}>
+                {`${n} × per week`}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
-      <div className={fieldClass}>
+      <div className={`${fieldClass} gc-rise`} style={{ "--d": "160ms" } as React.CSSProperties}>
         <label htmlFor="goalFreeform" className={labelClass}>
           Or describe it in your own words
         </label>
@@ -112,11 +119,11 @@ export function GoalsStep({ draft, onChange }: StepProps) {
           rows={4}
           maxLength={MAX_FREEFORM_LENGTH}
           placeholder="e.g. I want to run a 5K by spring and feel stronger carrying groceries"
-          className={inputClass}
+          className={`${inputClass} resize-y leading-relaxed`}
           value={draft.goalFreeform}
           onChange={(e) => onChange({ goalFreeform: e.target.value })}
         />
-        <p className="self-end text-xs text-foreground/50">
+        <p className="gc-caps gc-num self-end">
           {`${draft.goalFreeform.length}/${MAX_FREEFORM_LENGTH}`}
         </p>
       </div>
@@ -124,12 +131,13 @@ export function GoalsStep({ draft, onChange }: StepProps) {
       <div className="flex flex-col gap-3">
         <button
           type="button"
-          className={secondaryButtonClass}
+          className={`${secondaryButtonClass} gc-btn-glow`}
           disabled={
             pending || draft.goalFreeform.trim().length < MIN_FREEFORM_LENGTH
           }
           onClick={buildPlan}
         >
+          <span aria-hidden="true">✦</span>
           {pending ? "Thinking…" : "Build my plan with AI"}
         </button>
         {error ? (
@@ -140,25 +148,40 @@ export function GoalsStep({ draft, onChange }: StepProps) {
       </div>
 
       {plan ? (
-        <div className="rounded-xl border border-accent/30 bg-card/60 p-4 text-left">
-          <p className="text-sm text-foreground/90">{plan.summary}</p>
-          <ul className="mt-3 flex flex-col gap-1 text-sm text-foreground/80">
+        <div className="gc-rise rounded-sm border border-white/15 bg-black/45 p-4 text-left shadow-[inset_0_0_0_1px_rgba(0,0,0,0.5)]">
+          <p className="gc-label mb-2 flex items-center gap-2" style={{ color: "var(--glow)" }}>
+            <span aria-hidden="true">✦</span>
+            Trail guide&apos;s plan
+          </p>
+          <p className="text-sm italic leading-relaxed text-ink">{plan.summary}</p>
+          <ul className="mt-4 flex flex-col gap-1">
             {plan.weeklyPlan.map((item, i) => (
-              <li key={`${item.day}-${i}`}>
-                {`${item.day} — ${item.focus} (${item.durationMinutes} min)`}
+              <li
+                key={`${item.day}-${i}`}
+                className="grid grid-cols-[3rem_1fr_auto] items-center gap-3 rounded-[3px] bg-white/[0.06] px-3 py-2 text-sm"
+              >
+                <span className="gc-caps" style={{ color: "var(--glow)" }}>
+                  {item.day}
+                </span>
+                <span className="sr-only"> — </span>
+                <span className="italic text-ink">{item.focus}</span>
+                <span className="gc-num font-mono text-xs text-white/65">{`${item.durationMinutes} min`}</span>
               </li>
             ))}
           </ul>
           {plan.tips.length > 0 ? (
-            <ul className="mt-3 flex list-disc flex-col gap-1 pl-5 text-sm text-foreground/70">
+            <ul className="mt-4 flex flex-col gap-1.5 text-sm italic text-white/70">
               {plan.tips.map((tip, i) => (
-                <li key={i}>{tip}</li>
+                <li key={i} className="flex gap-2">
+                  <Diamond className="mt-1.5 shrink-0 text-gold" />
+                  <span>{tip}</span>
+                </li>
               ))}
             </ul>
           ) : null}
           <button
             type="button"
-            className={`${secondaryButtonClass} mt-4`}
+            className={`${secondaryButtonClass} gc-btn-sm mt-4`}
             onClick={() =>
               onChange({
                 goalPresets: plan.recommendedPresets,

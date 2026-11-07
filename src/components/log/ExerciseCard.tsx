@@ -11,6 +11,8 @@ import {
 } from "@/lib/workouts/growth";
 import type { ExerciseHistoryEntry } from "@/lib/workouts/schema";
 import { chipClass, chipOffClass, inputClass } from "@/components/onboarding/styles";
+import { ItemSlot } from "@/components/ui";
+import { ExerciseIcon } from "./exerciseIcon";
 import { LocalDate } from "./LocalDate";
 
 export type SetDraft = { id: string; reps: string; weight: string };
@@ -34,7 +36,7 @@ export function parseSets(sets: SetDraft[]): WorkoutSet[] | null {
   return parsed.every((s): s is WorkoutSet => s !== null) ? parsed : null;
 }
 
-const cellInputClass = `${inputClass} px-3 text-center tabular-nums`;
+const cellInputClass = `${inputClass} lg-cell`;
 
 export function ExerciseCard({
   index,
@@ -92,26 +94,34 @@ export function ExerciseCard({
   return (
     <section
       aria-label={label}
-      className="title-card flex flex-col gap-4 rounded-2xl p-4 text-left sm:p-5"
+      className="gc-panel lg-card gc-rise flex flex-col gap-4 p-4 text-left sm:p-5"
     >
-      <div className="flex items-center gap-2">
-        <input
-          type="text"
-          list={EXERCISE_OPTIONS_ID}
-          value={exercise.name}
-          maxLength={MAX_EXERCISE_NAME}
-          placeholder="Exercise (e.g. Back Squat)"
-          aria-label={`Exercise ${index + 1} name`}
-          autoComplete="off"
-          onChange={(e) => onChange({ ...exercise, name: e.target.value })}
-          className={`${inputClass} font-semibold`}
-        />
+      <div className="flex items-center gap-3">
+        <ItemSlot size={48} className="lg-slot" selected={grows}>
+          {exercise.name.trim() !== "" ? <ExerciseIcon name={exercise.name} /> : undefined}
+        </ItemSlot>
+        <div className="flex min-w-0 flex-1 flex-col gap-1">
+          <span aria-hidden="true" className="gc-caps">
+            {`Exercise ${index + 1}`}
+          </span>
+          <input
+            type="text"
+            list={EXERCISE_OPTIONS_ID}
+            value={exercise.name}
+            maxLength={MAX_EXERCISE_NAME}
+            placeholder="Exercise (e.g. Back Squat)"
+            aria-label={`Exercise ${index + 1} name`}
+            autoComplete="off"
+            onChange={(e) => onChange({ ...exercise, name: e.target.value })}
+            className={`${inputClass} lg-name`}
+          />
+        </div>
         {canRemove && (
           <button
             type="button"
             onClick={onRemove}
             aria-label={`Remove ${label}`}
-            className="shrink-0 rounded-lg px-3 py-2 text-foreground/50 transition hover:text-red-400"
+            className="lg-x shrink-0 self-end mb-1.5"
           >
             ✕
           </button>
@@ -119,17 +129,16 @@ export function ExerciseCard({
       </div>
 
       {lastSession ? (
-        <div className="flex flex-col gap-2 rounded-xl border border-accent/20 bg-background/40 p-3">
-          <p className="text-sm text-foreground/70">
-            <span className="font-mono text-xs uppercase tracking-widest text-accent/80">
+        <div className="lg-last flex flex-col gap-2.5 p-3">
+          <p className="flex flex-col gap-0.5 text-sm">
+            <span className="gc-caps">
               Last time · <LocalDate iso={lastSession.performedAt} />
             </span>
-            <br />
-            {formatSets(lastSession.sets)}
+            <span className="gc-num italic text-ink">{formatSets(lastSession.sets)}</span>
           </p>
           <div className="flex flex-wrap items-center gap-2">
-            <span className="font-mono text-xs uppercase tracking-widest text-emerald-300/80">
-              Grow it:
+            <span className="gc-caps">
+              <span className="text-moss">Grow it:</span>
             </span>
             {growthTargets(lastSession.sets).map((target) => (
               <button
@@ -137,8 +146,9 @@ export function ExerciseCard({
                 type="button"
                 onClick={() => applyTarget(target.sets)}
                 title={formatSets(target.sets)}
-                className={`${chipClass} ${chipOffClass} hover:border-emerald-400/60 hover:text-emerald-200`}
+                className={`${chipClass} ${chipOffClass} lg-grow`}
               >
+                <span aria-hidden="true">▲</span>
                 {target.label}
               </button>
             ))}
@@ -146,14 +156,14 @@ export function ExerciseCard({
         </div>
       ) : (
         exercise.name.trim() !== "" && (
-          <p className="text-sm text-foreground/60">
+          <p className="text-sm italic text-white/65">
             First time logging this. Today sets your baseline; beat it next time to earn an attack.
           </p>
         )
       )}
 
       <div className="flex flex-col gap-2">
-        <div className="grid grid-cols-[2rem_1fr_1fr_2rem] items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-foreground/50">
+        <div className="gc-caps grid grid-cols-[2rem_1fr_1fr_2rem] items-center gap-2">
           <span>Set</span>
           <span className="text-center">Weight (lb)</span>
           <span className="text-center">Reps</span>
@@ -161,7 +171,7 @@ export function ExerciseCard({
         </div>
         {exercise.sets.map((set, i) => (
           <div key={set.id} className="grid grid-cols-[2rem_1fr_1fr_2rem] items-center gap-2">
-            <span className="font-mono text-sm text-foreground/60">{i + 1}</span>
+            <span className="lg-setno">{i + 1}</span>
             <input
               type="number"
               inputMode="decimal"
@@ -189,7 +199,7 @@ export function ExerciseCard({
                 type="button"
                 onClick={() => removeSet(set.id)}
                 aria-label={`Remove ${label} set ${i + 1}`}
-                className="text-foreground/40 transition hover:text-red-400"
+                className="lg-x"
               >
                 ✕
               </button>
@@ -202,7 +212,7 @@ export function ExerciseCard({
           <button
             type="button"
             onClick={addSet}
-            className="self-start font-mono text-xs uppercase tracking-widest text-accent transition hover:text-accent-glow"
+            className={`${chipClass} lg-add-set mt-1 self-start`}
           >
             + Add set
           </button>
@@ -212,11 +222,8 @@ export function ExerciseCard({
       {lastSession && current && (
         <p
           role="status"
-          className={`rounded-lg px-3 py-2 text-sm ${
-            grows
-              ? "border border-emerald-400/40 bg-emerald-500/10 text-emerald-200"
-              : "border border-foreground/10 bg-background/40 text-foreground/60"
-          }`}
+          data-grows={grows || undefined}
+          className="lg-status flex items-start gap-2 px-3 py-2 text-sm italic"
         >
           {grows
             ? `▲ Growth! ${changes.join(" · ")}`

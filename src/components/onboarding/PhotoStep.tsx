@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { CAT_SPRITES, PixelSprite } from "@/components/sprites";
+import { ItemSlot } from "@/components/ui";
 import { fieldClass, errorClass, labelClass, secondaryButtonClass } from "./styles";
 
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
@@ -50,45 +52,58 @@ export function PhotoStep({ file, onFileChange }: PhotoStepProps): React.JSX.Ele
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex flex-col items-center gap-4">
-        {previewUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element -- local object URL preview, not optimizable
-          <img
-            src={previewUrl}
-            alt="Your profile photo preview"
-            width={128}
-            height={128}
-            className="h-32 w-32 rounded-full border-2 border-accent/40 object-cover"
-          />
-        ) : (
-          <div className="flex h-32 w-32 items-center justify-center rounded-full border-2 border-dashed border-accent/40 font-mono text-xs uppercase tracking-widest text-foreground/50">
-            No photo
-          </div>
-        )}
+      <div className="flex flex-col items-center gap-5">
+        <div className="gc-rise flex flex-col items-center gap-2">
+          <ItemSlot size={144} selected={previewUrl !== null} className="ob-portrait">
+            {previewUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element -- local object URL preview, not optimizable
+              <img
+                src={previewUrl}
+                alt="Your profile photo preview"
+                width={128}
+                height={128}
+                className="gc-pop h-full w-full object-cover"
+              />
+            ) : (
+              <div className="flex flex-col items-center gap-1">
+                <PixelSprite
+                  sheet={CAT_SPRITES.siamese}
+                  scale={3}
+                  label=""
+                  className="opacity-60 grayscale"
+                />
+                <span className="gc-caps">No photo</span>
+              </div>
+            )}
+          </ItemSlot>
+          <span aria-hidden="true" className="gc-sprite-shadow" />
+        </div>
 
         <div className="flex flex-wrap items-center justify-center gap-3">
-          <label htmlFor="avatar" className={`${secondaryButtonClass} cursor-pointer`}>
-            {file ? "Choose another photo" : "Choose a photo"}
-          </label>
+          {/* The input comes first so its focus ring can show on the label next to it. */}
           <input
             id="avatar"
             name="avatar"
             type="file"
             accept="image/jpeg,image/png,image/webp"
             onChange={handleSelect}
-            className="sr-only"
+            className="ob-file sr-only"
           />
+          <label htmlFor="avatar" className={`${secondaryButtonClass} cursor-pointer`}>
+            <span aria-hidden="true">◆</span>
+            {file ? "Choose another photo" : "Choose a photo"}
+          </label>
           {file ? (
-            <button type="button" onClick={handleRemove} className={secondaryButtonClass}>
+            <button type="button" onClick={handleRemove} className={`${secondaryButtonClass} gc-btn-ghost`}>
               Remove photo
             </button>
           ) : null}
         </div>
       </div>
 
-      <div className={fieldClass}>
+      <div className={`${fieldClass} items-center text-center`}>
         <span className={labelClass}>Profile photo</span>
-        <p className="text-sm text-foreground/60">Optional — you can add one later.</p>
+        <p className="text-sm italic text-white/60">Optional — you can add one later.</p>
       </div>
 
       {error ? (
