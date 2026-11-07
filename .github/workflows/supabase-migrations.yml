@@ -1,0 +1,49 @@
+# Applies new files in supabase/migrations/ to the production Supabase
+# project whenever they land on main. Vercel deploys the app code on the same
+# push, so without this the code can go live before the database it needs.
+#
+# Required repository secrets (Settings -> Secrets and variables -> Actions):
+#   SUPABASE_ACCESS_TOKEN  personal access token from
+#                          https://supabase.com/dashboard/account/tokens
+#   SUPABASE_DB_PASSWORD   the project's database password
+#                          (Project Settings -> Database)
+#
+# Migrations are matched by the version prefix of each file name, so never
+# rename a migration file once it has been applied.
+
+name: Supabase migrations
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "supabase/migrations/**"
+  workflow_dispatch:
+
+# Never run two pushes against the database at the same time.
+concurrency:
+  group: supabase-migrations
+  cancel-in-progress: false
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      SUPABASE_PROJECT_REF: xbvjsgnyqjpcwcbuqgmf
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Link project
+        run: supabase link --project-ref "$SUPABASE_PROJECT_REF"
+
+      - name: Show pending migrations
+        run: supabase db push --dry-run
+
+      - name: Apply migrations
+        run: supabase db push --yes
