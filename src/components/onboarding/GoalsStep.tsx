@@ -20,7 +20,14 @@ const MAX_PRESETS = 4;
 const MIN_FREEFORM_LENGTH = 10;
 const MAX_FREEFORM_LENGTH = 1000;
 
-export function GoalsStep({ draft, onChange }: StepProps) {
+export function GoalsStep({
+  draft,
+  onChange,
+  aiAvailable = true,
+}: StepProps & {
+  /** False in preview mode: the plan builder needs a signed-in account. */
+  aiAvailable?: boolean;
+}) {
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
@@ -133,13 +140,16 @@ export function GoalsStep({ draft, onChange }: StepProps) {
           type="button"
           className={`${secondaryButtonClass} gc-btn-glow`}
           disabled={
-            pending || draft.goalFreeform.trim().length < MIN_FREEFORM_LENGTH
+            !aiAvailable || pending || draft.goalFreeform.trim().length < MIN_FREEFORM_LENGTH
           }
           onClick={buildPlan}
         >
           <span aria-hidden="true">✦</span>
           {pending ? "Thinking…" : "Build my plan with AI"}
         </button>
+        {!aiAvailable ? (
+          <p className="text-center text-xs italic text-white/60">The AI plan needs a signed-in account, so it&apos;s off in preview mode.</p>
+        ) : null}
         {error ? (
           <p role="alert" className={errorClass}>
             {error}

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useMemo, useRef, useState, useTransition } from "react";
 import { logWorkout } from "@/app/log/actions";
 import { SpinBadge } from "@/components/hub/SpinBadge";
-import { TitleBanner } from "@/components/ui";
+import { TitleBanner, PreviewNotice } from "@/components/ui";
 import "@/app/styles/log.css";
 import { errorClass, secondaryButtonClass } from "@/components/onboarding/styles";
 import { COMMON_EXERCISES, exerciseKey, MAX_EXERCISES } from "@/lib/workouts/growth";
@@ -126,10 +126,7 @@ export function WorkoutLogger({
         />
 
         {preview && (
-          <p className="gc-panel gc-fade flex items-center justify-center gap-2 self-center rounded-sm px-4 py-2 text-center text-xs italic text-gold">
-            <span aria-hidden="true">◆</span>
-            Preview mode: Supabase isn&apos;t configured, so workouts can&apos;t be saved.
-          </p>
+          <PreviewNotice detail="so workouts can't be saved." className="self-center" />
         )}
 
         {result ? (

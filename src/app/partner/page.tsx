@@ -4,7 +4,7 @@ import "@/app/styles/entry.css";
 import { Avatar } from "@/components/team/Avatar";
 import { LeaveTeamButton } from "@/components/team/LeaveTeamButton";
 import { PartnerInvite } from "@/components/team/PartnerInvite";
-import { DialogBox, Panel, PanelHeading, TitleBanner } from "@/components/ui";
+import { DialogBox, Panel, PanelHeading, TitleBanner, PreviewNotice } from "@/components/ui";
 import { requireOnboardedUser } from "@/lib/auth/requireOnboardedUser";
 import { createClient } from "@/lib/supabase/server";
 import { getTeam, type TeamMember } from "@/lib/team/getTeam";
@@ -141,9 +141,7 @@ export default async function PartnerPage(): Promise<React.JSX.Element> {
           <>
             <TitleBanner eyebrow="Your party" title="Team up with your partner" size="md" />
             <OpenParty me={null} />
-            <DialogBox variant="written" className="gc-rise w-full max-w-md">
-              Preview mode: Supabase isn&apos;t configured.
-            </DialogBox>
+            <PreviewNotice detail="so partners can't be linked." />
           </>
         ) : (
           <>

@@ -5,7 +5,7 @@ import { continueToAuth, dismissInvite } from "@/app/invite/actions";
 import { AcceptInviteButton } from "@/components/team/AcceptInviteButton";
 import { Avatar } from "@/components/team/Avatar";
 import { InviteLinkCard } from "@/components/team/InviteLinkCard";
-import { DialogBox, Panel, TitleBanner } from "@/components/ui";
+import { DialogBox, Panel, TitleBanner, PreviewNotice } from "@/components/ui";
 import { getSupabaseConfig } from "@/lib/env";
 import { createClient } from "@/lib/supabase/server";
 import { normalizeInviteCode } from "@/lib/team/inviteCode";
@@ -190,11 +190,10 @@ export default async function InvitePage({
           {view.kind === "preview" ? (
             <>
               <PartyRow inviterName="Your partner" />
-              <NoticeBody text="Preview mode: Supabase isn't configured.">
-                <Link href="/" className={ghostClass}>
-                  Back home
-                </Link>
-              </NoticeBody>
+              <PreviewNotice detail="so invites can't be used." />
+              <Link href="/" className={ghostClass}>
+                Back home
+              </Link>
             </>
           ) : null}
         </Panel>

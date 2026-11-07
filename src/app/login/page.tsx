@@ -6,7 +6,15 @@ import { getSupabaseConfig } from "@/lib/env";
 import { AuthCard } from "@/components/AuthCard";
 import { INVITE_COOKIE, normalizeInviteCode } from "@/lib/team/inviteCode";
 
-export const metadata: Metadata = { title: "Log in · GymCats" };
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ mode?: string; created?: string; confirmed?: string }>;
+}): Promise<Metadata> {
+  const params = await searchParams;
+  const signup = params.mode === "signup" && noticeFor(params) === null;
+  return { title: signup ? "Sign up · GymCats" : "Log in · GymCats" };
+}
 
 function noticeFor(params: { created?: string; confirmed?: string }): string | null {
   if (params.created === "confirm") {

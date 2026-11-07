@@ -1,13 +1,14 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { login, type AuthFormState } from "@/app/login/actions";
-import { AuthField, AuthSubmit } from "@/components/SignupForm";
+import { AuthField, AuthSubmit } from "@/components/AuthFields";
 
 const initialState: AuthFormState = { error: null, message: null };
 
 export function LoginForm({ notice }: { notice?: string | null }): React.JSX.Element {
   const [loginState, loginAction, loginPending] = useActionState(login, initialState);
+  const [email, setEmail] = useState("");
 
   return (
     <form action={loginAction} className="flex w-full flex-col gap-4 text-left">
@@ -17,7 +18,7 @@ export function LoginForm({ notice }: { notice?: string | null }): React.JSX.Ele
         </p>
       ) : null}
 
-      <AuthField id="email" label="Email" type="email" autoComplete="email" placeholder="you@example.com" />
+      <AuthField id="email" label="Email" type="email" autoComplete="email" placeholder="you@example.com" value={email} onValueChange={setEmail} />
       <AuthField id="password" label="Password" type="password" autoComplete="current-password" minLength={6} />
 
       {loginState.error ? (

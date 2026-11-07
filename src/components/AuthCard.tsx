@@ -20,7 +20,18 @@ export function AuthCard({
   notice: string | null;
   invitedBy?: string | null;
 }): React.JSX.Element {
-  const [mode, setMode] = useState(initialMode);
+  const [mode, setModeState] = useState(initialMode);
+
+  // Keep the URL and tab title in step with the toggle, so reload and the
+  // browser tab show the mode you're in.
+  function setMode(next: "login" | "signup"): void {
+    setModeState(next);
+    const url = new URL(window.location.href);
+    if (next === "signup") url.searchParams.set("mode", "signup");
+    else url.searchParams.delete("mode");
+    window.history.replaceState(window.history.state, "", url);
+    document.title = next === "signup" ? "Sign up · GymCats" : "Log in · GymCats";
+  }
 
   return (
     <div className="relative z-10 flex w-full max-w-2xl flex-col items-center gap-6">

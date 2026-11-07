@@ -118,7 +118,7 @@ export function OnboardingWizard({
       case 1:
         return <BodyStep draft={draft} onChange={onChange} />;
       case 2:
-        return <GoalsStep draft={draft} onChange={onChange} />;
+        return <GoalsStep draft={draft} onChange={onChange} aiAvailable={configured} />;
       case PHOTO_STEP:
         return <PhotoStep file={avatarFile} onFileChange={setAvatarFile} />;
       default:
@@ -174,7 +174,17 @@ export function OnboardingWizard({
         ) : null}
       </Panel>
 
-      {isPartnerStep ? null : (
+      {isPartnerStep ? (
+        // Back from the partner step re-opens the photo step; saving again is
+        // an upsert. Not offered when resuming here with an empty draft.
+        resumeAtPartnerStep ? null : (
+          <footer className="flex items-center gap-3">
+            <button type="button" onClick={goBack} className={`${secondaryButtonClass} min-w-28`}>
+              Back
+            </button>
+          </footer>
+        )
+      ) : (
         <footer className="flex items-center justify-between gap-3">
           {step > 0 ? (
             <button

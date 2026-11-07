@@ -5,7 +5,7 @@ import { LogGrowButton } from "@/components/hub/LogGrowButton";
 import { SpinBadge } from "@/components/hub/SpinBadge";
 import { PartnerBadge } from "@/components/team/PartnerBadge";
 import { TeamStrip } from "@/components/team/TeamStrip";
-import { BossBanner, Panel } from "@/components/ui";
+import { BossBanner, Panel, PreviewNotice } from "@/components/ui";
 import { requireOnboardedUser } from "@/lib/auth/requireOnboardedUser";
 import { loadBattleState } from "@/lib/battle/server";
 import { PREVIEW_SPINS } from "@/lib/battle/state";
@@ -53,9 +53,7 @@ export default async function HubPage(): Promise<React.JSX.Element> {
         <div className="flex min-w-0 flex-col gap-2 pt-1">
           <p className="font-display text-sm font-bold tracking-[0.3em] text-white/80 sm:text-base">GymCats</p>
           {preview && (
-            <p className="w-fit rounded-[3px] border border-glow/30 bg-black/55 px-2.5 py-1 font-mono text-[11px] tracking-[0.06em] text-glow/90">
-              Preview mode: Supabase isn&apos;t configured.
-            </p>
+            <PreviewNotice />
           )}
         </div>
         <div className="shrink-0">

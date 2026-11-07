@@ -1,3 +1,4 @@
+import { PreviewNotice } from "@/components/ui";
 import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 import { OnboardingWizard } from "@/components/onboarding/OnboardingWizard";
@@ -46,10 +47,7 @@ export default async function OnboardingPage(): Promise<React.JSX.Element> {
     <main className="relative flex min-h-screen justify-center overflow-x-clip px-4 py-8 sm:items-center sm:px-6 sm:py-14">
       <div className="relative z-10 flex w-full max-w-xl flex-col items-center gap-5">
         {config === null ? (
-          <p className="gc-panel gc-fade flex items-center gap-2 rounded-sm px-4 py-2 text-xs italic text-gold">
-            <span aria-hidden="true">◆</span>
-            Preview mode: Supabase isn&apos;t configured, so nothing will be saved.
-          </p>
+          <PreviewNotice detail="so nothing will be saved." />
         ) : null}
         <OnboardingWizard
           configured={config !== null}

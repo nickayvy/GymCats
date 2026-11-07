@@ -10,7 +10,7 @@ import { RARITY_LOOK } from "@/components/battle/rarity";
 import { SpinReel } from "@/components/battle/SpinReel";
 import { useNow } from "@/components/battle/shared";
 import { ITEM_SPRITES, PixelSprite } from "@/components/sprites";
-import { BossBanner, Panel, PanelHeading, Starburst } from "@/components/ui";
+import { BossBanner, Panel, PanelHeading, Starburst, PreviewNotice } from "@/components/ui";
 import {
   RARITIES,
   RARITY_BY_ID,
@@ -21,7 +21,7 @@ import {
   rollRarity,
   sessionProgress,
 } from "@/lib/battle/rules";
-import type { BattleAttack, BattleState, SpinResult } from "@/lib/battle/state";
+import { PREVIEW_SPINS, type BattleAttack, type BattleState, type SpinResult } from "@/lib/battle/state";
 
 export interface BattleScreenProps {
   initialState: BattleState;
@@ -128,8 +128,9 @@ export function BattleScreen({ initialState, preview }: BattleScreenProps): Reac
         <Link href="/hub" className="gc-btn gc-btn-ghost gc-btn-sm -ml-2 gap-2 px-2.5">
           Retreat
         </Link>
-        <p className="gc-caps text-[#ff8a74]/90">Boss battle{preview ? " · Preview" : ""}</p>
+        <p className="gc-caps text-[#ff8a74]/90">Boss battle</p>
       </header>
+      {preview && <PreviewNotice detail="so attacks aren't saved." className="relative z-10 mx-auto mt-2" />}
 
       <section className="battle-enter-boss relative z-10 mt-2 flex flex-col items-center gap-2 text-center">
         <BossBanner
@@ -257,6 +258,24 @@ export function BattleScreen({ initialState, preview }: BattleScreenProps): Reac
                 {phase === "requesting" ? "…" : phase === "spinning" ? "Rolling" : "Attack"}
               </span>
             </button>
+            {!busy && !defeated && attacks <= 0 && (
+              <div className="gc-rise flex w-full max-w-md flex-col items-center gap-3 rounded-[4px] border border-gold/35 bg-black/45 px-4 py-3 text-center">
+                <p className="text-sm italic text-ink">
+                  <span className="gc-gold not-italic">Out of attacks.</span>{" "}
+                  {preview
+                    ? `Reload the page for another ${PREVIEW_SPINS} demo attacks.`
+                    : "Check in at the gym or log a workout to earn more."}
+                </p>
+                <div className="flex flex-wrap justify-center gap-2">
+                  <Link href="/log" className="gc-btn gc-btn-moss gc-btn-sm">
+                    Log a workout
+                  </Link>
+                  <Link href="/hub" className="gc-btn gc-btn-sm">
+                    Back to the hub
+                  </Link>
+                </div>
+              </div>
+            )}
           </div>
         </Panel>
 

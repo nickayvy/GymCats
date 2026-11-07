@@ -29,6 +29,10 @@ const FILLER_WEIGHTS: Record<Rarity, number> = {
   legendary: 4,
 };
 
+// The reel at rest, before any spin, shows no legendary card: the rarest
+// hit sitting there by default oversells how often it drops.
+const IDLE_WEIGHTS: Record<Rarity, number> = { ...FILLER_WEIGHTS, legendary: 0 };
+
 interface ReelItem {
   key: string;
   rarity: Rarity;
@@ -52,7 +56,7 @@ function buildReel(maxHp: number, spinId: number, winner: SpinResult | null): Re
     if (winner && i === WINNER_INDEX) {
       return { key: `${spinId}-${i}`, rarity: winner.rarity, damage: winner.damage };
     }
-    const rarity = rollRarity(random, FILLER_WEIGHTS);
+    const rarity = rollRarity(random, winner === null ? IDLE_WEIGHTS : FILLER_WEIGHTS);
     return { key: `${spinId}-${i}`, rarity, damage: rollDamage(rarity, maxHp, random) };
   });
 }
