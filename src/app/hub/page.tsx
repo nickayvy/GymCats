@@ -1,6 +1,7 @@
 import { BossPlaceholder } from "@/components/boss/BossPlaceholder";
 import { HealthBar } from "@/components/boss/HealthBar";
 import { BattleButton } from "@/components/hub/BattleButton";
+import { HubTabs } from "@/components/hub/HubTabs";
 import { LogGrowButton } from "@/components/hub/LogGrowButton";
 import { SpinBadge } from "@/components/hub/SpinBadge";
 import { PartnerBadge } from "@/components/team/PartnerBadge";
@@ -43,7 +44,7 @@ export default async function HubPage(): Promise<React.JSX.Element> {
 
   return (
     <main
-      className={`relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 pb-24 ${preview ? "pt-44" : "pt-24"}`}
+      className={`relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 pb-36 ${preview ? "pt-44" : "pt-24"}`}
     >
       <div className="hero-glow pointer-events-none absolute inset-0" />
       {preview && (
@@ -85,6 +86,7 @@ export default async function HubPage(): Promise<React.JSX.Element> {
           </div>
         )}
       </section>
+      <HubTabs active="hub" />
     </main>
   );
 }

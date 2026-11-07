@@ -37,7 +37,7 @@ export function BattleButton(): React.JSX.Element {
         aria-label="Battle"
         disabled={launching}
         onClick={handleClick}
-        className="rpg-btn rpg-btn-red min-w-0 flex-1 px-6 py-5 text-2xl font-bold uppercase tracking-[0.2em]"
+        className="rpg-btn rpg-btn-red min-w-0 flex-1 px-6 py-5 font-mono text-2xl font-bold uppercase tracking-[0.2em]"
       >
         Battle
       </button>

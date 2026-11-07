@@ -207,7 +207,7 @@ export function BattleScreen({ initialState, preview }: BattleScreenProps): Reac
               type="button"
               onClick={handleSpin}
               disabled={busy || defeated || attacks <= 0}
-              className="rpg-btn rpg-btn-red w-full max-w-xs px-8 py-4 text-xl font-bold uppercase tracking-[0.2em]"
+              className="rpg-btn rpg-btn-red w-full max-w-xs px-8 py-4 font-mono text-xl font-bold uppercase tracking-[0.2em]"
             >
               {phase === "requesting" ? "…" : phase === "spinning" ? "Rolling" : "Attack"}
             </button>

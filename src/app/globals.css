@@ -326,9 +326,71 @@ select {
   .rpg-chip:focus-visible::before,
   .rpg-cursor:hover::before,
   .rpg-cursor:focus-visible::before,
-  .rpg-cursor[aria-current]::before {
+  .rpg-cursor[aria-current]::before,
+  .rpg-cursor[aria-pressed="true"]::before {
     opacity: 1;
     animation: rpg-hand-bob 700ms steps(2, jump-none) infinite;
+  }
+
+  /* ---------------------------------------------------------------------------
+     Inventory slots
+     ------------------------------------------------------------------------- */
+
+  /* A sunken square cell; the hand cursor marks the selected one. */
+  .rpg-slot {
+    position: relative;
+    display: block;
+    width: 100%;
+    aspect-ratio: 1;
+    padding: 3px;
+    background: #070a1c;
+    border: 3px solid;
+    border-color: #02030a #4c5f9e #4c5f9e #02030a;
+    border-radius: 3px;
+    transition: filter 120ms ease-out;
+  }
+
+  .rpg-slot:hover {
+    filter: brightness(1.15);
+  }
+
+  .rpg-slot.is-selected {
+    border-color: var(--frame-light) var(--frame-dark) var(--frame-dark) var(--frame-light);
+    box-shadow: 0 0 0 2px var(--accent-glow);
+  }
+
+  .rpg-slot::before {
+    left: -20px;
+    width: 26px;
+    height: 18px;
+  }
+
+  .rpg-slot-inner {
+    position: relative;
+    display: flex;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-radius: 2px;
+    background-image: repeating-linear-gradient(
+      45deg,
+      rgba(255, 255, 255, 0.03) 0 3px,
+      transparent 3px 6px
+    );
+  }
+
+  .rpg-slot-locked {
+    background: #070a1c;
+    border: 3px solid;
+    border-color: #02030a #4c5f9e #4c5f9e #02030a;
+    border-radius: 4px;
+    background-image: repeating-linear-gradient(
+      45deg,
+      rgba(255, 255, 255, 0.03) 0 4px,
+      transparent 4px 8px
+    );
   }
 
   /* ---------------------------------------------------------------------------
