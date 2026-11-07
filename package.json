@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "e2e:partner": "node --env-file=.env.local e2e/partner-pairing.cjs"
+    "e2e:partner": "node --env-file=.env.local e2e/partner-pairing.cjs",
+    "db:check": "node --env-file-if-exists=.env.local scripts/check-migrations.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

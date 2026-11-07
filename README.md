@@ -32,7 +32,11 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
 
 ## Database setup
 
-Run every file in `supabase/migrations/` in order in the Supabase SQL editor, or apply them with `supabase db push`:
+Apply the files in `supabase/migrations/` with `supabase db push`. It runs them in order and records each one under its file version.
+
+If you run a file another way (the SQL editor, or an AI agent's `apply_migration` tool), fix its record afterwards. The SQL editor records nothing: run `supabase migration repair --status applied <version>`. `apply_migration` records the time it ran instead of the file's version. Then run `npm run db:check`. It compares the files with what the database has recorded, and prints the fix for any mismatch. It needs `SUPABASE_ACCESS_TOKEN` in `.env.local` (a personal access token from https://supabase.com/dashboard/account/tokens). See `CLAUDE.md` for the full rules.
+
+The migrations:
 
 | Migration | What it adds |
 |---|---|
