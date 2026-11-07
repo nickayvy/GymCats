@@ -1,36 +1,43 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { InvitePanel } from "@/components/team/InvitePanel";
+import type { TeamMember } from "@/lib/team/getTeam";
+import { MeetPartner } from "./MeetPartner";
 import { primaryButtonClass } from "./styles";
 
 interface PartnerStepProps {
   onFinish: () => void;
-  /** Set when the user already joined a partner (e.g. through an invite link). */
-  partnerName: string | null;
+  /** Set when the user already has a partner (e.g. joined through an invite link). */
+  partner: TeamMember | null;
   /** The user's existing invite code, if they created one before. */
   initialInviteCode: string | null;
+  myName: string;
+  myAvatarUrl: string | null;
 }
 
 export function PartnerStep({
   onFinish,
-  partnerName,
+  partner,
   initialInviteCode,
+  myName,
+  myAvatarUrl,
 }: PartnerStepProps): React.JSX.Element {
+  const router = useRouter();
   const [joined, setJoined] = useState(false);
 
-  if (partnerName || joined) {
+  if (partner) {
+    return (
+      <MeetPartner partner={partner} myName={myName} myAvatarUrl={myAvatarUrl} onFinish={onFinish} />
+    );
+  }
+
+  if (joined) {
+    // Joined with a code just now; the partner's details arrive with the refresh.
     return (
       <div className="flex flex-col items-center gap-6 text-center">
-        <p className="text-lg">
-          {partnerName ? (
-            <>
-              You&apos;re teamed up with <strong className="text-accent-glow">{partnerName}</strong> 🎉
-            </>
-          ) : (
-            <>You&apos;re paired! 🎉</>
-          )}
-        </p>
+        <p className="text-lg">You&apos;re paired! 🎉</p>
         <p className="text-sm text-foreground/70">You&apos;ll take on this week&apos;s boss together.</p>
         <button type="button" onClick={onFinish} className={primaryButtonClass}>
           Let&apos;s go
@@ -46,7 +53,13 @@ export function PartnerStep({
         every week as a team.
       </p>
 
-      <InvitePanel initialInviteCode={initialInviteCode} onJoined={() => setJoined(true)} />
+      <InvitePanel
+        initialInviteCode={initialInviteCode}
+        onJoined={() => {
+          setJoined(true);
+          router.refresh();
+        }}
+      />
 
       <div className="flex flex-col items-center gap-3">
         <button type="button" onClick={onFinish} className={primaryButtonClass}>

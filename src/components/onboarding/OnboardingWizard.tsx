@@ -1,11 +1,14 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { completeOnboarding, saveProfile } from "@/app/onboarding/actions/profile";
+import { Avatar } from "@/components/team/Avatar";
 import { STEP_SCHEMAS, firstIssue, type OnboardingDraft } from "@/lib/onboarding/schema";
+import type { TeamMember } from "@/lib/team/getTeam";
 import { BasicsStep } from "./BasicsStep";
 import { BodyStep } from "./BodyStep";
 import { GoalsStep } from "./GoalsStep";
+import { InvitedWelcome } from "./InvitedWelcome";
 import { PartnerStep } from "./PartnerStep";
 import { PhotoStep } from "./PhotoStep";
 import { errorClass, primaryButtonClass, secondaryButtonClass } from "./styles";
@@ -25,17 +28,23 @@ const PARTNER_STEP = 4;
 export function OnboardingWizard({
   configured,
   initialDisplayName,
-  partnerName = null,
+  partner = null,
   inviteCode = null,
   resumeAtPartnerStep = false,
+  savedAvatarUrl = null,
 }: {
   configured: boolean;
   initialDisplayName: string;
-  partnerName?: string | null;
+  /** Set once the user is on a team, e.g. after joining through an invite link. */
+  partner?: TeamMember | null;
   inviteCode?: string | null;
   /** The profile is saved but the partner step was never finished. */
   resumeAtPartnerStep?: boolean;
+  /** The user's already-uploaded photo, when resuming. */
+  savedAvatarUrl?: string | null;
 }): React.JSX.Element {
+  // Invited partners start with a welcome screen before the first step.
+  const [showWelcome, setShowWelcome] = useState(partner !== null && !resumeAtPartnerStep);
   const [step, setStep] = useState(resumeAtPartnerStep ? PARTNER_STEP : 0);
   const [draft, setDraft] = useState<OnboardingDraft>({
     displayName: initialDisplayName,
@@ -48,8 +57,19 @@ export function OnboardingWizard({
     workoutsPerWeek: null,
   });
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreviewUrl, setAvatarPreviewUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [saving, startSaving] = useTransition();
+
+  useEffect(() => {
+    if (!avatarFile) {
+      setAvatarPreviewUrl(null);
+      return;
+    }
+    const url = URL.createObjectURL(avatarFile);
+    setAvatarPreviewUrl(url);
+    return () => URL.revokeObjectURL(url);
+  }, [avatarFile]);
 
   function onChange(patch: Partial<OnboardingDraft>): void {
     setDraft((prev) => ({ ...prev, ...patch }));
@@ -110,8 +130,10 @@ export function OnboardingWizard({
       default:
         return (
           <PartnerStep
-            partnerName={partnerName}
+            partner={partner}
             initialInviteCode={inviteCode}
+            myName={draft.displayName}
+            myAvatarUrl={avatarPreviewUrl ?? savedAvatarUrl}
             onFinish={() => {
               startSaving(async () => {
                 await completeOnboarding();
@@ -122,17 +144,32 @@ export function OnboardingWizard({
     }
   }
 
+  if (showWelcome && partner) {
+    return <InvitedWelcome partner={partner} onStart={() => setShowWelcome(false)} />;
+  }
+
   const isPartnerStep = step === PARTNER_STEP;
+  const title = isPartnerStep && partner ? "Meet your partner" : TITLES[step];
   const nextLabel =
     step === PHOTO_STEP ? (saving ? "Saving…" : "Save profile") : "Next";
 
   return (
     <div className="title-card relative z-10 flex w-full max-w-xl flex-col gap-6 rounded-2xl px-6 py-8 sm:px-10">
       <header className="flex flex-col gap-3">
-        <p className="font-mono text-xs uppercase tracking-[0.35em] text-accent/80">
-          Step {step + 1} of {TOTAL_STEPS}
-        </p>
-        <h1 className="text-2xl font-bold">{TITLES[step]}</h1>
+        <div className="flex items-center justify-between gap-3">
+          <p className="font-mono text-xs uppercase tracking-[0.35em] text-accent/80">
+            Step {step + 1} of {TOTAL_STEPS}
+          </p>
+          {partner && !isPartnerStep ? (
+            <p className="flex min-w-0 items-center gap-2 rounded-full border border-accent/30 bg-accent/10 py-0.5 pl-0.5 pr-3 text-xs text-accent-glow">
+              <Avatar name={partner.displayName} url={partner.avatarUrl} size="xs" />
+              <span className="truncate">
+                Joining <strong>{partner.displayName}</strong>&apos;s team
+              </span>
+            </p>
+          ) : null}
+        </div>
+        <h1 className="text-2xl font-bold">{title}</h1>
         <div className="h-1 w-full rounded bg-accent/15">
           <div
             className="h-1 rounded bg-accent"

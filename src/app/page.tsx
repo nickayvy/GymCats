@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { INVITE_COOKIE, invitePath, normalizeInviteCode } from "@/lib/team/inviteCode";
+import { getPendingInvite, type PendingInvite } from "@/lib/team/pendingInvite";
 import { HeroSection } from "@/components/HeroSection";
 import { createClient } from "@/lib/supabase/server";
 import { getSupabaseConfig } from "@/lib/env";
@@ -18,6 +19,7 @@ async function getSession(): Promise<Session | null> {
 
 export default async function Home(): Promise<React.JSX.Element> {
   const session = await getSession();
+  let invite: PendingInvite | null = null;
 
   if (getSupabaseConfig() !== null) {
     const supabase = await createClient();
@@ -42,7 +44,15 @@ export default async function Home(): Promise<React.JSX.Element> {
 
       redirect(profile?.onboarded_at ? "/hub" : "/onboarding");
     }
+
+    // Signed out but carrying a partner's invite: keep it front and centre.
+    invite = await getPendingInvite(supabase);
   }
 
-  return <HeroSection session={session} />;
+  return (
+    <HeroSection
+      session={session}
+      invite={invite ? { ...invite, signedIn: false } : null}
+    />
+  );
 }

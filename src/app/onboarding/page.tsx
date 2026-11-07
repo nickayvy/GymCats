@@ -3,14 +3,15 @@ import type { Metadata } from "next";
 import { OnboardingWizard } from "@/components/onboarding/OnboardingWizard";
 import { createClient } from "@/lib/supabase/server";
 import { getSupabaseConfig } from "@/lib/env";
-import { getTeam } from "@/lib/team/getTeam";
+import { getTeam, type TeamMember } from "@/lib/team/getTeam";
 
 export const metadata: Metadata = { title: "Onboarding · GymCats" };
 
 export default async function OnboardingPage(): Promise<React.JSX.Element> {
   const config = getSupabaseConfig();
   let initialDisplayName = "";
-  let partnerName: string | null = null;
+  let partner: TeamMember | null = null;
+  let savedAvatarUrl: string | null = null;
   let inviteCode: string | null = null;
   let resumeAtPartnerStep = false;
 
@@ -37,7 +38,8 @@ export default async function OnboardingPage(): Promise<React.JSX.Element> {
     resumeAtPartnerStep = profile !== null;
 
     const team = await getTeam(supabase, user.id);
-    partnerName = team.partner?.displayName ?? null;
+    partner = team.partner;
+    savedAvatarUrl = team.me?.avatarUrl ?? null;
     inviteCode = team.inviteCode;
   }
 
@@ -53,9 +55,10 @@ export default async function OnboardingPage(): Promise<React.JSX.Element> {
         <OnboardingWizard
           configured={config !== null}
           initialDisplayName={initialDisplayName}
-          partnerName={partnerName}
+          partner={partner}
           inviteCode={inviteCode}
           resumeAtPartnerStep={resumeAtPartnerStep}
+          savedAvatarUrl={savedAvatarUrl}
         />
       </div>
     </main>

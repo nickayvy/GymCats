@@ -154,7 +154,7 @@ src/
     globals.css
     login/            # Login page and actions
     onboarding/       # Onboarding wizard route and server actions
-    invite/[code]/    # Public partner invite landing page
+    invite/[code]/    # Public "You've been invited by …" hero for partner invites
     partner/          # Partner profile (or invite link while solo)
     hub/              # Weekly boss hub (onboarded users only)
     battle/           # Battle screen and its server actions (check-in, spins)

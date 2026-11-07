@@ -1,16 +1,14 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { continueToAuth, dismissInvite } from "@/app/invite/actions";
-import { AcceptInviteButton } from "@/components/team/AcceptInviteButton";
+import { dismissInvite } from "@/app/invite/actions";
+import { HeroSection } from "@/components/HeroSection";
 import { InviteLinkCard } from "@/components/team/InviteLinkCard";
 import { getSupabaseConfig } from "@/lib/env";
 import { createClient } from "@/lib/supabase/server";
 import { normalizeInviteCode } from "@/lib/team/inviteCode";
 
-export const metadata: Metadata = { title: "Team invite · GymCats" };
+export const metadata: Metadata = { title: "You're invited · GymCats" };
 
-const primaryClass =
-  "w-full rounded-2xl bg-gradient-to-b from-accent-glow to-accent px-8 py-4 text-lg font-bold uppercase tracking-[0.2em] text-background shadow-[0_0_40px_rgba(201,168,108,0.35)] transition hover:scale-105 active:scale-95 motion-reduce:transition-none";
 const linkClass = "font-mono text-xs text-foreground/60 underline-offset-4 hover:text-accent hover:underline";
 
 type View =
@@ -71,45 +69,21 @@ export default async function InvitePage({
 }): Promise<React.JSX.Element> {
   const view = await loadView((await params).code);
 
+  // An open invite gets the full hero: "You've been invited by …".
+  if (view.kind === "open") {
+    return (
+      <HeroSection
+        session={null}
+        invite={{ code: view.code, inviterName: view.inviterName, signedIn: view.signedIn }}
+      />
+    );
+  }
+
   return (
     <main className="relative flex min-h-screen items-center justify-center overflow-hidden px-6 py-16">
       <div className="hero-glow pointer-events-none absolute inset-0" />
       <section className="title-card relative z-10 flex w-full max-w-md flex-col items-center gap-6 rounded-2xl px-8 py-10 text-center">
         <p className="font-mono text-xs uppercase tracking-[0.35em] text-accent/80">Team invite</p>
-
-        {view.kind === "open" ? (
-          <>
-            <h1 className="text-3xl font-bold tracking-tight">
-              {view.inviterName} wants you on their team
-            </h1>
-            <p className="text-sm text-foreground/70">
-              Partners on GymCats train side by side and take down a boss together every week.
-            </p>
-            {view.signedIn ? (
-              <>
-                <AcceptInviteButton code={view.code} partnerName={view.inviterName} />
-                <DismissLink label="Not now" />
-              </>
-            ) : (
-              <>
-                <form action={continueToAuth} className="w-full">
-                  <input type="hidden" name="code" value={view.code} />
-                  <input type="hidden" name="mode" value="signup" />
-                  <button type="submit" className={primaryClass}>
-                    Sign up to join
-                  </button>
-                </form>
-                <form action={continueToAuth}>
-                  <input type="hidden" name="code" value={view.code} />
-                  <input type="hidden" name="mode" value="login" />
-                  <button type="submit" className={linkClass}>
-                    I already have an account
-                  </button>
-                </form>
-              </>
-            )}
-          </>
-        ) : null}
 
         {view.kind === "own" ? (
           <>

@@ -1,10 +1,9 @@
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { getSupabaseConfig } from "@/lib/env";
 import { AuthCard } from "@/components/AuthCard";
-import { INVITE_COOKIE, normalizeInviteCode } from "@/lib/team/inviteCode";
+import { getPendingInvite } from "@/lib/team/pendingInvite";
 
 export const metadata: Metadata = { title: "Log in · GymCats" };
 
@@ -34,13 +33,7 @@ export default async function LoginPage({
       redirect("/");
     }
 
-    const pendingInvite = normalizeInviteCode((await cookies()).get(INVITE_COOKIE)?.value);
-    if (pendingInvite) {
-      const { data: preview } = await supabase.rpc("get_invite_preview", { p_code: pendingInvite });
-      if (preview?.[0]?.status === "open") {
-        invitedBy = preview[0].inviter_name ?? "Your partner";
-      }
-    }
+    invitedBy = (await getPendingInvite(supabase))?.inviterName ?? null;
   }
 
   const params = await searchParams;

@@ -1,6 +1,7 @@
 // Partner pairing end-to-end test.
 //
-// Alice invites Bob by link, Bob signs up through it, both see each other on
+// Alice invites Bob by link, Bob signs up through it (invite hero → sign-up →
+// log-in auto-joins → welcome → onboarding → "Meet your partner"), both see each other on
 // the hub and partner page; Carol (an outsider) can't see or join them. Then
 // Bob leaves the team and Alice's old link stops working.
 //
@@ -65,7 +66,7 @@ async function onboard(page, user) {
   await page.click('button:has-text("Next")');
   if (user.avatar) await page.setInputFiles("#avatar", user.avatar);
   await page.click('button:has-text("Save profile")');
-  await page.waitForSelector("text=Your partner");
+  await page.getByRole("heading", { level: 1, name: /partner$/i }).waitFor();
 }
 
 (async () => {
@@ -107,32 +108,48 @@ async function onboard(page, user) {
     // ------------------------------------------------------------------ Bob
     step("Bob opens Alice's link while logged out");
     await page.bob.goto(inviteLink);
-    await page.bob.getByText("Alice wants you on their team").waitFor();
-    ok("invite page names the inviter");
+    await page.bob.getByText("You've been invited by").waitFor();
+    await page.bob.getByRole("heading", { name: "Alice" }).waitFor();
+    ok("invite hero: \"You've been invited by Alice\"");
     await shot(page.bob, "03-bob-invite-logged-out");
 
-    await page.bob.click('button:has-text("Sign up to join")');
+    await page.bob.click('button:has-text("Accept & sign up")');
     await page.bob.waitForURL(/\/login\?mode=signup/);
     await page.bob.getByText("joining").waitFor();
     assert.match(await page.bob.textContent("body"), /You're joining Alice's team/);
     ok("sign-up page carries the invite context");
     await shot(page.bob, "04-bob-signup-with-invite");
 
+    await page.bob.goto(BASE);
+    await page.bob.getByText("You've been invited by").waitFor();
+    ok("the home hero keeps showing the invite while it's pending");
+    await page.bob.goto(`${BASE}/login?mode=signup`);
+
     await signUp(page.bob, users.bob);
     await page.bob.getByText("joining").waitFor();
     ok("invite context survives the sign-up → log-in hop");
     await logIn(page.bob, users.bob);
-    await page.bob.waitForURL(new RegExp(`/invite/${code}$`));
-    ok("after login Bob lands back on the invite");
-    await page.bob.click('button:has-text("Team up with Alice")');
     await page.bob.waitForURL(/\/onboarding/);
-    ok("joined, then sent to onboarding");
+    ok("logging in joins Alice's team and goes straight to onboarding");
+
+    await page.bob.getByText("You're on Alice's team!").waitFor();
+    ok("welcome screen names the partner");
+    await shot(page.bob, "05-bob-welcome");
+    await page.bob.click('button:has-text("Set up my profile")');
+    await page.bob.getByText("Joining Alice's team").waitFor();
+    ok("onboarding steps show a 'Joining Alice's team' chip");
+    await shot(page.bob, "06-bob-onboarding-step");
 
     await onboard(page.bob, users.bob);
-    await page.bob.getByText("You're teamed up with").waitFor();
-    assert.match(await page.bob.textContent("body"), /teamed up with Alice/);
-    ok("partner step already knows Bob is teamed with Alice");
-    await shot(page.bob, "05-bob-partner-step-paired");
+    await page.bob.getByRole("heading", { name: "Meet your partner" }).waitFor();
+    const meetText = await page.bob.textContent("body");
+    assert.match(meetText, /teamed up with Alice/);
+    assert.match(meetText, /Build strength/);
+    assert.match(meetText, /4 workouts a week/);
+    const meetImg = page.bob.locator('img[alt="Alice\'s profile photo"]');
+    assert.equal(await meetImg.evaluate((img) => img.complete && img.naturalWidth > 0), true);
+    ok("'Meet your partner' shows Alice's photo, goals and training");
+    await shot(page.bob, "07-bob-meet-partner");
     await page.bob.click('button:has-text("Let\'s go")');
     await page.bob.waitForURL(/\/hub/);
 
@@ -141,12 +158,12 @@ async function onboard(page, user) {
     await bobBadge.waitFor();
     assert.equal(await page.bob.locator('img[alt="Alice\'s profile photo"]').count() > 0, true);
     ok("Bob's hub: Alice badge with her photo");
-    await shot(page.bob, "06-bob-hub");
+    await shot(page.bob, "08-bob-hub");
 
     await page.alice.reload();
     await page.alice.getByRole("link", { name: "View Bob's profile" }).waitFor();
     ok("Alice's hub: Bob badge");
-    await shot(page.alice, "07-alice-hub");
+    await shot(page.alice, "09-alice-hub");
 
     step("Partner profile pages");
     await bobBadge.click();
@@ -158,12 +175,12 @@ async function onboard(page, user) {
     assert.match(await page.bob.textContent("body"), /Build strength/);
     assert.match(await page.bob.textContent("body"), /4 workouts a week/);
     ok("Bob sees Alice's profile, goals and photo");
-    await shot(page.bob, "08-bob-views-alice");
+    await shot(page.bob, "10-bob-views-alice");
 
     await page.alice.getByRole("link", { name: "View Bob's profile" }).click();
     await page.alice.getByRole("heading", { name: "Bob" }).waitFor();
     ok("Alice sees Bob's profile");
-    await shot(page.alice, "09-alice-views-bob");
+    await shot(page.alice, "11-alice-views-bob");
 
     await page.bob.goto(`${BASE}/battle`);
     await page.bob.getByText("You and Alice stand ready").waitFor();
@@ -175,7 +192,7 @@ async function onboard(page, user) {
     await page.carol.getByText("This team is already full").waitFor();
     assert.doesNotMatch(await page.carol.textContent("body"), /Alice/);
     ok("full invite reveals no names");
-    await shot(page.carol, "10-carol-full-invite");
+    await shot(page.carol, "12-carol-full-invite");
 
     const carol = createClient(SB_URL, SB_KEY);
     await carol.auth.signUp({ email: users.carol.email, password: PASSWORD });
@@ -247,7 +264,7 @@ async function onboard(page, user) {
     const newLink = (await page.alice.getByTestId("invite-link").textContent()).trim();
     assert.notEqual(newLink.split("/").pop(), code);
     ok(`Alice has a fresh link: ${newLink}`);
-    await shot(page.alice, "11-alice-partner-page-solo");
+    await shot(page.alice, "13-alice-partner-page-solo");
 
     console.log("\nALL CHECKS PASSED");
   } catch (err) {

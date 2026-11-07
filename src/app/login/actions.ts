@@ -1,10 +1,11 @@
 "use server";
 
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getSupabaseConfig } from "@/lib/env";
+import { INVITE_COOKIE, normalizeInviteCode } from "@/lib/team/inviteCode";
 
 export type AuthFormState = { error: string | null; message: string | null };
 
@@ -49,6 +50,21 @@ export async function login(
 
   if (error) {
     return { error: error.message, message: null };
+  }
+
+  // Came in through a partner's invite link ("Accept & sign up")? They already
+  // said yes on the invite screen, so join the team now and go straight to
+  // onboarding instead of asking again.
+  const cookieStore = await cookies();
+  const pendingInvite = normalizeInviteCode(cookieStore.get(INVITE_COOKIE)?.value);
+  if (pendingInvite) {
+    const { error: joinError } = await supabase.rpc("join_couple", { p_code: pendingInvite });
+    // On a full or dead invite, keep the cookie: "/" sends them to the invite
+    // page, which explains what happened. Already on a team (theirs or this
+    // one): nothing to do.
+    if (!joinError || /already_paired|own_code/.test(joinError.message)) {
+      cookieStore.delete(INVITE_COOKIE);
+    }
   }
 
   revalidatePath("/", "layout");

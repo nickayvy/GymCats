@@ -5,11 +5,12 @@ How two GymCats accounts become a team, what we chose, and why one couple's data
 ## The flow (what's built)
 
 1. **Alice** finishes her profile. On the last onboarding step (or later on `/partner`) she taps **Get my invite link** and gets `https://<site>/invite/K7QX2M`, with Copy and the native Share sheet on phones.
-2. **Bob** opens the link. `/invite/[code]` shows "Alice wants you on their team".
-   - **Signed out:** **Sign up to join** saves the code in an httpOnly `gc_invite` cookie (7 days) and opens sign-up. The login card keeps saying "You're joining Alice's team", including across the sign-up → log-in step and an email-confirmation round trip in the same browser.
+2. **Bob** opens the link. `/invite/[code]` shows the hero page in invite mode: "You've been invited by **Alice**", with the two cats captioned "Alice" + "You".
+   - **Signed out:** **Accept & sign up** saves the code in an httpOnly `gc_invite` cookie (7 days) and opens sign-up. While the cookie is pending, the home hero (`/`) shows the same invite, and the login card keeps saying "You're joining Alice's team", including across the sign-up → log-in step and an email-confirmation round trip in the same browser. **Not now** clears it.
    - **Signed in:** **Team up with Alice** joins right away.
-3. After login, `/` sees the cookie and sends Bob back to the invite. He accepts, the cookie is cleared, and he goes through onboarding. His partner step says "You're teamed up with Alice" and skips the invite UI.
-4. Both hubs show the partner in the top-right (photo and name). It links to `/partner`, a read-only view of the partner's profile with a **Leave team** option.
+3. Logging in with a pending invite joins Alice's team in the `login` action (Bob already said yes on the invite screen), clears the cookie and goes straight to onboarding. If the invite went full or dead in the meantime, the cookie stays and `/` sends Bob to the invite page, which explains what happened.
+4. Bob's onboarding starts with a welcome screen ("You're on Alice's team!"), shows a "Joining Alice's team" chip on every step, and ends with **Meet your partner**: Alice's photo, goals and weekly training next to Bob's own photo.
+5. Both hubs show the partner in the top-right (photo and name). It links to `/partner`, a read-only view of the partner's profile with a **Leave team** option.
 
 The 6-character code still works as a fallback: "Have a code?" on the partner step and on `/partner`.
 
