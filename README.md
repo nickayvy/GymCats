@@ -80,7 +80,7 @@ You and your partner share one boss each week (Monday to Monday, UTC). You damag
 
 | Rarity | Colour | Odds | Damage (share of the boss's max HP) |
 |---|---|---|---|
-| Common | Grey | 69.99% | up to 1% |
+| Common | Grey | 69.99% | 0.5% to 1% |
 | Uncommon | Green | 20% | over 1%, up to 10% |
 | Rare | Blue | 10% | over 10%, up to 30% |
 | Legendary | Gold | 0.01% | a flat 50% |

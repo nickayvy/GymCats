@@ -1,6 +1,7 @@
 // Battle rules shared by the UI. The server enforces the same numbers in
 // supabase/migrations/20261107000000_boss_battles.sql (the gym radius is
-// overridden in 20261108000000_gym_places.sql); change both together.
+// overridden in 20261108000000_gym_places.sql, and roll_spin() was last
+// replaced in 20261113000000_common_min_damage.sql); change both together.
 
 export type Rarity = "common" | "uncommon" | "rare" | "legendary";
 
@@ -16,7 +17,7 @@ export interface RarityRule {
 
 /** 69.99% + 20% + 10% + 0.01% = 100%. */
 export const RARITIES: readonly RarityRule[] = [
-  { id: "common", label: "Common", weight: 6999, minFraction: 0, maxFraction: 0.01 },
+  { id: "common", label: "Common", weight: 6999, minFraction: 0.005, maxFraction: 0.01 },
   { id: "uncommon", label: "Uncommon", weight: 2000, minFraction: 0.01, maxFraction: 0.1 },
   { id: "rare", label: "Rare", weight: 1000, minFraction: 0.1, maxFraction: 0.3 },
   { id: "legendary", label: "Legendary", weight: 1, minFraction: 0.5, maxFraction: 0.5 },
@@ -83,11 +84,12 @@ export function formatOdds(weight: number): string {
 /** Integer damage bounds for a rarity, matching roll_spin() in SQL. */
 export function damageRange(rarity: Rarity, maxHp: number): { min: number; max: number } {
   const one = Math.max(1, Math.floor(maxHp * 0.01));
+  const commonMin = Math.min(one, Math.max(1, Math.floor(maxHp * 0.005)));
   const ten = Math.max(one + 1, Math.floor(maxHp * 0.1));
   const thirty = Math.max(ten + 1, Math.floor(maxHp * 0.3));
   switch (rarity) {
     case "common":
-      return { min: 1, max: one };
+      return { min: commonMin, max: one };
     case "uncommon":
       return { min: one + 1, max: ten };
     case "rare":
