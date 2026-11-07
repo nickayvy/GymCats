@@ -4,7 +4,7 @@ import "@/app/styles/entry.css";
 import { Avatar } from "@/components/team/Avatar";
 import { LeaveTeamButton } from "@/components/team/LeaveTeamButton";
 import { PartnerInvite } from "@/components/team/PartnerInvite";
-import { ButtonHint, DialogBox, Panel, PanelHeading, TitleBanner } from "@/components/ui";
+import { DialogBox, Panel, PanelHeading, TitleBanner } from "@/components/ui";
 import { requireOnboardedUser } from "@/lib/auth/requireOnboardedUser";
 import { createClient } from "@/lib/supabase/server";
 import { getTeam, type TeamMember } from "@/lib/team/getTeam";
@@ -129,7 +129,6 @@ export default async function PartnerPage(): Promise<React.JSX.Element> {
     <main className="relative flex min-h-dvh flex-col items-center overflow-x-hidden px-4 pb-14 pt-4 sm:pt-6">
       <header className="relative z-10 flex w-full max-w-2xl items-center justify-between">
         <Link href="/hub" className="gc-btn gc-btn-ghost gc-btn-sm -ml-2">
-          <ButtonHint glyph="B" />
           Hub
         </Link>
         <p className="gc-caps">Your team</p>

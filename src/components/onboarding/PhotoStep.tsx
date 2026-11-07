@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { CAT_SPRITES, PixelSprite } from "@/components/sprites";
-import { ItemSlot } from "@/components/ui";
 import { fieldClass, errorClass, labelClass, secondaryButtonClass } from "./styles";
 
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
@@ -54,7 +53,7 @@ export function PhotoStep({ file, onFileChange }: PhotoStepProps): React.JSX.Ele
     <div className="flex flex-col gap-5">
       <div className="flex flex-col items-center gap-5">
         <div className="gc-rise flex flex-col items-center gap-2">
-          <ItemSlot size={144} selected={previewUrl !== null} className="ob-portrait">
+          <div className="ob-portrait relative flex h-36 w-36 items-center justify-center border border-white/20 bg-black/50">
             {previewUrl ? (
               // eslint-disable-next-line @next/next/no-img-element -- local object URL preview, not optimizable
               <img
@@ -75,8 +74,7 @@ export function PhotoStep({ file, onFileChange }: PhotoStepProps): React.JSX.Ele
                 <span className="gc-caps">No photo</span>
               </div>
             )}
-          </ItemSlot>
-          <span aria-hidden="true" className="gc-sprite-shadow" />
+          </div>
         </div>
 
         <div className="flex flex-wrap items-center justify-center gap-3">
@@ -90,7 +88,6 @@ export function PhotoStep({ file, onFileChange }: PhotoStepProps): React.JSX.Ele
             className="ob-file sr-only"
           />
           <label htmlFor="avatar" className={`${secondaryButtonClass} cursor-pointer`}>
-            <span aria-hidden="true">◆</span>
             {file ? "Choose another photo" : "Choose a photo"}
           </label>
           {file ? (

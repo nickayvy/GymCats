@@ -2,202 +2,201 @@
    Loaded by src/app/onboarding/page.tsx. Builds on the gc-* classes in
    globals.css; selectors are scoped so they never leak into other screens. */
 
-/* ---------- Step progress: a row of diamonds, the current one glowing ---------- */
+/* Fix the layer order in case this file loads before globals.css. */
+@layer theme, base, components, utilities;
 
-.ob-steps {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+@layer components {
+  /* ---------- Step progress: a row of diamonds, the current one glowing ---------- */
 
-.ob-step {
-  position: relative;
-  display: block;
-  width: 12px;
-  height: 12px;
-  flex-shrink: 0;
-  transform: rotate(45deg);
-  border: 1px solid var(--line-strong);
-  background: rgba(0, 0, 0, 0.6);
-  transition:
-    background 300ms ease,
-    border-color 300ms ease,
-    box-shadow 300ms ease,
-    width 300ms ease,
-    height 300ms ease;
-}
-
-.ob-step[data-state="done"] {
-  border-color: #fff8e6;
-  background: linear-gradient(135deg, #fffaf0, #d9c79c);
-  box-shadow: 0 0 8px rgba(255, 236, 170, 0.35);
-}
-
-.ob-step[data-state="current"] {
-  width: 18px;
-  height: 18px;
-  border-color: #c9fffb;
-  background: radial-gradient(circle, #f2fffe 0 22%, var(--glow) 55%, #1f7d79 100%);
-  animation: ob-step-glow 1.8s ease-in-out infinite;
-}
-
-@keyframes ob-step-glow {
-  0%,
-  100% {
-    box-shadow:
-      0 0 0 3px rgba(116, 230, 226, 0.14),
-      0 0 10px var(--glow-soft);
+  .ob-steps {
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
-  50% {
-    box-shadow:
-      0 0 0 5px rgba(116, 230, 226, 0.22),
-      0 0 22px rgba(116, 230, 226, 0.7);
+
+  .ob-step {
+    position: relative;
+    display: block;
+    width: 12px;
+    height: 12px;
+    flex-shrink: 0;
+    transform: rotate(45deg);
+    border: 1px solid var(--line-strong);
+    background: rgba(0, 0, 0, 0.6);
+    transition:
+      background 300ms ease,
+      border-color 300ms ease,
+      box-shadow 300ms ease,
+      width 300ms ease,
+      height 300ms ease;
   }
-}
 
-.ob-step-link {
-  display: block;
-  width: 26px;
-  height: 1px;
-  margin: 0 6px;
-  background: var(--line);
-  transition: background 300ms ease;
-}
+  .ob-step[data-state="done"] {
+    border-color: #fff8e6;
+    background: linear-gradient(135deg, #fffaf0, #d9c79c);
+    box-shadow: 0 0 8px rgba(255, 236, 170, 0.35);
+  }
 
-@media (min-width: 640px) {
+  .ob-step[data-state="current"] {
+    width: 18px;
+    height: 18px;
+    border-color: #c9fffb;
+    background: radial-gradient(circle, #f2fffe 0 22%, var(--glow) 55%, #1f7d79 100%);
+    animation: ob-step-glow 1.8s ease-in-out infinite;
+  }
+
+  @keyframes ob-step-glow {
+    0%,
+    100% {
+      box-shadow:
+        0 0 0 3px rgba(116, 230, 226, 0.14),
+        0 0 10px var(--glow-soft);
+    }
+    50% {
+      box-shadow:
+        0 0 0 5px rgba(116, 230, 226, 0.22),
+        0 0 22px rgba(116, 230, 226, 0.7);
+    }
+  }
+
   .ob-step-link {
-    width: 44px;
+    display: block;
+    width: 26px;
+    height: 1px;
+    margin: 0 6px;
+    background: var(--line);
+    transition: background 300ms ease;
   }
-}
 
-.ob-step-link[data-done] {
-  background: linear-gradient(90deg, #fff8e6, rgba(255, 248, 230, 0.55));
-}
-
-/* ---------- Step content slides in from the side it came from ---------- */
-
-.ob-slide {
-  animation: ob-slide-in 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
-.ob-slide[data-dir="back"] {
-  --ob-from: -24px;
-}
-
-@keyframes ob-slide-in {
-  from {
-    opacity: 0;
-    transform: translateX(var(--ob-from, 24px));
+  @media (min-width: 640px) {
+    .ob-step-link {
+      width: 44px;
+    }
   }
-  to {
-    opacity: 1;
-    transform: none;
+
+  .ob-step-link[data-done] {
+    background: linear-gradient(90deg, #fff8e6, rgba(255, 248, 230, 0.55));
   }
-}
 
-/* ---------- Options-screen rows: label | control ---------- */
+  /* ---------- Step content slides in from the side it came from ---------- */
 
-.ob-row > :last-child {
-  padding: 0 0.25rem;
-}
-
-.ob-row .gc-input {
-  min-height: 2.5rem;
-  border-color: transparent;
-  background-color: transparent;
-  box-shadow: none;
-  text-align: center;
-  font-weight: 500;
-}
-
-.ob-row select.gc-input {
-  text-align-last: center;
-}
-
-.ob-row .gc-input:focus {
-  border-color: var(--glow);
-  box-shadow:
-    0 0 0 1px var(--glow),
-    0 0 14px var(--glow-soft);
-}
-
-/* Hide number spinners inside rows; the slider and keyboard cover it. */
-.ob-row input[type="number"] {
-  -moz-appearance: textfield;
-  appearance: textfield;
-}
-
-.ob-row input[type="number"]::-webkit-inner-spin-button,
-.ob-row input[type="number"]::-webkit-outer-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-/* ---------- Stat block: label, big readout, slider, then rows ---------- */
-
-.ob-stat {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-  padding: 0.85rem;
-  border: 1px solid var(--line);
-  border-radius: 4px;
-  background: rgba(0, 0, 0, 0.28);
-}
-
-.ob-readout {
-  font-family: var(--font-title), Georgia, serif;
-  font-weight: 700;
-  font-size: 1.35rem;
-  line-height: 1;
-  color: #e9fffd;
-  text-shadow: 0 0 14px var(--glow-soft);
-  font-variant-numeric: tabular-nums;
-}
-
-.ob-readout[data-empty] {
-  color: var(--ink-faint);
-  text-shadow: none;
-}
-
-.ob-stat .gc-range[data-empty] {
-  opacity: 0.45;
-}
-
-/* ---------- Key glyphs inside parchment buttons ---------- */
-
-.gc-btn-primary .gc-hint {
-  background: #17140c;
-  color: #fbf3dc;
-}
-
-/* ---------- Portrait slot ---------- */
-
-.ob-portrait {
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.ob-portrait::after {
-  /* thin inner frame */
-  content: "";
-  position: absolute;
-  inset: 5px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  pointer-events: none;
-}
-
-/* The photo input is visually hidden; show its focus on the label button. */
-.ob-file:focus-visible + .gc-btn {
-  border-color: var(--glow);
-  box-shadow:
-    0 0 0 1px var(--glow),
-    0 0 18px var(--glow-soft);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .ob-step[data-state="current"],
   .ob-slide {
-    animation: none !important;
+    animation: ob-slide-in 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .ob-slide[data-dir="back"] {
+    --ob-from: -24px;
+  }
+
+  @keyframes ob-slide-in {
+    from {
+      opacity: 0;
+      transform: translateX(var(--ob-from, 24px));
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* ---------- Options-screen rows: label | control ---------- */
+
+  .ob-row > :last-child {
+    padding: 0 0.25rem;
+  }
+
+  .ob-row .gc-input {
+    min-height: 2.5rem;
+    border-color: transparent;
+    background-color: transparent;
+    box-shadow: none;
+    text-align: center;
+    font-weight: 500;
+  }
+
+  .ob-row select.gc-input {
+    text-align-last: center;
+  }
+
+  .ob-row .gc-input:focus {
+    border-color: var(--glow);
+    box-shadow:
+      0 0 0 1px var(--glow),
+      0 0 14px var(--glow-soft);
+  }
+
+  /* Hide number spinners inside rows; the slider and keyboard cover it. */
+  .ob-row input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+
+  .ob-row input[type="number"]::-webkit-inner-spin-button,
+  .ob-row input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  /* ---------- Stat block: label, big readout, slider, then rows ---------- */
+
+  .ob-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    padding: 0.85rem;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.28);
+  }
+
+  .ob-readout {
+    font-family: var(--font-title), Georgia, serif;
+    font-weight: 700;
+    font-size: 1.35rem;
+    line-height: 1;
+    color: #e9fffd;
+    text-shadow: 0 0 14px var(--glow-soft);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .ob-readout[data-empty] {
+    color: var(--ink-faint);
+    text-shadow: none;
+  }
+
+  .ob-stat .gc-range[data-empty] {
+    opacity: 0.45;
+  }
+
+
+  /* ---------- Portrait slot ---------- */
+
+  .ob-portrait {
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .ob-portrait::after {
+    /* thin inner frame */
+    content: "";
+    position: absolute;
+    inset: 5px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    pointer-events: none;
+  }
+
+  /* The photo input is visually hidden; show its focus on the label button. */
+  .ob-file:focus-visible + .gc-btn {
+    border-color: var(--glow);
+    box-shadow:
+      0 0 0 1px var(--glow),
+      0 0 18px var(--glow-soft);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ob-step[data-state="current"],
+    .ob-slide {
+      animation: none !important;
+    }
   }
 }

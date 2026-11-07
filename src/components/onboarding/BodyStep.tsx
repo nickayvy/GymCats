@@ -67,7 +67,7 @@ export function BodyStep({ draft, onChange }: StepProps): React.JSX.Element {
         <RangeSlider
           aria-label="Adjust height"
           aria-valuetext={
-            totalInches === null ? undefined : `${Math.floor(totalInches / 12)} feet ${totalInches % 12} inches`
+            totalInches === null ? "Not set" : `${Math.floor(totalInches / 12)} feet ${totalInches % 12} inches`
           }
           min={HEIGHT_MIN_IN}
           max={HEIGHT_MAX_IN}
@@ -122,7 +122,7 @@ export function BodyStep({ draft, onChange }: StepProps): React.JSX.Element {
         </div>
         <RangeSlider
           aria-label="Adjust weight"
-          aria-valuetext={weightLb === null ? undefined : `${weightLb} pounds`}
+          aria-valuetext={weightLb === null ? "Not set" : `${weightLb} pounds`}
           min={WEIGHT_MIN_LB}
           max={WEIGHT_MAX_LB}
           value={weightLb === null ? WEIGHT_REST_LB : Math.round(weightLb)}

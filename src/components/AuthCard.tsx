@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { LoginForm } from "@/components/LoginForm";
 import { SignupForm } from "@/components/SignupForm";
-import { ButtonHint, Panel, TitleBanner, Toggle } from "@/components/ui";
+import { Panel, TitleBanner, Toggle } from "@/components/ui";
 
 const MODES = [
   { value: "login", label: "Log in" },
@@ -62,7 +62,6 @@ export function AuthCard({
 
         <div className="flex items-center justify-between gap-3">
           <Link href="/" className="gc-btn gc-btn-ghost gc-btn-sm -ml-2 shrink-0 whitespace-nowrap">
-            <ButtonHint glyph="B" />
             Back home
           </Link>
           <p className="gc-eyebrow text-right text-xs">

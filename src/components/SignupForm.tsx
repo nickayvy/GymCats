@@ -2,7 +2,6 @@
 
 import { useActionState } from "react";
 import { signup, type AuthFormState } from "@/app/login/actions";
-import { ButtonHint } from "@/components/ui";
 
 const initialState: AuthFormState = { error: null, message: null };
 
@@ -53,7 +52,6 @@ export function AuthSubmit({
 }): React.JSX.Element {
   return (
     <button type="submit" disabled={pending} className="gc-btn gc-btn-primary gc-btn-lg mt-2 w-full">
-      <ButtonHint glyph="A" className="bg-[#17140c]! text-[#fbf3dc]!" />
       {pending ? pendingLabel : label}
     </button>
   );

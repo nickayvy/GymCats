@@ -9,7 +9,7 @@ import { GoalsStep } from "./GoalsStep";
 import { PartnerStep } from "./PartnerStep";
 import { PhotoStep } from "./PhotoStep";
 import { errorClass, primaryButtonClass, secondaryButtonClass } from "./styles";
-import { ButtonHint, Panel, TitleBanner } from "@/components/ui";
+import { Panel, TitleBanner } from "@/components/ui";
 
 const TITLES = [
   "About you",
@@ -19,13 +19,13 @@ const TITLES = [
   "Your partner",
 ] as const;
 
-// Small italic line above each step title, like a new-save screen.
+// Small line above each step title.
 const EYEBROWS = [
-  "Name your hero",
-  "Set your stats",
-  "Choose your quest",
-  "Pick a portrait",
-  "Form your party",
+  "Let's start with the basics",
+  "Used to tailor your plan",
+  "What do you want to work on?",
+  "Shown to your partner",
+  "Train together",
 ] as const;
 
 const TOTAL_STEPS = TITLES.length;
@@ -183,7 +183,6 @@ export function OnboardingWizard({
               disabled={saving}
               className={`${secondaryButtonClass} min-w-28`}
             >
-              <ButtonHint glyph="B" />
               Back
             </button>
           ) : (
@@ -196,7 +195,6 @@ export function OnboardingWizard({
             className={`${primaryButtonClass} min-w-36`}
           >
             {nextLabel}
-            <ButtonHint glyph="A" />
           </button>
         </footer>
       )}

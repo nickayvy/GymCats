@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useMemo, useRef, useState, useTransition } from "react";
 import { logWorkout } from "@/app/log/actions";
 import { SpinBadge } from "@/components/hub/SpinBadge";
-import { ButtonHint, TitleBanner } from "@/components/ui";
+import { TitleBanner } from "@/components/ui";
 import "@/app/styles/log.css";
 import { errorClass, secondaryButtonClass } from "@/components/onboarding/styles";
 import { COMMON_EXERCISES, exerciseKey, MAX_EXERCISES } from "@/lib/workouts/growth";
@@ -109,7 +109,6 @@ export function WorkoutLogger({
       <div className="relative z-10 mx-auto flex w-full max-w-2xl flex-col gap-6">
         <header className="flex items-center justify-between gap-3">
           <Link href="/hub" className="gc-btn gc-btn-ghost gc-btn-sm -ml-2">
-            <ButtonHint glyph="B" />
             Hub
           </Link>
           <SpinBadge spins={result ? result.spinsBalance : spins} />
@@ -185,7 +184,6 @@ export function WorkoutLogger({
               className="gc-btn gc-btn-moss gc-btn-lg"
             >
               {pending ? "Saving…" : "Log workout"}
-              <ButtonHint glyph="A" />
             </button>
           </form>
         )}

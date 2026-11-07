@@ -56,9 +56,12 @@ export function InviteLinkCard({ code }: { code: string }): React.JSX.Element {
         {link}
       </p>
       <div className="flex flex-wrap justify-center gap-3">
-        <button type="button" onClick={handleCopy} className="gc-btn gc-btn-glow gc-btn-sm min-w-[8.5rem]" aria-live="polite">
+        <button type="button" onClick={handleCopy} className="gc-btn gc-btn-glow gc-btn-sm min-w-[8.5rem]">
           {copied ? "Copied!" : "Copy link"}
         </button>
+        <span role="status" className="sr-only">
+          {copied ? "Invite link copied" : ""}
+        </span>
         {canShare ? (
           <button type="button" onClick={handleShare} className="gc-btn gc-btn-sm min-w-[6rem]">
             Share…

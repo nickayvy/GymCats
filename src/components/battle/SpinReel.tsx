@@ -70,7 +70,9 @@ export function SpinReel({ maxHp, spinId, result, onDone }: SpinReelProps): Reac
   const [width, setWidth] = useState(0);
   const [offset, setOffset] = useState(0);
   const [animating, setAnimating] = useState(false);
-  const [landed, setLanded] = useState(false);
+  // The spinId whose reel has stopped. Keyed by spin so a new spin never
+  // starts out looking "landed" for a frame before the effect runs.
+  const [landedSpin, setLandedSpin] = useState<number | null>(null);
   const onDoneRef = useRef(onDone);
   onDoneRef.current = onDone;
 
@@ -96,7 +98,6 @@ export function SpinReel({ maxHp, spinId, result, onDone }: SpinReelProps): Reac
   }
 
   useEffect(() => {
-    setLanded(false);
     if (result === null || width === 0) {
       setAnimating(false);
       setOffset(offsetFor(3));
@@ -107,7 +108,7 @@ export function SpinReel({ maxHp, spinId, result, onDone }: SpinReelProps): Reac
       setAnimating(false);
       setOffset(offsetFor(WINNER_INDEX));
       const t = window.setTimeout(() => {
-        setLanded(true);
+        setLandedSpin(spinId);
         onDoneRef.current();
       }, 300);
       return () => window.clearTimeout(t);
@@ -124,7 +125,7 @@ export function SpinReel({ maxHp, spinId, result, onDone }: SpinReelProps): Reac
       });
     });
     const t = window.setTimeout(() => {
-      setLanded(true);
+      setLandedSpin(spinId);
       onDoneRef.current();
     }, SPIN_MS + 150);
     return () => {
@@ -136,6 +137,7 @@ export function SpinReel({ maxHp, spinId, result, onDone }: SpinReelProps): Reac
   }, [spinId, width === 0]);
 
   // The winner card lights up once the reel has stopped and the result is shown.
+  const landed = landedSpin === spinId;
   const revealed = landed && result !== null;
   const winnerLook = result ? RARITY_LOOK[result.rarity] : null;
 

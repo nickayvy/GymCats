@@ -5,7 +5,7 @@ import { LogGrowButton } from "@/components/hub/LogGrowButton";
 import { SpinBadge } from "@/components/hub/SpinBadge";
 import { PartnerBadge } from "@/components/team/PartnerBadge";
 import { TeamStrip } from "@/components/team/TeamStrip";
-import { BossBanner, HintBar, Panel } from "@/components/ui";
+import { BossBanner, Panel } from "@/components/ui";
 import { requireOnboardedUser } from "@/lib/auth/requireOnboardedUser";
 import { loadBattleState } from "@/lib/battle/server";
 import { PREVIEW_SPINS } from "@/lib/battle/state";
@@ -111,14 +111,6 @@ export default async function HubPage(): Promise<React.JSX.Element> {
         </div>
       </section>
 
-      <footer className="relative z-10 mt-4 border-t border-white/10 pt-3">
-        <HintBar
-          hints={[
-            { glyph: "A", label: "Battle" },
-            { glyph: "X", label: "Log & Grow" },
-          ]}
-        />
-      </footer>
     </main>
   );
 }

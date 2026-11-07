@@ -10,7 +10,7 @@ import { RARITY_LOOK } from "@/components/battle/rarity";
 import { SpinReel } from "@/components/battle/SpinReel";
 import { useNow } from "@/components/battle/shared";
 import { ITEM_SPRITES, PixelSprite } from "@/components/sprites";
-import { BossBanner, ButtonHint, HintBar, Panel, PanelHeading, Starburst } from "@/components/ui";
+import { BossBanner, Panel, PanelHeading, Starburst } from "@/components/ui";
 import {
   RARITIES,
   RARITY_BY_ID,
@@ -126,7 +126,6 @@ export function BattleScreen({ initialState, preview }: BattleScreenProps): Reac
       <div className="battle-cover" aria-hidden="true" />
       <header className="relative z-10 flex items-center justify-between gap-3">
         <Link href="/hub" className="gc-btn gc-btn-ghost gc-btn-sm -ml-2 gap-2 px-2.5">
-          <ButtonHint glyph="B" />
           Retreat
         </Link>
         <p className="gc-caps text-[#ff8a74]/90">Boss battle{preview ? " · Preview" : ""}</p>
@@ -257,7 +256,6 @@ export function BattleScreen({ initialState, preview }: BattleScreenProps): Reac
               <span className="not-italic tracking-[0.24em]">
                 {phase === "requesting" ? "…" : phase === "spinning" ? "Rolling" : "Attack"}
               </span>
-              {!busy && !defeated && attacks > 0 ? <ButtonHint glyph="A" /> : null}
             </button>
           </div>
         </Panel>
@@ -270,14 +268,6 @@ export function BattleScreen({ initialState, preview }: BattleScreenProps): Reac
         </div>
       </div>
 
-      <footer className="relative z-10 mt-5 border-t border-white/10 pt-3">
-        <HintBar
-          hints={[
-            { glyph: "A", label: "Attack" },
-            { glyph: "B", label: "Retreat" },
-          ]}
-        />
-      </footer>
     </main>
   );
 }

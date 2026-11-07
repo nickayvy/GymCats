@@ -49,11 +49,16 @@ function getBuilt(sheet: SpriteSheet, flip: boolean): Built {
   return (entry[key] ??= build(sheet, flip));
 }
 
+// Declares the full layer order first: React may hoist this <style> above the
+// main stylesheet, and the first mention of a layer fixes its position.
 const CSS =
+  "@layer theme,base,components,utilities;" +
+  "@layer components{" +
   "@keyframes gc-px-step{from{transform:translateX(0)}to{transform:translateX(-100%)}}" +
   ":where(.gc-px){display:inline-block;vertical-align:middle;line-height:0}" +
   ".gc-px>svg{display:block}" +
-  "@media (prefers-reduced-motion:reduce){.gc-px>svg{animation:none!important;transform:none!important}}";
+  "@media (prefers-reduced-motion:reduce){.gc-px>svg{animation:none!important;transform:none!important}}" +
+  "}";
 
 export interface PixelSpriteProps {
   sheet: SpriteSheet;

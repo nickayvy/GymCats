@@ -1,5 +1,4 @@
 export { BossBanner } from "./BossBanner";
-export { ButtonHint, HintBar } from "./ButtonHint";
 export { DialogBox } from "./DialogBox";
 export { ItemSlot } from "./ItemSlot";
 export { Meter } from "./Meter";

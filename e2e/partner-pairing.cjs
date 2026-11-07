@@ -65,7 +65,7 @@ async function onboard(page, user) {
   await page.click('button:has-text("Next")');
   if (user.avatar) await page.setInputFiles("#avatar", user.avatar);
   await page.click('button:has-text("Save profile")');
-  await page.waitForSelector("text=Your partner");
+  await page.getByRole("heading", { name: "Your partner", exact: true }).waitFor();
 }
 
 (async () => {

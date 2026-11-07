@@ -100,9 +100,6 @@ export function GymPicker({ currentGymName, onCheckedIn, onCancel }: GymPickerPr
             className="gc-btn gc-btn-ghost gc-btn-sm shrink-0 gap-1.5 px-2"
           >
             Back
-            <span aria-hidden="true" className="gc-hint">
-              B
-            </span>
           </button>
         )}
       </div>

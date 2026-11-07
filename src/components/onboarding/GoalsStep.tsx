@@ -150,8 +150,7 @@ export function GoalsStep({ draft, onChange }: StepProps) {
       {plan ? (
         <div className="gc-rise rounded-sm border border-white/15 bg-black/45 p-4 text-left shadow-[inset_0_0_0_1px_rgba(0,0,0,0.5)]">
           <p className="gc-label mb-2 flex items-center gap-2" style={{ color: "var(--glow)" }}>
-            <span aria-hidden="true">✦</span>
-            Trail guide&apos;s plan
+            Your suggested plan
           </p>
           <p className="text-sm italic leading-relaxed text-ink">{plan.summary}</p>
           <ul className="mt-4 flex flex-col gap-1">

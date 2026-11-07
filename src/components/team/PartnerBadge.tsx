@@ -3,7 +3,7 @@ import type { TeamMember } from "@/lib/team/getTeam";
 import { Avatar } from "./Avatar";
 
 const chip =
-  "flex items-center rounded-full border bg-black/60 shadow-[0_8px_24px_rgba(0,0,0,0.45)] backdrop-blur-md transition";
+  "flex items-center rounded border bg-black/60 shadow-[0_8px_24px_rgba(0,0,0,0.45)] backdrop-blur-md transition";
 
 /** Top-right HUD chip on the hub: your partner, or a prompt to invite one. */
 export function PartnerBadge({ partner }: { partner: TeamMember | null }): React.JSX.Element {
@@ -15,7 +15,7 @@ export function PartnerBadge({ partner }: { partner: TeamMember | null }): React
       >
         <span
           aria-hidden="true"
-          className="flex h-5 w-5 items-center justify-center rounded-full bg-glow text-sm font-bold not-italic leading-none text-black"
+          className="flex h-5 w-5 items-center justify-center rounded-sm bg-glow text-sm font-bold not-italic leading-none text-black"
         >
           +
         </span>

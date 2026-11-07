@@ -5,7 +5,7 @@ import { describeGrowth, formatSets, growthTargets } from "@/lib/workouts/growth
 import type { LogWorkoutResult } from "@/lib/workouts/schema";
 import { primaryButtonClass, secondaryButtonClass } from "@/components/onboarding/styles";
 import { ITEM_SPRITES, PixelSprite } from "@/components/sprites";
-import { ButtonHint, ItemSlot, Starburst, TitleBanner } from "@/components/ui";
+import { ItemSlot, Starburst, TitleBanner } from "@/components/ui";
 import { ExerciseIcon } from "./exerciseIcon";
 
 export function LogResult({
@@ -113,12 +113,10 @@ export function LogResult({
 
       <div className="flex w-full flex-col gap-3 sm:flex-row sm:justify-center">
         <Link href="/hub" className={`${primaryButtonClass} text-center`}>
-          <ButtonHint glyph="B" />
           Back to hub
         </Link>
         <button type="button" onClick={onLogAnother} className={`${secondaryButtonClass} lg-add`}>
           Log another workout
-          <ButtonHint glyph="A" />
         </button>
       </div>
     </section>

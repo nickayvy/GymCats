@@ -1,75 +1,80 @@
 /* Entry screens (landing, auth, invite, partner) and team pieces.
    Builds on the gc-* system in globals.css; only what that file lacks. */
 
-/* "Press start" prompt on the title screen. */
-.gc-press {
-  animation: gc-press 2.4s ease-in-out infinite;
-}
+/* Fix the layer order in case this file loads before globals.css. */
+@layer theme, base, components, utilities;
 
-@keyframes gc-press {
-  0%,
-  100% {
-    opacity: 0.35;
-  }
-  50% {
-    opacity: 1;
-  }
-}
-
-/* Empty party slot: dashed frame that breathes like a waiting cursor. */
-.gc-party-open {
-  border: 1px dashed rgba(116, 230, 226, 0.55);
-  background: rgba(116, 230, 226, 0.06);
-  color: var(--glow);
-  animation: gc-party-wait 2.2s ease-in-out infinite;
-}
-
-@keyframes gc-party-wait {
-  0%,
-  100% {
-    box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.45), 0 0 0 rgba(116, 230, 226, 0);
-  }
-  50% {
-    box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.45), 0 0 16px rgba(116, 230, 226, 0.35);
-  }
-}
-
-/* Portrait frame for avatars: a square inventory slot with a fine inner rule. */
-.gc-portrait {
-  position: relative;
-  border-radius: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.32);
-  background: linear-gradient(160deg, rgba(48, 48, 42, 0.92), rgba(10, 10, 9, 0.94));
-  box-shadow:
-    inset 0 0 0 2px rgba(0, 0, 0, 0.55),
-    inset 0 0 0 3px rgba(255, 255, 255, 0.06),
-    0 6px 18px rgba(0, 0, 0, 0.45);
-}
-
-/* Letter tiles for the 6-character invite code. */
-.gc-code-tile {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2rem;
-  height: 2.4rem;
-  border-radius: 3px;
-  border: 1px solid var(--line);
-  background: rgba(0, 0, 0, 0.55);
-  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.45);
-  font-family: var(--font-label), system-ui, sans-serif;
-  font-size: 1.05rem;
-  font-weight: 700;
-  color: #e9fffd;
-  text-shadow: 0 0 10px rgba(116, 230, 226, 0.5);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .gc-press,
-  .gc-party-open {
-    animation: none !important;
-  }
+@layer components {
+  /* "Press start" prompt on the title screen. */
   .gc-press {
-    opacity: 0.8;
+    animation: gc-press 2.4s ease-in-out infinite;
+  }
+
+  @keyframes gc-press {
+    0%,
+    100% {
+      opacity: 0.35;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+
+  /* Empty party slot: dashed frame that breathes like a waiting cursor. */
+  .gc-party-open {
+    border: 1px dashed rgba(116, 230, 226, 0.55);
+    background: rgba(116, 230, 226, 0.06);
+    color: var(--glow);
+    animation: gc-party-wait 2.2s ease-in-out infinite;
+  }
+
+  @keyframes gc-party-wait {
+    0%,
+    100% {
+      box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.45), 0 0 0 rgba(116, 230, 226, 0);
+    }
+    50% {
+      box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.45), 0 0 16px rgba(116, 230, 226, 0.35);
+    }
+  }
+
+  /* Portrait frame for avatars: a square inventory slot with a fine inner rule. */
+  .gc-portrait {
+    position: relative;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.32);
+    background: linear-gradient(160deg, rgba(48, 48, 42, 0.92), rgba(10, 10, 9, 0.94));
+    box-shadow:
+      inset 0 0 0 2px rgba(0, 0, 0, 0.55),
+      inset 0 0 0 3px rgba(255, 255, 255, 0.06),
+      0 6px 18px rgba(0, 0, 0, 0.45);
+  }
+
+  /* Letter tiles for the 6-character invite code. */
+  .gc-code-tile {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2.4rem;
+    border-radius: 3px;
+    border: 1px solid var(--line);
+    background: rgba(0, 0, 0, 0.55);
+    box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.45);
+    font-family: var(--font-label), system-ui, sans-serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #e9fffd;
+    text-shadow: 0 0 10px rgba(116, 230, 226, 0.5);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .gc-press,
+    .gc-party-open {
+      animation: none !important;
+    }
+    .gc-press {
+      opacity: 0.8;
+    }
   }
 }

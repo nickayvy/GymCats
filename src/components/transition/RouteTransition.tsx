@@ -222,7 +222,7 @@ export function RouteTransition(): React.JSX.Element | null {
             0%
           </span>
         </p>
-        <p className="mt-6 flex items-start gap-2 border-t border-white/10 pt-3 text-sm italic leading-relaxed text-white/60">
+        <p aria-hidden="true" className="mt-6 flex items-start gap-2 border-t border-white/10 pt-3 text-sm italic leading-relaxed text-white/60">
           <span aria-hidden="true" className="mt-[0.45em] h-1.5 w-1.5 shrink-0 rotate-45 bg-gold/80" />
           <span>
             <span className="gc-caps mr-2 not-italic text-gold/80">Tip</span>

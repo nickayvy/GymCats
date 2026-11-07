@@ -2,7 +2,6 @@
 
 import { useActionState } from "react";
 import { acceptInvite, type InviteActionState } from "@/app/invite/actions";
-import { ButtonHint } from "@/components/ui";
 
 const initialState: InviteActionState = { error: null };
 
@@ -23,7 +22,6 @@ export function AcceptInviteButton({
         disabled={pending}
         className="gc-btn gc-btn-primary gc-btn-lg gc-shine w-full"
       >
-        <ButtonHint glyph="A" className="bg-[#17140c]! text-[#fbf3dc]!" />
         {pending ? "Joining…" : `Team up with ${partnerName}`}
       </button>
       {state.error ? (

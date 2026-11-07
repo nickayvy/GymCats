@@ -5,7 +5,7 @@ import { continueToAuth, dismissInvite } from "@/app/invite/actions";
 import { AcceptInviteButton } from "@/components/team/AcceptInviteButton";
 import { Avatar } from "@/components/team/Avatar";
 import { InviteLinkCard } from "@/components/team/InviteLinkCard";
-import { ButtonHint, DialogBox, Panel, TitleBanner } from "@/components/ui";
+import { DialogBox, Panel, TitleBanner } from "@/components/ui";
 import { getSupabaseConfig } from "@/lib/env";
 import { createClient } from "@/lib/supabase/server";
 import { normalizeInviteCode } from "@/lib/team/inviteCode";
@@ -15,7 +15,6 @@ export const metadata: Metadata = { title: "Team invite · GymCats" };
 const primaryClass = "gc-btn gc-btn-primary gc-btn-lg gc-shine w-full";
 const secondaryClass = "gc-btn w-full";
 const ghostClass = "gc-btn gc-btn-ghost gc-btn-sm";
-const hintOnPrimary = "bg-[#17140c]! text-[#fbf3dc]!";
 
 type View =
   | { kind: "preview" }
@@ -62,7 +61,6 @@ function DismissLink({ label, primary = false }: { label: string; primary?: bool
   return (
     <form action={dismissInvite} className={primary ? "w-full" : undefined}>
       <button type="submit" className={primary ? secondaryClass : ghostClass}>
-        {primary ? null : <ButtonHint glyph="B" />}
         {label}
       </button>
     </form>
@@ -150,7 +148,6 @@ export default async function InvitePage({
                     <input type="hidden" name="code" value={view.code} />
                     <input type="hidden" name="mode" value="signup" />
                     <button type="submit" className={primaryClass}>
-                      <ButtonHint glyph="A" className={hintOnPrimary} />
                       Sign up to join
                     </button>
                   </form>
@@ -171,7 +168,6 @@ export default async function InvitePage({
               <p className="gc-eyebrow">Send it to your partner so they can join your team.</p>
               <InviteLinkCard code={view.code} />
               <Link href="/" className={ghostClass}>
-                <ButtonHint glyph="B" />
                 Back
               </Link>
             </>
@@ -196,7 +192,6 @@ export default async function InvitePage({
               <PartyRow inviterName="Your partner" />
               <NoticeBody text="Preview mode: Supabase isn't configured.">
                 <Link href="/" className={ghostClass}>
-                  <ButtonHint glyph="B" />
                   Back home
                 </Link>
               </NoticeBody>

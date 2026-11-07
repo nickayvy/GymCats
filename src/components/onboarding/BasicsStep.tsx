@@ -26,7 +26,7 @@ export function BasicsStep({ draft, onChange }: StepProps): React.JSX.Element {
             type="text"
             maxLength={40}
             autoComplete="nickname"
-            placeholder="Your hero's name"
+            placeholder="Your name"
             className={inputClass}
             value={draft.displayName}
             onChange={(e) => onChange({ displayName: e.target.value })}
@@ -57,6 +57,7 @@ export function BasicsStep({ draft, onChange }: StepProps): React.JSX.Element {
           </span>
           <RangeSlider
             aria-label="Adjust age"
+            aria-valuetext={draft.age === null ? "Not set" : undefined}
             min={AGE_MIN}
             max={AGE_MAX}
             value={draft.age ?? AGE_REST}

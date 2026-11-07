@@ -18,7 +18,7 @@
 
   --ink: #f3efe4;
   --ink-dim: rgba(243, 239, 228, 0.64);
-  --ink-faint: rgba(243, 239, 228, 0.38);
+  --ink-faint: rgba(243, 239, 228, 0.6);
   --panel: rgba(9, 11, 10, 0.66);
   --panel-strong: rgba(7, 8, 8, 0.86);
   --panel-hover: rgba(255, 255, 255, 0.08);
@@ -67,9 +67,11 @@ body {
   color: #fff;
 }
 
-:focus-visible {
-  outline: 2px solid var(--glow);
-  outline-offset: 2px;
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--glow);
+    outline-offset: 2px;
+  }
 }
 
 /* Everything below lives in the components layer so Tailwind utilities on
@@ -332,7 +334,7 @@ body {
     gap: 0.6rem;
     min-height: 2.75rem;
     padding: 0.6rem 1.4rem;
-    border-radius: 9999px;
+    border-radius: 4px;
     border: 1px solid var(--line-strong);
     background: rgba(20, 20, 18, 0.78);
     color: var(--ink);
@@ -369,7 +371,7 @@ body {
   /* Pointer triangle that appears on the selected/hovered option. */
   .gc-btn.gc-option {
     justify-content: flex-start;
-    border-radius: 9999px;
+    border-radius: 4px;
     padding-left: 1.4rem;
   }
 
@@ -503,23 +505,6 @@ body {
     font-size: 0.85rem;
   }
 
-  /* Round controller-style key glyph, e.g. <ButtonHint glyph="A" />. */
-  .gc-hint {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 1.25rem;
-    height: 1.25rem;
-    border-radius: 9999px;
-    background: #f3efe4;
-    color: #111;
-    font-family: var(--font-label), system-ui, sans-serif;
-    font-size: 0.68rem;
-    font-weight: 800;
-    font-style: normal;
-    line-height: 1;
-    flex-shrink: 0;
-  }
 
   /* ---------- Form controls ---------- */
 
@@ -720,7 +705,7 @@ body {
     align-items: center;
     gap: 0.4rem;
     padding: 0.35rem 0.9rem;
-    border-radius: 9999px;
+    border-radius: 4px;
     border: 1px solid var(--line);
     background: rgba(0, 0, 0, 0.45);
     color: var(--ink-dim);
@@ -998,8 +983,18 @@ body {
   /* Reward burst rays (src/components/ui/Starburst.tsx). */
   .gc-starburst {
     animation:
-      gc-pop 600ms cubic-bezier(0.34, 1.56, 0.64, 1) both,
+      gc-burst-in 600ms cubic-bezier(0.34, 1.56, 0.64, 1) both,
       gc-spin 18s linear infinite;
+  }
+
+  /* Scale only, so an opacity utility on the starburst still applies. */
+  @keyframes gc-burst-in {
+    from {
+      scale: 0.4;
+    }
+    to {
+      scale: 1;
+    }
   }
 
   @keyframes gc-spin {

@@ -3,7 +3,7 @@ import type { Session } from "@supabase/supabase-js";
 import "@/app/styles/entry.css";
 import { AuthButton } from "@/components/AuthButton";
 import { CAT_SPRITES, PixelSprite, type SpriteSheet } from "@/components/sprites";
-import { ButtonHint, HintBar, TitleBanner } from "@/components/ui";
+import { TitleBanner } from "@/components/ui";
 
 export interface HeroSectionProps {
   session: Session | null;
@@ -65,7 +65,6 @@ export function HeroSection({ session }: HeroSectionProps): React.JSX.Element {
 
         <div className="gc-rise flex w-full max-w-xs flex-col items-center gap-2" style={rise(550)}>
           <Link href="/login?mode=signup" className="gc-btn gc-btn-primary gc-btn-lg gc-shine w-full">
-            <ButtonHint glyph="A" className="bg-[#17140c]! text-[#fbf3dc]!" />
             Get started
           </Link>
           <Link href="/login" className="gc-btn gc-btn-ghost w-full">
@@ -74,17 +73,11 @@ export function HeroSection({ session }: HeroSectionProps): React.JSX.Element {
         </div>
       </div>
 
-      <footer className="z-10 flex w-full max-w-5xl items-center justify-between gap-4 border-t border-white/10 pt-3">
-        <p className="gc-caps">{session ? "Supabase connected" : null}</p>
-        <div aria-hidden="true">
-          <HintBar
-            hints={[
-              { glyph: "A", label: "New game" },
-              { glyph: "B", label: "Continue" },
-            ]}
-          />
-        </div>
-      </footer>
+      {session && (
+        <footer className="z-10 flex w-full max-w-5xl justify-center pt-3">
+          <p className="gc-caps">Supabase connected</p>
+        </footer>
+      )}
     </main>
   );
 }

@@ -1,3 +1,5 @@
+import { useId } from "react";
+
 /** Rotating light rays behind a reward. Place it absolutely behind content. */
 export function Starburst({
   className = "",
@@ -6,11 +8,12 @@ export function Starburst({
   className?: string;
   color?: string;
 }): React.JSX.Element {
+  const id = useId();
   const rays = Array.from({ length: 16 }, (_, i) => i * (360 / 16));
   return (
     <svg viewBox="-100 -100 200 200" aria-hidden="true" className={`gc-starburst pointer-events-none ${className}`}>
       <defs>
-        <radialGradient id="gc-burst-core">
+        <radialGradient id={id}>
           <stop offset="0" stopColor={color} stopOpacity="0.9" />
           <stop offset="1" stopColor={color} stopOpacity="0" />
         </radialGradient>
@@ -24,7 +27,7 @@ export function Starburst({
           transform={`rotate(${deg})`}
         />
       ))}
-      <circle r="44" fill="url(#gc-burst-core)" />
+      <circle r="44" fill={`url(#${id})`} />
     </svg>
   );
 }
