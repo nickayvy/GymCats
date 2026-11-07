@@ -140,6 +140,9 @@ export function BattleScreen({ initialState, preview }: BattleScreenProps): Reac
         </div>
         <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">{battle.bossName}</h1>
         <HealthBar current={battle.currentHp} max={battle.maxHp} label="Boss HP" />
+        {state.partner && !defeated && (
+          <p className="text-sm text-foreground/60">You and {state.partner.displayName} stand ready.</p>
+        )}
         {defeated && (
           <p className="font-mono text-sm uppercase tracking-[0.3em] text-amber-300">
             Defeated! A new boss arrives Monday.
@@ -175,7 +178,7 @@ export function BattleScreen({ initialState, preview }: BattleScreenProps): Reac
               ) : state.spinsAvailable > 0 ? (
                 <span className="text-foreground/60">Spin to deal damage.</span>
               ) : (
-                <span className="text-foreground/60">No spins yet. Check in at the gym to earn some.</span>
+                <span className="text-foreground/60">No spins yet. Check in at the gym or log a workout to earn some.</span>
               )}
             </p>
             {error && (

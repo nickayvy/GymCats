@@ -42,9 +42,32 @@ Run every file in `supabase/migrations/` in order in the Supabase SQL editor, or
 | `20261108000000_gym_places.sql` | `user_gyms.place_id` and the 1-mile check-in radius |
 | `20261109000000_partner_gyms.sql` | `partner_gyms`: Google place IDs of 104 24 Hour Fitness clubs in SoCal |
 | `20261110000000_workout_log.sql` | `workouts`, `workout_exercises`, `spin_wallets` and `log_workout` |
+| `20261111000000_partner_invites.sql` | `get_invite_preview`, `leave_couple`, and partners reading each other's avatar |
 | `20261112000000_unified_spins.sql` | Lets Log & Grow spins be spent on the boss (`boss_attacks.source`, new `roll_spin`) |
 
-Clients can read these tables (their own rows, or their partner's) but never write them directly. Every write goes through the functions above, so spins and damage can't be forged.
+Clients can read these tables (their own rows, or their partner's) but never write them directly. Every write goes through the functions above, so spins, damage and pairings can't be forged.
+
+How partner invites work, and why one couple's data can't leak to another account, is covered in [docs/partner-pairing.md](docs/partner-pairing.md).
+
+## Partner pairing E2E test
+
+`e2e/partner-pairing.cjs` drives three browsers: Alice invites Bob by link, Bob signs up through it, they see each other, and an outsider can't. It creates throwaway users, so run it against a **local** Supabase stack (needs Docker):
+
+```bash
+npx supabase start
+```
+
+Put the printed API URL and publishable key in `.env.local`, then start the app and run the test:
+
+```bash
+npm run dev
+```
+
+```bash
+npm i --no-save playwright && npx playwright install chromium && npm run e2e:partner
+```
+
+Screenshots land in `e2e/shots/`.
 
 ## Boss battles
 
@@ -131,6 +154,8 @@ src/
     globals.css
     login/            # Login page and actions
     onboarding/       # Onboarding wizard route and server actions
+    invite/[code]/    # Public partner invite landing page
+    partner/          # Partner profile (or invite link while solo)
     hub/              # Weekly boss hub (onboarded users only)
     battle/           # Battle screen and its server actions (check-in, spins)
   components/
@@ -147,6 +172,8 @@ src/
     hub/              # Hub battle and Log & Grow buttons, spin badge
     battle/           # Battle screen
     log/              # Workout logger, exercise cards, results
+
+    team/             # Partner badge, avatars, invite link and panels
   lib/
     supabase/         # Supabase client helpers
     onboarding/       # Onboarding validation schemas and types
@@ -154,6 +181,8 @@ src/
     battle/           # Spin odds and damage rules, battle state types
     auth/             # Onboarded-user route guard
     workouts/         # Growth rules, schemas and workout queries
+
+    team/             # Team loader, invite code helpers
   middleware.ts       # Session refresh
 scripts/
   fetch-24hf-socal.mjs  # Rebuilds the 24 Hour Fitness place ID list
@@ -161,6 +190,13 @@ supabase/
   migrations/         # Schema, RLS policies, game functions and seed data
 
   migrations/         # Schema, RLS policies, pairing and workout-logging functions
+
+  config.toml         # Local stack config (npx supabase start)
+  migrations/         # Schema, RLS policies and pairing functions
+e2e/
+  partner-pairing.cjs # Two-partner end-to-end test
+docs/
+  partner-pairing.md  # Pairing options and data isolation
 public/
   gymcats-hero-cat.png
 ```

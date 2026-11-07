@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { getSupabaseConfig } from "@/lib/env";
 import {
   firstIssue,
@@ -80,7 +81,6 @@ export async function saveProfile(formData: FormData): Promise<ActionResult> {
     goal_plan: profile.goalPlan,
     workouts_per_week: profile.workoutsPerWeek,
     ...(avatarPath !== null ? { avatar_path: avatarPath } : {}),
-    onboarded_at: new Date().toISOString(),
   });
   if (error) {
     console.error("saveProfile failed", error);
@@ -92,4 +92,33 @@ export async function saveProfile(formData: FormData): Promise<ActionResult> {
 
   revalidatePath("/", "layout");
   return { ok: true, data: undefined };
+}
+
+/**
+ * Marks onboarding as done once the partner step is finished or skipped.
+ * Saving the profile alone does not, so a user who leaves on the partner
+ * step comes back to it instead of skipping straight to the hub.
+ */
+export async function completeOnboarding(): Promise<void> {
+  if (getSupabaseConfig() !== null) {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      redirect("/login");
+    }
+
+    const { error } = await supabase
+      .from("profiles")
+      .update({ onboarded_at: new Date().toISOString() })
+      .eq("id", user.id)
+      .is("onboarded_at", null);
+    if (error) {
+      throw new Error(`Failed to complete onboarding: ${error.message}`);
+    }
+    revalidatePath("/", "layout");
+  }
+
+  redirect("/hub");
 }
