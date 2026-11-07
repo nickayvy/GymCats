@@ -1,15 +1,19 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import "@/app/styles/entry.css";
 import { Avatar } from "@/components/team/Avatar";
 import { LeaveTeamButton } from "@/components/team/LeaveTeamButton";
 import { PartnerInvite } from "@/components/team/PartnerInvite";
+import { ButtonHint, DialogBox, Panel, PanelHeading, TitleBanner } from "@/components/ui";
 import { requireOnboardedUser } from "@/lib/auth/requireOnboardedUser";
 import { createClient } from "@/lib/supabase/server";
 import { getTeam, type TeamMember } from "@/lib/team/getTeam";
 
 export const metadata: Metadata = { title: "Partner · GymCats" };
 
-const sectionLabel = "font-mono text-xs uppercase tracking-widest text-accent/80";
+function rise(ms: number): React.CSSProperties {
+  return { "--d": `${ms}ms` } as React.CSSProperties;
+}
 
 function PartnerProfile({ partner }: { partner: TeamMember }): React.JSX.Element {
   const since = partner.joinedAt
@@ -18,65 +22,101 @@ function PartnerProfile({ partner }: { partner: TeamMember }): React.JSX.Element
 
   return (
     <>
-      <div className="flex flex-col items-center gap-3">
-        <Avatar name={partner.displayName} url={partner.avatarUrl} size="lg" />
-        <h1 className="text-3xl font-bold tracking-tight">{partner.displayName}</h1>
-        {since ? <p className="font-mono text-xs text-foreground/50">Teammates since {since}</p> : null}
+      <div className="flex flex-col items-center gap-4">
+        <div className="gc-pop flex flex-col items-center">
+          <Avatar name={partner.displayName} url={partner.avatarUrl} size="lg" />
+        </div>
+        <TitleBanner
+          eyebrow="Your partner"
+          title={partner.displayName}
+          subtitle={since ? `Teammates since ${since}` : undefined}
+          size="lg"
+        />
       </div>
 
       {!partner.onboarded ? (
-        <p className="rounded-lg border border-accent/30 bg-accent/10 px-4 py-2 text-sm text-accent-glow">
-          {partner.displayName} hasn&apos;t finished setting up their profile yet.
-        </p>
+        <DialogBox variant="written" className="gc-rise w-full max-w-md" >
+          <span className="gc-key">{partner.displayName}</span> hasn&apos;t finished setting up their profile yet.
+        </DialogBox>
       ) : (
-        <div className="flex w-full flex-col gap-6 text-left">
-          <section className="flex flex-col gap-2">
-            <h2 className={sectionLabel}>Goals</h2>
+        <Panel className="gc-rise flex w-full max-w-xl flex-col gap-6 px-5 py-6 text-left sm:px-7" style={rise(150)}>
+          <section>
+            <PanelHeading>Goals</PanelHeading>
             {partner.goalLabels.length > 0 ? (
               <ul className="flex flex-wrap gap-2">
                 {partner.goalLabels.map((label) => (
-                  <li
-                    key={label}
-                    className="rounded-full border border-accent/40 bg-accent/10 px-3 py-1 text-sm text-accent-glow"
-                  >
+                  <li key={label} className="gc-chip border-glow/70! bg-[rgba(22,64,66,0.75)]! text-[#e9fffd]!">
                     {label}
                   </li>
                 ))}
               </ul>
             ) : null}
             {partner.goalFreeform ? (
-              <p className="text-sm text-foreground/70">&ldquo;{partner.goalFreeform}&rdquo;</p>
+              <p className="mt-3 border-l-2 border-white/25 pl-3 text-sm italic text-white/75">
+                &ldquo;{partner.goalFreeform}&rdquo;
+              </p>
             ) : null}
           </section>
 
           {partner.workoutsPerWeek ? (
-            <section className="flex flex-col gap-1">
-              <h2 className={sectionLabel}>Training</h2>
-              <p className="text-sm text-foreground/80">
-                {partner.workoutsPerWeek} {partner.workoutsPerWeek === 1 ? "workout" : "workouts"} a week
-              </p>
+            <section>
+              <PanelHeading>Training</PanelHeading>
+              <div className="gc-row">
+                <span>Weekly target</span>
+                <span className="px-3 text-sm italic text-moss">
+                  {partner.workoutsPerWeek} {partner.workoutsPerWeek === 1 ? "workout" : "workouts"} a week
+                </span>
+              </div>
             </section>
           ) : null}
 
           {partner.goalPlan ? (
-            <section className="flex flex-col gap-2">
-              <h2 className={sectionLabel}>Weekly plan</h2>
-              <ul className="flex flex-col gap-1 text-sm">
+            <section>
+              <PanelHeading>Weekly plan</PanelHeading>
+              <ul className="flex flex-col gap-0.5">
                 {partner.goalPlan.weeklyPlan.map((day) => (
-                  <li key={day.day} className="flex justify-between gap-4 border-b border-accent/10 py-1">
-                    <span className="font-mono text-accent/80">{day.day}</span>
-                    <span className="flex-1 text-foreground/80">{day.focus}</span>
-                    <span className="font-mono text-foreground/50">{day.durationMinutes} min</span>
+                  <li
+                    key={day.day}
+                    className="grid grid-cols-[3.5rem_minmax(0,1fr)_auto] items-stretch gap-0.5 overflow-hidden rounded-[3px] bg-white/5 text-sm"
+                  >
+                    <span className="flex items-center bg-white/[0.07] px-2.5 py-2 font-mono text-xs uppercase tracking-widest text-glow">
+                      {day.day}
+                    </span>
+                    <span className="flex items-center bg-black/40 px-3 py-2 italic text-ink">{day.focus}</span>
+                    <span className="gc-num flex items-center bg-black/40 px-3 py-2 font-mono text-xs text-white/60">
+                      {day.durationMinutes} min
+                    </span>
                   </li>
                 ))}
               </ul>
             </section>
           ) : null}
-        </div>
+        </Panel>
       )}
 
       <LeaveTeamButton partnerName={partner.displayName} />
     </>
+  );
+}
+
+/** You plus an open slot waiting for a partner. */
+function OpenParty({ me }: { me: TeamMember | null }): React.JSX.Element {
+  return (
+    <div className="gc-rise flex items-start justify-center gap-4 sm:gap-6" style={rise(120)}>
+      <div className="flex flex-col items-center gap-2">
+        <Avatar name={me?.displayName ?? "You"} url={me?.avatarUrl ?? null} size="md" />
+        <span className="text-sm italic text-ink">You</span>
+      </div>
+      <span aria-hidden="true" className="mt-5 font-mono text-xl text-white/45">
+        +
+      </span>
+      <div className="flex flex-col items-center gap-2">
+        <span className="gc-party-open flex h-16 w-16 items-center justify-center rounded-[4px] text-2xl leading-none">
+          <span aria-hidden="true">+</span>
+        </span>
+        <span className="text-sm italic text-glow">Open slot</span>
+      </div>
+    </div>
   );
 }
 
@@ -86,28 +126,37 @@ export default async function PartnerPage(): Promise<React.JSX.Element> {
     !preview && userId ? await getTeam(await createClient(), userId) : null;
 
   return (
-    <main className="relative flex min-h-screen flex-col items-center overflow-hidden px-6 py-10">
-      <div className="hero-glow pointer-events-none absolute inset-0" />
-      <header className="relative z-10 flex w-full max-w-xl items-center justify-between">
-        <Link href="/hub" className="font-mono text-xs uppercase tracking-widest text-foreground/60 hover:text-accent">
-          ← Hub
+    <main className="relative flex min-h-dvh flex-col items-center overflow-x-hidden px-4 pb-14 pt-4 sm:pt-6">
+      <header className="relative z-10 flex w-full max-w-2xl items-center justify-between">
+        <Link href="/hub" className="gc-btn gc-btn-ghost gc-btn-sm -ml-2">
+          <ButtonHint glyph="B" />
+          Hub
         </Link>
-        <p className="font-mono text-xs uppercase tracking-[0.35em] text-accent/80">Your team</p>
+        <p className="gc-caps">Your team</p>
       </header>
 
-      <section className="title-card relative z-10 mt-8 flex w-full max-w-xl flex-col items-center gap-6 rounded-2xl px-6 py-8 text-center sm:px-10">
+      <section className="relative z-10 mt-6 flex w-full max-w-3xl flex-col items-center gap-6 text-center sm:mt-10">
         {team?.partner ? (
           <PartnerProfile partner={team.partner} />
         ) : preview ? (
-          <p className="text-sm text-foreground/70">Preview mode: Supabase isn&apos;t configured.</p>
+          <>
+            <TitleBanner eyebrow="Your party" title="Team up with your partner" size="md" />
+            <OpenParty me={null} />
+            <DialogBox variant="written" className="gc-rise w-full max-w-md">
+              Preview mode: Supabase isn&apos;t configured.
+            </DialogBox>
+          </>
         ) : (
           <>
-            <h1 className="text-2xl font-bold">Team up with your partner</h1>
-            <p className="text-sm text-foreground/70">
+            <TitleBanner eyebrow="Your party" title="Team up with your partner" size="md" />
+            <OpenParty me={team?.me ?? null} />
+            <p className="gc-eyebrow gc-rise max-w-md text-center" style={rise(200)}>
               Send them your invite link. Once they join, you&apos;ll see their profile here and take on
-              each week&apos;s boss together.
+              each week&apos;s <span className="gc-warn">boss</span> together.
             </p>
-            <PartnerInvite inviteCode={team?.inviteCode ?? null} />
+            <Panel className="gc-rise w-full max-w-md px-5 py-6 sm:px-7" style={rise(280)}>
+              <PartnerInvite inviteCode={team?.inviteCode ?? null} />
+            </Panel>
           </>
         )}
       </section>

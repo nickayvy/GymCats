@@ -48,8 +48,7 @@ export default async function LoginPage({
   const initialMode = notice === null && params.mode === "signup" ? "signup" : "login";
 
   return (
-    <main className="relative flex min-h-screen items-center justify-center overflow-hidden px-6 py-16">
-      <div className="hero-glow pointer-events-none absolute inset-0" />
+    <main className="relative flex min-h-dvh items-center justify-center overflow-x-hidden px-4 py-10 sm:py-16">
       <AuthCard initialMode={initialMode} notice={notice} invitedBy={invitedBy} />
     </main>
   );

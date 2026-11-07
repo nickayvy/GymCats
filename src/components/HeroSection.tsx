@@ -1,78 +1,90 @@
-import Image from "next/image";
 import Link from "next/link";
 import type { Session } from "@supabase/supabase-js";
+import "@/app/styles/entry.css";
 import { AuthButton } from "@/components/AuthButton";
+import { CAT_SPRITES, PixelSprite, type SpriteSheet } from "@/components/sprites";
+import { ButtonHint, HintBar, TitleBanner } from "@/components/ui";
 
 export interface HeroSectionProps {
   session: Session | null;
 }
 
+function rise(ms: number): React.CSSProperties {
+  return { "--d": `${ms}ms` } as React.CSSProperties;
+}
+
+/** One player cat: floating sprite, soft ground shadow, player tag. */
+function PlayerCat({
+  sheet,
+  label,
+  player,
+  flip = false,
+  delay,
+}: {
+  sheet: SpriteSheet;
+  label: string;
+  player: string;
+  flip?: boolean;
+  delay: string;
+}): React.JSX.Element {
+  return (
+    <figure className="flex flex-col items-center">
+      <div className="gc-float" style={{ animationDelay: delay }}>
+        <PixelSprite sheet={sheet} scale={5} label={label} animate flip={flip} className="block! sm:hidden!" />
+        <PixelSprite sheet={sheet} scale={6} label={label} animate flip={flip} className="hidden! sm:block!" />
+      </div>
+      <div className="gc-sprite-shadow -mt-2 w-24 sm:w-28" style={{ animationDelay: delay }} />
+      <figcaption className="gc-caps mt-2">{player}</figcaption>
+    </figure>
+  );
+}
+
 export function HeroSection({ session }: HeroSectionProps): React.JSX.Element {
   return (
-    <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 py-16">
-      <div className="hero-glow pointer-events-none absolute inset-0" />
-      <div className="absolute right-6 top-6 z-20"><AuthButton email={session?.user.email ?? null} /></div>
+    <main className="relative flex min-h-dvh flex-col items-center overflow-x-hidden px-4 pb-6 pt-4 sm:pb-8 sm:pt-6">
+      <div className="z-20 flex w-full max-w-5xl justify-end">
+        <AuthButton email={session?.user.email ?? null} />
+      </div>
 
-      <div className="relative z-10 flex w-full max-w-4xl flex-col items-center gap-10 text-center">
-        <div className="title-card w-full max-w-2xl rounded-2xl px-8 py-10 sm:px-12 sm:py-14">
-          <p className="mb-3 font-mono text-xs uppercase tracking-[0.35em] text-accent/80 sm:text-sm">
-            Welcome to
-          </p>
-          <h1 className="bg-gradient-to-b from-accent-glow to-accent bg-clip-text text-5xl font-bold tracking-tight text-transparent sm:text-7xl">
-            GymCats
-          </h1>
-          <p className="mx-auto mt-5 max-w-md text-base text-foreground/70 sm:text-lg">
-            Train hard. Nap harder. Your pixel-art spotters are ready.
-          </p>
+      <div className="relative z-10 flex w-full max-w-4xl flex-1 flex-col items-center justify-center gap-6 py-6 text-center sm:gap-8">
+        <TitleBanner
+          eyebrow="A co-op fitness adventure"
+          title="GymCats"
+          subtitle="Train hard. Nap harder. Your pixel-art spotters are ready."
+          size="xl"
+        />
+
+        <div className="gc-rise flex items-end justify-center gap-6 sm:gap-16" style={rise(350)}>
+          <PlayerCat sheet={CAT_SPRITES.siamese} label="Pixel art Siamese cat" player="Player 1" delay="0s" />
+          <PlayerCat sheet={CAT_SPRITES.tuxedo} label="Pixel art tuxedo cat" player="Player 2" flip delay="-1.6s" />
         </div>
 
-        <div className="flex flex-col items-center gap-3">
-          <Link
-            href="/login?mode=signup"
-            className="rounded-2xl bg-gradient-to-b from-accent-glow to-accent px-10 py-4 text-lg font-bold uppercase tracking-[0.25em] text-background shadow-[0_0_40px_rgba(201,168,108,0.35)] transition hover:scale-105 hover:shadow-[0_0_60px_rgba(201,168,108,0.5)] active:scale-95 motion-reduce:transition-none motion-reduce:hover:scale-100"
-          >
+        <p className="gc-press gc-title text-sm tracking-[0.3em] text-white/85 sm:text-base" aria-hidden="true">
+          ◆ Press start ◆
+        </p>
+
+        <div className="gc-rise flex w-full max-w-xs flex-col items-center gap-2" style={rise(550)}>
+          <Link href="/login?mode=signup" className="gc-btn gc-btn-primary gc-btn-lg gc-shine w-full">
+            <ButtonHint glyph="A" className="bg-[#17140c]! text-[#fbf3dc]!" />
             Get started
           </Link>
-          <Link
-            href="/login"
-            className="font-mono text-xs text-foreground/60 underline-offset-4 hover:text-accent hover:underline"
-          >
+          <Link href="/login" className="gc-btn gc-btn-ghost w-full">
             I already have an account
           </Link>
         </div>
-
-        <div className="relative flex flex-col items-center gap-8 sm:flex-row sm:gap-10">
-          <div className="relative">
-            <div className="absolute -inset-4 rounded-3xl bg-accent/10 blur-2xl" />
-            <Image
-              src="/gymcats-hero-cat.png"
-              alt="Pixel art British Shorthair Siamese cat"
-              width={280}
-              height={280}
-              priority
-              className="pixel-art relative rounded-xl drop-shadow-2xl"
-            />
-          </div>
-
-          <div className="relative">
-            <div className="absolute -inset-4 rounded-3xl bg-accent/10 blur-2xl" />
-            <Image
-              src="/gymcats-hero-tuxedo-cat.png"
-              alt="Pixel art tuxedo cat"
-              width={280}
-              height={280}
-              priority
-              className="pixel-art relative rounded-xl drop-shadow-2xl"
-            />
-          </div>
-        </div>
-
-        {session && (
-          <p className="font-mono text-xs text-foreground/40">
-            Supabase connected
-          </p>
-        )}
       </div>
+
+      <footer className="z-10 flex w-full max-w-5xl items-center justify-between gap-4 border-t border-white/10 pt-3">
+        <p className="gc-caps">{session ? "Supabase connected" : null}</p>
+        <div aria-hidden="true">
+          <HintBar
+            hints={[
+              { glyph: "A", label: "New game" },
+              { glyph: "B", label: "Continue" },
+            ]}
+          />
+        </div>
+      </footer>
     </main>
   );
 }

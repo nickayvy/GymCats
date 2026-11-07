@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import "@/app/styles/entry.css";
 import { invitePath } from "@/lib/team/inviteCode";
 
-const buttonClass =
-  "rounded-lg border border-accent/40 px-4 py-2 font-semibold text-accent transition hover:border-accent disabled:opacity-50";
-
-/** Shows a partner invite link (and its code) with copy and share buttons. */
+/**
+ * A written note holding the partner invite link (and its code), with copy
+ * and share buttons.
+ */
 export function InviteLinkCard({ code }: { code: string }): React.JSX.Element {
   const [link, setLink] = useState(invitePath(code));
   const [canShare, setCanShare] = useState(false);
@@ -46,25 +47,34 @@ export function InviteLinkCard({ code }: { code: string }): React.JSX.Element {
   }
 
   return (
-    <div className="flex w-full flex-col items-center gap-3">
+    <div className="gc-panel gc-panel-strong flex w-full flex-col items-center gap-4 px-4 py-5 text-center sm:px-6">
+      <p className="gc-caps">Invite link</p>
       <p
         data-testid="invite-link"
-        className="w-full select-all break-all rounded-lg border border-accent/30 bg-background/60 px-3 py-2 text-center font-mono text-sm text-foreground/80"
+        className="w-full select-all break-all rounded-[3px] border border-white/10 bg-black/50 px-3 py-2.5 font-mono text-sm text-[#e9fffd] shadow-[inset_0_2px_6px_rgba(0,0,0,0.45)]"
       >
         {link}
       </p>
       <div className="flex flex-wrap justify-center gap-3">
-        <button type="button" onClick={handleCopy} className={buttonClass}>
+        <button type="button" onClick={handleCopy} className="gc-btn gc-btn-glow gc-btn-sm min-w-[8.5rem]" aria-live="polite">
           {copied ? "Copied!" : "Copy link"}
         </button>
         {canShare ? (
-          <button type="button" onClick={handleShare} className={buttonClass}>
+          <button type="button" onClick={handleShare} className="gc-btn gc-btn-sm min-w-[6rem]">
             Share…
           </button>
         ) : null}
       </div>
-      <p className="font-mono text-xs text-foreground/50">
-        or share code <span className="tracking-[0.3em] text-accent-glow">{code}</span>
+      <div className="gc-divider w-full text-xs">
+        <span className="gc-eyebrow">or share code</span>
+      </div>
+      <p className="flex items-center gap-1.5">
+        <span className="sr-only">{code}</span>
+        {code.split("").map((ch, i) => (
+          <span key={i} aria-hidden="true" className="gc-code-tile">
+            {ch}
+          </span>
+        ))}
       </p>
     </div>
   );

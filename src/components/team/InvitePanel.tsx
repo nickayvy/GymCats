@@ -2,14 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { createInvite, joinWithCode } from "@/app/onboarding/actions/partner";
-import {
-  errorClass,
-  fieldClass,
-  inputClass,
-  labelClass,
-  primaryButtonClass,
-  secondaryButtonClass,
-} from "@/components/onboarding/styles";
+import { errorClass, inputClass, labelClass } from "@/components/onboarding/styles";
 import { InviteLinkCard } from "./InviteLinkCard";
 
 /** Invite a partner by link, or join a partner with their code. */
@@ -54,9 +47,9 @@ export function InvitePanel({
   }
 
   return (
-    <div className="flex w-full flex-col gap-6">
+    <div className="flex w-full flex-col gap-5 text-left">
       <section className="flex flex-col gap-3">
-        <h2 className={labelClass}>Invite your partner</h2>
+        <h2 className="gc-title text-base">Invite your partner</h2>
         {code ? (
           <InviteLinkCard code={code} />
         ) : (
@@ -64,7 +57,7 @@ export function InvitePanel({
             type="button"
             onClick={handleCreate}
             disabled={creating}
-            className={secondaryButtonClass}
+            className="gc-btn gc-btn-glow w-full"
           >
             {creating ? "Creating link…" : "Get my invite link"}
           </button>
@@ -76,28 +69,33 @@ export function InvitePanel({
         ) : null}
       </section>
 
+      <div className="gc-divider" aria-hidden="true">
+        <span className="gc-eyebrow text-xs">or</span>
+      </div>
+
       <section className="flex flex-col gap-3">
-        <h2 className={labelClass}>Have a code?</h2>
-        <div className={fieldClass}>
+        <h2 className="gc-title text-base">Have a code?</h2>
+        <div className="flex flex-col gap-2">
           <label htmlFor="inviteCode" className={labelClass}>
             Partner&apos;s invite code
           </label>
-          <div className="flex gap-3">
+          <div className="flex gap-2">
             <input
               id="inviteCode"
               name="inviteCode"
               type="text"
               maxLength={6}
               autoComplete="off"
+              placeholder="ABC123"
               value={inviteCode}
               onChange={(event) => setInviteCode(event.target.value.toUpperCase())}
-              className={`${inputClass} font-mono tracking-[0.3em]`}
+              className={`${inputClass} min-w-0 flex-1 text-center font-mono text-lg tracking-[0.35em]`}
             />
             <button
               type="button"
               onClick={handleJoin}
               disabled={joining}
-              className={primaryButtonClass}
+              className="gc-btn gc-btn-primary shrink-0 px-6"
             >
               {joining ? "Joining…" : "Join"}
             </button>

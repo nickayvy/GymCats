@@ -4,6 +4,12 @@ import Link from "next/link";
 import { useState } from "react";
 import { LoginForm } from "@/components/LoginForm";
 import { SignupForm } from "@/components/SignupForm";
+import { ButtonHint, Panel, TitleBanner, Toggle } from "@/components/ui";
+
+const MODES = [
+  { value: "login", label: "Log in" },
+  { value: "signup", label: "Sign up" },
+] as const;
 
 export function AuthCard({
   initialMode,
@@ -17,61 +23,67 @@ export function AuthCard({
   const [mode, setMode] = useState(initialMode);
 
   return (
-    <div
-      className={`title-card relative z-10 flex w-full max-w-md flex-col items-center gap-6 rounded-2xl px-8 py-10 text-center transition-shadow ${mode === "signup" ? "shadow-[0_0_60px_rgba(201,168,108,0.35)]" : ""}`}
-    >
-      {invitedBy ? (
-        <p className="w-full rounded-lg border border-accent/40 bg-accent/10 px-4 py-2 text-sm text-accent-glow">
-          You&apos;re joining <strong>{invitedBy}</strong>&apos;s team. {mode === "signup" ? "Create an account" : "Log in"} to
-          accept the invite.
-        </p>
-      ) : null}
-      <div
+    <div className="relative z-10 flex w-full max-w-2xl flex-col items-center gap-6">
+      <TitleBanner
         key={mode}
-        className="flex w-full flex-col items-center gap-6 motion-safe:[animation:battle-enter-up_300ms_ease-out_both]"
+        size="lg"
+        eyebrow={mode === "login" ? "Welcome back" : "Sign up is free"}
+        title={mode === "login" ? "Log in" : "Begin your journey"}
+        subtitle={
+          mode === "login"
+            ? "Pick up where your party left off."
+            : "Create your account and meet your pixel-art spotters."
+        }
+      />
+
+      <Panel
+        className={`gc-rise flex w-full max-w-md flex-col gap-5 px-5 py-6 sm:px-8 sm:py-8 ${mode === "signup" ? "shadow-[0_0_60px_rgba(255,236,170,0.12)]" : ""}`}
+        style={{ "--d": "150ms" } as React.CSSProperties}
       >
-        {mode === "login" ? (
-          <>
-            <p className="font-mono text-xs uppercase tracking-[0.35em] text-accent/80">Welcome back</p>
-            <h1 className="text-3xl font-bold tracking-tight text-foreground">Log in</h1>
-            <LoginForm notice={notice} />
-            <p className="font-mono text-xs text-foreground/60">
-              New here?{" "}
-              <button
-                type="button"
-                onClick={() => setMode("signup")}
-                className="text-accent underline-offset-4 hover:text-accent-glow hover:underline"
-              >
-                Create an account
-              </button>
-            </p>
-          </>
-        ) : (
-          <>
-            <span className="rounded-full border border-accent/50 bg-accent/15 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.3em] text-accent-glow">
-              Sign up is free
-            </span>
-            <h1 className="bg-gradient-to-b from-accent-glow to-accent bg-clip-text text-3xl font-bold tracking-tight text-transparent">
-              Begin your journey
-            </h1>
-            <p className="-mt-3 text-sm text-foreground/60">
-              Create your account and meet your pixel-art spotters.
-            </p>
-            <SignupForm />
-            <p className="font-mono text-xs text-foreground/60">
-              Already have an account?{" "}
-              <button
-                type="button"
-                onClick={() => setMode("login")}
-                className="text-accent underline-offset-4 hover:text-accent-glow hover:underline"
-              >
-                Log in
-              </button>
-            </p>
-          </>
-        )}
-      </div>
-      <Link href="/" className="font-mono text-xs text-foreground/50 hover:text-accent">← Back home</Link>
+        {invitedBy ? (
+          <p className="rounded-[3px] border border-glow/40 bg-glow/10 px-4 py-2.5 text-center text-sm italic text-[#e9fffd]">
+            You&apos;re joining <strong className="gc-key">{invitedBy}</strong>&apos;s team.{" "}
+            {mode === "signup" ? "Create an account" : "Log in"} to accept the invite.
+          </p>
+        ) : null}
+
+        <div className="flex flex-col gap-2">
+          <span className="gc-caps text-center">Profile</span>
+          <Toggle options={MODES} value={mode} onChange={setMode} label="Log in or sign up" />
+        </div>
+
+        <div key={mode} className="gc-rise w-full">
+          {mode === "login" ? <LoginForm notice={notice} /> : <SignupForm />}
+        </div>
+
+        <span aria-hidden="true" className="gc-divider text-[0.5rem]">
+          ◆
+        </span>
+
+        <div className="flex items-center justify-between gap-3">
+          <Link href="/" className="gc-btn gc-btn-ghost gc-btn-sm -ml-2 shrink-0 whitespace-nowrap">
+            <ButtonHint glyph="B" />
+            Back home
+          </Link>
+          <p className="gc-eyebrow text-right text-xs">
+            {mode === "login" ? (
+              <>
+                New here?{" "}
+                <button type="button" onClick={() => setMode("signup")} className="gc-key hover:underline">
+                  Create an account
+                </button>
+              </>
+            ) : (
+              <>
+                Have an account?{" "}
+                <button type="button" onClick={() => setMode("login")} className="gc-key hover:underline">
+                  Log in
+                </button>
+              </>
+            )}
+          </p>
+        </div>
+      </Panel>
     </div>
   );
 }

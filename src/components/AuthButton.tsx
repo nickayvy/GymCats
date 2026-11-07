@@ -5,8 +5,7 @@ export interface AuthButtonProps {
   email: string | null;
 }
 
-const buttonClass =
-  "rounded-lg border border-accent/40 bg-card/80 px-4 py-2 font-mono text-xs uppercase tracking-widest text-accent transition hover:border-accent hover:text-accent-glow";
+const buttonClass = "gc-btn gc-btn-sm bg-black/55 backdrop-blur-md";
 
 export function AuthButton({ email }: AuthButtonProps): React.JSX.Element {
   if (email === null) {
@@ -19,9 +18,7 @@ export function AuthButton({ email }: AuthButtonProps): React.JSX.Element {
 
   return (
     <form action={logout} className="flex items-center gap-3">
-      <span className="hidden font-mono text-xs text-foreground/60 sm:inline">
-        {email}
-      </span>
+      <span className="gc-eyebrow hidden max-w-[14rem] truncate sm:inline">{email}</span>
       <button type="submit" className={buttonClass}>
         Log out
       </button>

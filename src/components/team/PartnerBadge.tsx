@@ -2,15 +2,23 @@ import Link from "next/link";
 import type { TeamMember } from "@/lib/team/getTeam";
 import { Avatar } from "./Avatar";
 
-/** Top-right chip on the hub: your partner, or a prompt to invite one. */
+const chip =
+  "flex items-center rounded-full border bg-black/60 shadow-[0_8px_24px_rgba(0,0,0,0.45)] backdrop-blur-md transition";
+
+/** Top-right HUD chip on the hub: your partner, or a prompt to invite one. */
 export function PartnerBadge({ partner }: { partner: TeamMember | null }): React.JSX.Element {
   if (!partner) {
     return (
       <Link
         href="/partner"
-        className="flex items-center gap-2 rounded-full border border-dashed border-accent/50 bg-card/80 px-4 py-2 font-mono text-xs uppercase tracking-widest text-accent transition hover:border-accent hover:text-accent-glow"
+        className={`${chip} gap-2 border-dashed border-glow/60 px-4 py-2 text-sm font-semibold italic text-[#e9fffd] hover:border-glow hover:shadow-[0_0_18px_rgba(116,230,226,0.35)]`}
       >
-        <span aria-hidden="true" className="text-base leading-none">+</span>
+        <span
+          aria-hidden="true"
+          className="flex h-5 w-5 items-center justify-center rounded-full bg-glow text-sm font-bold not-italic leading-none text-black"
+        >
+          +
+        </span>
         Invite partner
       </Link>
     );
@@ -20,11 +28,11 @@ export function PartnerBadge({ partner }: { partner: TeamMember | null }): React
     <Link
       href="/partner"
       aria-label={`View ${partner.displayName}'s profile`}
-      className="flex items-center gap-3 rounded-full border border-accent/40 bg-card/80 py-1 pl-4 pr-1 transition hover:border-accent"
+      className={`${chip} gap-3 border-white/20 py-1 pl-4 pr-1 hover:border-white/60 hover:shadow-[0_0_18px_rgba(255,236,170,0.25)]`}
     >
       <span className="flex flex-col items-end leading-tight">
-        <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent/70">Partner</span>
-        <span className="max-w-[9rem] truncate text-sm font-semibold text-foreground">
+        <span className="gc-caps">Partner</span>
+        <span className="max-w-[9rem] truncate text-sm font-semibold italic text-ink">
           {partner.displayName}
         </span>
       </span>

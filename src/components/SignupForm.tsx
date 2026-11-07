@@ -2,65 +2,85 @@
 
 import { useActionState } from "react";
 import { signup, type AuthFormState } from "@/app/login/actions";
+import { ButtonHint } from "@/components/ui";
 
 const initialState: AuthFormState = { error: null, message: null };
+
+/** Labelled gc-input used by the log-in and sign-up forms. */
+export function AuthField({
+  id,
+  label,
+  type,
+  autoComplete,
+  minLength,
+  placeholder,
+}: {
+  id: string;
+  label: string;
+  type: "email" | "password";
+  autoComplete: string;
+  minLength?: number;
+  placeholder?: string;
+}): React.JSX.Element {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <label htmlFor={id} className="gc-label">
+        {label}
+      </label>
+      <input
+        id={id}
+        name={id}
+        type={type}
+        autoComplete={autoComplete}
+        required
+        minLength={minLength}
+        placeholder={placeholder}
+        className="gc-input"
+      />
+    </div>
+  );
+}
+
+/** Full-width parchment submit pill with an (A) key hint. */
+export function AuthSubmit({
+  pending,
+  label,
+  pendingLabel,
+}: {
+  pending: boolean;
+  label: string;
+  pendingLabel: string;
+}): React.JSX.Element {
+  return (
+    <button type="submit" disabled={pending} className="gc-btn gc-btn-primary gc-btn-lg mt-2 w-full">
+      <ButtonHint glyph="A" className="bg-[#17140c]! text-[#fbf3dc]!" />
+      {pending ? pendingLabel : label}
+    </button>
+  );
+}
 
 export function SignupForm(): React.JSX.Element {
   const [state, action, pending] = useActionState(signup, initialState);
 
   return (
     <form action={action} className="flex w-full flex-col gap-4 text-left">
-      <label htmlFor="email" className="font-mono text-xs uppercase tracking-widest text-accent/80">
-        Email
-      </label>
-      <input
-        id="email"
-        name="email"
-        type="email"
-        autoComplete="email"
-        required
-        className="w-full rounded-lg border border-accent/30 bg-background/60 px-4 py-2 text-foreground placeholder:text-foreground/40 focus:border-accent focus:outline-none"
-      />
-
-      <label htmlFor="password" className="font-mono text-xs uppercase tracking-widest text-accent/80">
-        Password
-      </label>
-      <input
-        id="password"
-        name="password"
-        type="password"
-        autoComplete="new-password"
-        required
-        minLength={6}
-        className="w-full rounded-lg border border-accent/30 bg-background/60 px-4 py-2 text-foreground placeholder:text-foreground/40 focus:border-accent focus:outline-none"
-      />
-
-      <label htmlFor="confirmPassword" className="font-mono text-xs uppercase tracking-widest text-accent/80">
-        Confirm password
-      </label>
-      <input
+      <AuthField id="email" label="Email" type="email" autoComplete="email" placeholder="you@example.com" />
+      <AuthField id="password" label="Password" type="password" autoComplete="new-password" minLength={6} />
+      <AuthField
         id="confirmPassword"
-        name="confirmPassword"
+        label="Confirm password"
         type="password"
         autoComplete="new-password"
-        required
         minLength={6}
-        className="w-full rounded-lg border border-accent/30 bg-background/60 px-4 py-2 text-foreground placeholder:text-foreground/40 focus:border-accent focus:outline-none"
       />
 
       {state.error ? (
-        <p role="alert" className="text-sm text-red-400">
+        <p role="alert" className="text-sm italic text-ember">
           {state.error}
         </p>
       ) : null}
 
-      <button
-        type="submit"
-        disabled={pending}
-        className="rounded-lg bg-accent px-4 py-2 font-semibold text-background transition hover:bg-accent-glow disabled:opacity-50"
-      >
-        {pending ? "Creating account…" : "Create account"}
-      </button>
+      <AuthSubmit pending={pending} label="Create account" pendingLabel="Creating account…" />
     </form>
   );
 }

@@ -1,10 +1,15 @@
+import "@/app/styles/entry.css";
+
 const SIZES = {
-  sm: "h-10 w-10 text-sm",
-  md: "h-16 w-16 text-xl",
-  lg: "h-28 w-28 text-4xl",
+  sm: "h-10 w-10 text-base",
+  md: "h-16 w-16 text-2xl",
+  lg: "h-28 w-28 text-5xl",
 } as const;
 
-/** Round profile photo, or the first letter of the name when there's no photo. */
+/**
+ * Profile photo in a square portrait frame (like an inventory slot), or the
+ * first letter of the name when there's no photo.
+ */
 export function Avatar({
   name,
   url,
@@ -14,12 +19,12 @@ export function Avatar({
   url: string | null;
   size?: keyof typeof SIZES;
 }): React.JSX.Element {
-  const base = `${SIZES[size]} shrink-0 rounded-full border-2 border-accent/50`;
+  const base = `gc-portrait ${SIZES[size]} shrink-0`;
 
   if (url) {
     return (
       // eslint-disable-next-line @next/next/no-img-element -- short-lived signed Supabase URL
-      <img src={url} alt={`${name}'s profile photo`} className={`${base} object-cover`} />
+      <img src={url} alt={`${name}'s profile photo`} className={`${base} object-cover p-[3px]`} />
     );
   }
 
@@ -27,7 +32,7 @@ export function Avatar({
     <span
       role="img"
       aria-label={name}
-      className={`${base} flex items-center justify-center bg-accent/15 font-bold uppercase text-accent-glow`}
+      className={`${base} gc-title flex items-center justify-center uppercase leading-none text-ink`}
     >
       {name.trim().charAt(0) || "?"}
     </span>

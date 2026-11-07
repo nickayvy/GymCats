@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { acceptInvite, type InviteActionState } from "@/app/invite/actions";
+import { ButtonHint } from "@/components/ui";
 
 const initialState: InviteActionState = { error: null };
 
@@ -20,12 +21,13 @@ export function AcceptInviteButton({
       <button
         type="submit"
         disabled={pending}
-        className="w-full rounded-2xl bg-gradient-to-b from-accent-glow to-accent px-8 py-4 text-lg font-bold uppercase tracking-[0.2em] text-background shadow-[0_0_40px_rgba(201,168,108,0.35)] transition hover:scale-105 active:scale-95 disabled:opacity-60 motion-reduce:transition-none"
+        className="gc-btn gc-btn-primary gc-btn-lg gc-shine w-full"
       >
+        <ButtonHint glyph="A" className="bg-[#17140c]! text-[#fbf3dc]!" />
         {pending ? "Joining…" : `Team up with ${partnerName}`}
       </button>
       {state.error ? (
-        <p role="alert" className="text-sm text-red-400">
+        <p role="alert" className="text-sm italic text-ember">
           {state.error}
         </p>
       ) : null}

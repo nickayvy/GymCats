@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { login, type AuthFormState } from "@/app/login/actions";
+import { AuthField, AuthSubmit } from "@/components/SignupForm";
 
 const initialState: AuthFormState = { error: null, message: null };
 
@@ -10,50 +11,22 @@ export function LoginForm({ notice }: { notice?: string | null }): React.JSX.Ele
 
   return (
     <form action={loginAction} className="flex w-full flex-col gap-4 text-left">
-      <label htmlFor="email" className="font-mono text-xs uppercase tracking-widest text-accent/80">
-        Email
-      </label>
-      <input
-        id="email"
-        name="email"
-        type="email"
-        autoComplete="email"
-        required
-        className="w-full rounded-lg border border-accent/30 bg-background/60 px-4 py-2 text-foreground placeholder:text-foreground/40 focus:border-accent focus:outline-none"
-      />
-
-      <label htmlFor="password" className="font-mono text-xs uppercase tracking-widest text-accent/80">
-        Password
-      </label>
-      <input
-        id="password"
-        name="password"
-        type="password"
-        autoComplete="current-password"
-        required
-        minLength={6}
-        className="w-full rounded-lg border border-accent/30 bg-background/60 px-4 py-2 text-foreground placeholder:text-foreground/40 focus:border-accent focus:outline-none"
-      />
-
-      {loginState.error ? (
-        <p role="alert" className="text-sm text-red-400">
-          {loginState.error}
-        </p>
-      ) : null}
-
       {notice ? (
-        <p role="status" className="text-sm text-accent-glow">
+        <p role="status" className="rounded-[3px] border border-glow/40 bg-glow/10 px-3 py-2 text-sm italic text-[#e9fffd]">
           {notice}
         </p>
       ) : null}
 
-      <button
-        type="submit"
-        disabled={loginPending}
-        className="rounded-lg bg-accent px-4 py-2 font-semibold text-background transition hover:bg-accent-glow disabled:opacity-50"
-      >
-        {loginPending ? "Logging in…" : "Log in"}
-      </button>
+      <AuthField id="email" label="Email" type="email" autoComplete="email" placeholder="you@example.com" />
+      <AuthField id="password" label="Password" type="password" autoComplete="current-password" minLength={6} />
+
+      {loginState.error ? (
+        <p role="alert" className="text-sm italic text-ember">
+          {loginState.error}
+        </p>
+      ) : null}
+
+      <AuthSubmit pending={loginPending} label="Log in" pendingLabel="Logging in…" />
     </form>
   );
 }

@@ -14,7 +14,7 @@ function SubmitButton({ partnerName }: { partnerName: string }): React.JSX.Eleme
           event.preventDefault();
         }
       }}
-      className="font-mono text-xs text-foreground/50 underline-offset-4 transition hover:text-red-400 hover:underline disabled:opacity-50"
+      className="gc-btn gc-btn-ghost gc-btn-sm hover:border-ember/60! hover:text-ember! focus-visible:text-ember!"
     >
       {pending ? "Leaving…" : "Leave team"}
     </button>
