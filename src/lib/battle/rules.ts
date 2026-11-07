@@ -1,7 +1,7 @@
 // Battle rules shared by the UI. The server enforces the same numbers in
 // supabase/migrations/20261107000000_boss_battles.sql (the gym radius is
 // overridden in 20261114000000_gym_radius_150m.sql, and roll_spin() was last
-// replaced in 20261113000000_common_min_damage.sql); change both together.
+// replaced in 20261115000000_common_min_damage.sql); change both together.
 
 export type Rarity = "common" | "uncommon" | "rare" | "legendary";
 

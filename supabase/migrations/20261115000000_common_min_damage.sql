@@ -3,6 +3,10 @@
 -- Run after 20261112000000_unified_spins.sql. Only roll_spin() changes; it
 -- is otherwise identical to the version in that migration.
 -- Keep in sync with damageRange() in src/lib/battle/rules.ts.
+--
+-- Renumbered from 20261113000000, a version it shared with
+-- free_gym_switching.sql: the database recorded that version as applied, so
+-- this file was skipped and production kept the 1 HP floor.
 
 -- Spends one spin: this week's gym spins first, then the wallet. Rolls a
 -- rarity and damage, applies it to the boss and returns the roll. The

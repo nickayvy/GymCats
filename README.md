@@ -50,6 +50,7 @@ The migrations:
 | `20261112000000_unified_spins.sql` | Lets Log & Grow spins be spent on the boss (`boss_attacks.source`, new `roll_spin`) |
 | `20261113000000_free_gym_switching.sql` | Drops the once-a-week gym change limit from `set_my_gym`, so players can check in at whichever gym they're at |
 | `20261114000000_gym_radius_150m.sql` | Narrows the check-in radius in `assert_at_gym` from 1 mile to 150 m |
+| `20261115000000_common_min_damage.sql` | Raises the common-hit floor in `roll_spin` from 1 HP to 0.5% of max HP |
 
 Clients can read these tables (their own rows, or their partner's) but never write them directly. Every write goes through the functions above, so spins, damage and pairings can't be forged.
 
