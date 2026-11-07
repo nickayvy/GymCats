@@ -73,9 +73,9 @@ export default async function HubPage(): Promise<React.JSX.Element> {
             <SpinBadge spins={spins} />
             <p className="font-mono text-xs uppercase tracking-widest text-foreground/60">
               {spins > 0
-                ? "Ready to spin"
+                ? "Ready to attack"
                 : currentHp > 0
-                  ? "Check in at the gym or log a workout to earn spins"
+                  ? "Check in at the gym or log a workout to earn attacks"
                   : "Boss defeated!"}
             </p>
           </div>

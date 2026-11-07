@@ -147,7 +147,7 @@ export function ExerciseCard({
       ) : (
         exercise.name.trim() !== "" && (
           <p className="text-sm text-foreground/60">
-            First time logging this. Today sets your baseline; beat it next time to earn a spin.
+            First time logging this. Today sets your baseline; beat it next time to earn an attack.
           </p>
         )
       )}

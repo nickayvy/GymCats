@@ -75,10 +75,55 @@ export async function findNearbyGyms(
 }
 
 /**
- * Saves the player's gym. With a Places key, it must be a gym Google lists
- * within a mile of the player's fix, so you can't save your couch.
+ * Saves the gym the player picked. With a Places key, it must be a gym Google
+ * lists within a mile of the player's fix, so you can't save your couch.
+ * Returns an error message, or null on success.
  */
-export async function setGym(input: {
+async function saveGym(supabase: Client, input: z.infer<typeof gymSchema>): Promise<string | null> {
+  const { name, placeId, fix } = input;
+  // With Places, check-ins are measured from the gym's own location,
+  // looked up here by ID (never taken from the client). Without Places,
+  // from where the player stood when they picked it.
+  let center = { lat: fix.lat, lng: fix.lng, placeId: null as string | null };
+  const lookup = placeId === null ? null : await getGymPlace(placeId);
+  if (lookup === null) {
+    if (getGoogleMapsApiKey() !== null) return "Pick your gym from the list first.";
+  } else if (lookup.status === "error") {
+    return SEARCH_ERROR;
+  } else if (lookup.status === "not_found" || (lookup.status === "ok" && !lookup.gym.isGym)) {
+    return "That place isn't listed as a gym. Pick another one.";
+  } else if (lookup.status === "ok") {
+    const { gym } = lookup;
+    if (distanceMeters(fix.lat, fix.lng, gym.lat, gym.lng) > searchRadius(fix.accuracy)) {
+      return "That gym isn't within a mile of you. Pick one from the list.";
+    }
+    center = { lat: gym.lat, lng: gym.lng, placeId: gym.placeId };
+  }
+
+  const { error } = await supabase.rpc("set_my_gym", {
+    p_name: name,
+    p_lat: center.lat,
+    p_lng: center.lng,
+    ...(center.placeId !== null ? { p_place_id: center.placeId } : {}),
+  });
+  return error ? mapRpcError(error.message) : null;
+}
+
+async function startSession(supabase: Client, fix: LocationFix): Promise<string | null> {
+  const { error } = await supabase.rpc("gym_check_in", {
+    p_lat: fix.lat,
+    p_lng: fix.lng,
+    p_accuracy: fix.accuracy,
+  });
+  return error ? mapRpcError(error.message) : null;
+}
+
+/**
+ * Checks in at a gym picked from the nearby list (or, without Places, named
+ * by the player), making it their current gym. Players can switch gyms any
+ * time they aren't mid-session.
+ */
+export async function checkInAtGym(input: {
   name: string;
   placeId: string | null;
   fix: LocationFix;
@@ -87,51 +132,23 @@ export async function setGym(input: {
   if (!parsed.success) {
     return { ok: false, error: "Give your gym a name (up to 60 characters)." };
   }
-  const { name, placeId, fix } = parsed.data;
-
   return withClient(async (supabase) => {
-    // With Places, check-ins are measured from the gym's own location,
-    // looked up here by ID (never taken from the client). Without Places,
-    // from where the player stood when they saved.
-    let center = { lat: fix.lat, lng: fix.lng, placeId: null as string | null };
-    const lookup = placeId === null ? null : await getGymPlace(placeId);
-    if (lookup === null) {
-      if (getGoogleMapsApiKey() !== null) {
-        return { ok: false, error: "Pick your gym from the list first." };
-      }
-    } else if (lookup.status === "error") {
-      return { ok: false, error: SEARCH_ERROR };
-    } else if (lookup.status === "not_found" || (lookup.status === "ok" && !lookup.gym.isGym)) {
-      return { ok: false, error: "That place isn't listed as a gym. Pick another one." };
-    } else if (lookup.status === "ok") {
-      const { gym } = lookup;
-      if (distanceMeters(fix.lat, fix.lng, gym.lat, gym.lng) > searchRadius(fix.accuracy)) {
-        return { ok: false, error: "That gym isn't within a mile of you. Pick one from the list." };
-      }
-      center = { lat: gym.lat, lng: gym.lng, placeId: gym.placeId };
-    }
-
-    const { error } = await supabase.rpc("set_my_gym", {
-      p_name: name,
-      p_lat: center.lat,
-      p_lng: center.lng,
-      ...(center.placeId !== null ? { p_place_id: center.placeId } : {}),
-    });
-    if (error) return { ok: false, error: mapRpcError(error.message) };
+    const saveError = await saveGym(supabase, parsed.data);
+    if (saveError) return { ok: false, error: saveError };
+    // If this fails the gym stays saved; retrying from the picker is harmless.
+    const checkInError = await startSession(supabase, parsed.data.fix);
+    if (checkInError) return { ok: false, error: checkInError };
     return afterMutation(supabase);
   });
 }
 
+/** Checks in at the player's current gym. */
 export async function checkIn(fix: LocationFix): Promise<ActionResult<BattleState>> {
   const parsed = locationSchema.safeParse(fix);
   if (!parsed.success) return { ok: false, error: mapRpcError("invalid_location") };
   return withClient(async (supabase) => {
-    const { error } = await supabase.rpc("gym_check_in", {
-      p_lat: parsed.data.lat,
-      p_lng: parsed.data.lng,
-      p_accuracy: parsed.data.accuracy,
-    });
-    if (error) return { ok: false, error: mapRpcError(error.message) };
+    const error = await startSession(supabase, parsed.data);
+    if (error) return { ok: false, error };
     return afterMutation(supabase);
   });
 }

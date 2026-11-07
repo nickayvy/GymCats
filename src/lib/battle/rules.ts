@@ -66,6 +66,54 @@ export const MAX_CREDITED_GAP_MINUTES = 30;
 /** Sessions stop earning after this long. */
 export const MAX_SESSION_MINUTES = 180;
 
+export interface SessionProgress {
+  /** Banked seconds plus the time since the last location check (what the next check should bank). */
+  estimatedSeconds: number;
+  /** Attacks earned from time so far, counting the unbanked time. Excludes the check-in bonus. */
+  attacksFromTime: number;
+  /** Seconds until the next attack is earned, or null once the session is maxed. */
+  secondsUntilNext: number | null;
+  /** 0–1 progress towards the next attack. */
+  fraction: number;
+}
+
+/**
+ * Where a gym session stands right now. The server only banks time at each
+ * location check, so this adds the time since the last one (up to the same
+ * gap cap the server applies) to keep the countdown moving between checks.
+ */
+export function sessionProgress(
+  session: { creditedSeconds: number; lastPingAt: string },
+  now: number,
+): SessionProgress {
+  const attackSeconds = MINUTES_PER_SPIN * 60;
+  const maxSeconds = MAX_SESSION_MINUTES * 60;
+  const sincePing = Math.min(Math.max(0, (now - Date.parse(session.lastPingAt)) / 1000), MAX_CREDITED_GAP_MINUTES * 60);
+  const estimatedSeconds = Math.min(session.creditedSeconds + sincePing, maxSeconds);
+  const attacksFromTime = Math.floor(estimatedSeconds / attackSeconds);
+  if (estimatedSeconds >= maxSeconds) {
+    return { estimatedSeconds, attacksFromTime, secondsUntilNext: null, fraction: 1 };
+  }
+  const intoCurrent = estimatedSeconds % attackSeconds;
+  return {
+    estimatedSeconds,
+    attacksFromTime,
+    secondsUntilNext: attackSeconds - intoCurrent,
+    fraction: intoCurrent / attackSeconds,
+  };
+}
+
+/** "4:05" or "1:02:09". */
+export function formatDuration(totalSeconds: number): string {
+  const s = Math.max(0, Math.floor(totalSeconds));
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const sec = s % 60;
+  return h > 0
+    ? `${h}:${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`
+    : `${m}:${String(sec).padStart(2, "0")}`;
+}
+
 /** Great-circle distance in meters, matching distance_m() in SQL. */
 export function distanceMeters(lat1: number, lng1: number, lat2: number, lng2: number): number {
   const rad = (d: number) => (d * Math.PI) / 180;

@@ -11,7 +11,7 @@ export function SpinBadge({
     >
       <span aria-hidden="true">✦</span>
       <span>
-        {spins} {spins === 1 ? "spin" : "spins"}
+        {spins} {spins === 1 ? "attack" : "attacks"}
       </span>
     </p>
   );

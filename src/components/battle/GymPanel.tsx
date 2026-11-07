@@ -3,24 +3,16 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { checkIn, checkOut, heartbeat, type LocationFix } from "@/app/battle/actions";
 import { GymPicker } from "@/components/battle/GymPicker";
-import { buttonClass, getFix, ghostButtonClass } from "@/components/battle/shared";
+import { buttonClass, getFix, ghostButtonClass, useNow } from "@/components/battle/shared";
 import {
   HEARTBEAT_INTERVAL_MS,
   MAX_CREDITED_GAP_MINUTES,
-  MAX_SESSION_MINUTES,
   MINUTES_PER_SPIN,
+  formatDuration,
+  sessionProgress,
+  type SessionProgress,
 } from "@/lib/battle/rules";
 import { PREVIEW_SPINS, type BattleState } from "@/lib/battle/state";
-
-function formatDuration(totalSeconds: number): string {
-  const s = Math.max(0, Math.floor(totalSeconds));
-  const h = Math.floor(s / 3600);
-  const m = Math.floor((s % 3600) / 60);
-  const sec = s % 60;
-  return h > 0
-    ? `${h}:${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`
-    : `${m}:${String(sec).padStart(2, "0")}`;
-}
 
 export interface GymPanelProps {
   state: BattleState;
@@ -32,9 +24,11 @@ export function GymPanel({ state, preview, onState }: GymPanelProps): React.JSX.
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
-  const [now, setNow] = useState(() => Date.now());
+  const [picking, setPicking] = useState(false);
   const session = state.session;
   const sessionActive = session !== null;
+  const tick = useNow(sessionActive);
+  const now = tick ?? (session ? Date.parse(session.lastPingAt) : 0);
   const inFlight = useRef(false);
 
   const run = useCallback(
@@ -66,25 +60,19 @@ export function GymPanel({ state, preview, onState }: GymPanelProps): React.JSX.
     [onState],
   );
 
-  // Tick the session clock.
-  useEffect(() => {
-    if (!sessionActive) return;
-    const id = window.setInterval(() => setNow(Date.now()), 1000);
-    return () => window.clearInterval(id);
-  }, [sessionActive]);
-
   // Heartbeats while the page is visible, plus one as soon as it comes back.
   // Browsers pause location in the background, so a locked phone banks its
   // time (up to MAX_CREDITED_GAP_MINUTES) at the next check.
+  const beat = useCallback(async () => {
+    if (document.visibilityState !== "visible") return;
+    const next = await run(heartbeat, { quiet: true });
+    if (next && next.session === null) {
+      setNotice("Looks like you left the gym, so your session ended. Nice work!");
+    }
+  }, [run]);
+
   useEffect(() => {
     if (!sessionActive || preview) return;
-    const beat = async () => {
-      if (document.visibilityState !== "visible") return;
-      const next = await run(heartbeat, { quiet: true });
-      if (next && next.session === null) {
-        setNotice("Looks like you left the gym, so your session ended. Nice work!");
-      }
-    };
     const id = window.setInterval(beat, HEARTBEAT_INTERVAL_MS);
     const onVisible = () => {
       if (document.visibilityState === "visible") void beat();
@@ -94,7 +82,18 @@ export function GymPanel({ state, preview, onState }: GymPanelProps): React.JSX.
       window.clearInterval(id);
       document.removeEventListener("visibilitychange", onVisible);
     };
-  }, [sessionActive, preview, run]);
+  }, [sessionActive, preview, beat]);
+
+  // When the countdown hits zero, check right away so the new attack lands
+  // now instead of at the next minute's check.
+  const progress = session ? sessionProgress(session, now) : null;
+  const attackDue =
+    session !== null &&
+    progress !== null &&
+    progress.attacksFromTime > Math.floor(session.creditedSeconds / (MINUTES_PER_SPIN * 60));
+  useEffect(() => {
+    if (attackDue && !preview) void beat();
+  }, [attackDue, preview, beat]);
 
   // Keep the screen awake during a session so the heartbeats keep going.
   useEffect(() => {
@@ -124,7 +123,7 @@ export function GymPanel({ state, preview, onState }: GymPanelProps): React.JSX.
     setNotice(null);
     const next = await run(checkIn);
     if (next?.session) {
-      setNotice(next.session.bonusSpin ? "Checked in! +1 spin." : "Checked in! Your time is counting.");
+      setNotice(next.session.bonusSpin ? "Checked in! +1 attack." : "Checked in! Your time is counting.");
     }
   }
 
@@ -148,6 +147,14 @@ export function GymPanel({ state, preview, onState }: GymPanelProps): React.JSX.
     setNotice("Checked out. See you next time!");
   }
 
+  function handlePicked(next: BattleState, gymName: string): void {
+    setPicking(false);
+    onState(next);
+    setNotice(
+      next.session?.bonusSpin ? `Checked in at ${gymName}! +1 attack.` : `Checked in at ${gymName}! Your time is counting.`,
+    );
+  }
+
   const partner = state.partner;
 
   return (
@@ -169,31 +176,49 @@ export function GymPanel({ state, preview, onState }: GymPanelProps): React.JSX.
 
       {preview ? (
         <p className="mt-3 text-sm text-foreground/60">
-          Gym check-ins need Supabase. Preview mode gives you {PREVIEW_SPINS} demo spins and saves nothing.
+          Gym check-ins need Supabase. Preview mode gives you {PREVIEW_SPINS} demo attacks and saves nothing.
         </p>
-      ) : state.gym === null ? (
+      ) : session === null && (state.gym === null || picking) ? (
         <GymPicker
-          onState={onState}
-          onSaved={(name) => setNotice(`Saved ${name} as your gym. Check in whenever you're here.`)}
+          currentGymName={state.gym?.name ?? null}
+          onCheckedIn={handlePicked}
+          onCancel={state.gym === null ? undefined : () => setPicking(false)}
         />
       ) : session === null ? (
-        <div className="mt-3 flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-sm text-foreground/70">
-            At <span className="text-foreground">{state.gym.name}</span>? Check in for a spin, then earn one more every{" "}
-            {MINUTES_PER_SPIN} minutes.
-          </p>
-          <button type="button" onClick={handleCheckIn} disabled={busy} className={buttonClass}>
-            {busy ? "Locating…" : "Check in"}
+        <div className="mt-3 space-y-3">
+          <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm text-foreground/70">
+              At <span className="text-foreground">{state.gym?.name}</span>? Check in for an attack, then earn one more
+              every {MINUTES_PER_SPIN} minutes.
+            </p>
+            <button type="button" onClick={handleCheckIn} disabled={busy} className={buttonClass}>
+              {busy ? "Locating…" : "Check in"}
+            </button>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              setError(null);
+              setNotice(null);
+              setPicking(true);
+            }}
+            disabled={busy}
+            className="text-sm text-accent underline-offset-4 hover:underline disabled:opacity-50"
+          >
+            At a different gym? Switch gyms
           </button>
         </div>
       ) : (
-        <SessionView
-          session={session}
-          gymName={state.gym.name}
-          now={now}
-          busy={busy}
-          onCheckOut={handleCheckOut}
-        />
+        progress && (
+          <SessionView
+            session={session}
+            progress={progress}
+            gymName={state.gym?.name ?? "the gym"}
+            now={now}
+            busy={busy}
+            onCheckOut={handleCheckOut}
+          />
+        )
       )}
 
       {notice && (
@@ -212,22 +237,21 @@ export function GymPanel({ state, preview, onState }: GymPanelProps): React.JSX.
 
 function SessionView({
   session,
+  progress,
   gymName,
   now,
   busy,
   onCheckOut,
 }: {
   session: NonNullable<BattleState["session"]>;
+  progress: SessionProgress;
   gymName: string;
   now: number;
   busy: boolean;
   onCheckOut: () => void;
 }): React.JSX.Element {
   const elapsed = (now - Date.parse(session.startedAt)) / 1000;
-  const spinSeconds = MINUTES_PER_SPIN * 60;
-  const capped = session.creditedSeconds >= MAX_SESSION_MINUTES * 60;
-  const progress = capped ? 1 : (session.creditedSeconds % spinSeconds) / spinSeconds;
-  const spinsFromTime = Math.floor(session.creditedSeconds / spinSeconds);
+  const earned = progress.attacksFromTime + (session.bonusSpin ? 1 : 0);
 
   return (
     <div className="mt-3 space-y-3">
@@ -245,13 +269,19 @@ function SessionView({
       <div>
         <div className="flex justify-between font-mono text-[11px] uppercase tracking-widest text-foreground/60">
           <span>
-            Banked {Math.floor(session.creditedSeconds / 60)} min · {spinsFromTime + (session.bonusSpin ? 1 : 0)}{" "}
-            {spinsFromTime + (session.bonusSpin ? 1 : 0) === 1 ? "spin" : "spins"} earned
+            {Math.floor(progress.estimatedSeconds / 60)} min · {earned} {earned === 1 ? "attack" : "attacks"} earned
           </span>
-          <span>{capped ? "Session maxed" : "Next spin"}</span>
+          <span className={progress.secondsUntilNext === null ? "" : "text-accent-glow"}>
+            {progress.secondsUntilNext === null
+              ? "Session maxed"
+              : `Next attack in ${formatDuration(progress.secondsUntilNext)}`}
+          </span>
         </div>
         <div className="mt-1 h-2 overflow-hidden rounded-full bg-white/10">
-          <div className="h-full rounded-full bg-accent transition-[width] duration-700" style={{ width: `${progress * 100}%` }} />
+          <div
+            className="h-full rounded-full bg-accent transition-[width] duration-700"
+            style={{ width: `${progress.fraction * 100}%` }}
+          />
         </div>
       </div>
       <p className="text-xs text-foreground/50">

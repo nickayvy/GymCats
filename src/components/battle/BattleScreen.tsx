@@ -7,14 +7,17 @@ import { BossPlaceholder } from "@/components/boss/BossPlaceholder";
 import { HealthBar } from "@/components/boss/HealthBar";
 import { GymPanel } from "@/components/battle/GymPanel";
 import { SpinReel } from "@/components/battle/SpinReel";
+import { useNow } from "@/components/battle/shared";
 import {
   RARITIES,
   RARITY_BY_ID,
   RARITY_STYLES,
   damageRange,
+  formatDuration,
   formatOdds,
   rollDamage,
   rollRarity,
+  sessionProgress,
 } from "@/lib/battle/rules";
 import type { BattleAttack, BattleState, SpinResult } from "@/lib/battle/state";
 
@@ -68,6 +71,9 @@ export function BattleScreen({ initialState, preview }: BattleScreenProps): Reac
   const { battle } = state;
   const defeated = battle.currentHp <= 0;
   const busy = phase === "requesting" || phase === "spinning";
+  const attacks = state.spinsAvailable;
+  const now = useNow(state.session !== null);
+  const nextAttackIn = state.session ? sessionProgress(state.session, now ?? Date.parse(state.session.lastPingAt)).secondsUntilNext : null;
 
   const handleGymState = useCallback((next: BattleState) => {
     // Don't overwrite HP mid-spin; the reveal applies the latest state.
@@ -76,7 +82,7 @@ export function BattleScreen({ initialState, preview }: BattleScreenProps): Reac
   }, []);
 
   async function handleSpin(): Promise<void> {
-    if (busy || defeated || state.spinsAvailable <= 0) return;
+    if (busy || defeated || attacks <= 0) return;
     setError(null);
     setPhase("requesting");
     spinning.current = true;
@@ -151,14 +157,19 @@ export function BattleScreen({ initialState, preview }: BattleScreenProps): Reac
       </section>
 
       <div className="battle-enter-panel relative z-10 mx-auto mt-8 flex w-full max-w-2xl flex-col gap-5">
-        <section className="title-card rounded-2xl px-4 py-5 sm:px-6" aria-labelledby="spin-heading">
+        <section className="title-card rounded-2xl px-4 py-5 sm:px-6" aria-labelledby="attack-heading">
           <div className="mb-3 flex items-center justify-between">
-            <h2 id="spin-heading" className="font-mono text-xs uppercase tracking-[0.3em] text-accent/80">
-              Attack spin
+            <h2 id="attack-heading" className="font-mono text-xs uppercase tracking-[0.3em] text-accent/80">
+              Attack
             </h2>
-            <p className="font-mono text-xs text-foreground/60">
-              {state.spinsAvailable} {state.spinsAvailable === 1 ? "spin" : "spins"} left
-            </p>
+            <div className="text-right font-mono text-xs">
+              <p className="text-foreground/60">
+                {attacks} {attacks === 1 ? "attack" : "attacks"} left
+              </p>
+              {!defeated && nextAttackIn !== null && (
+                <p className="text-accent-glow">Next attack in {formatDuration(nextAttackIn)}</p>
+              )}
+            </div>
           </div>
 
           <SpinReel maxHp={battle.maxHp} spinId={spinId} result={spin} onDone={handleReelDone} />
@@ -175,10 +186,16 @@ export function BattleScreen({ initialState, preview }: BattleScreenProps): Reac
                 <span className="text-foreground/60">Rolling…</span>
               ) : defeated ? (
                 <span className="text-foreground/60">Nothing left to hit this week.</span>
-              ) : state.spinsAvailable > 0 ? (
-                <span className="text-foreground/60">Spin to deal damage.</span>
+              ) : attacks > 0 ? (
+                <span className="text-foreground/60">Attack to deal damage.</span>
+              ) : nextAttackIn !== null ? (
+                <span className="text-foreground/60">
+                  Your next attack is ready in {formatDuration(nextAttackIn)}. Stay at the gym!
+                </span>
+              ) : state.session ? (
+                <span className="text-foreground/60">This session is maxed. Log a workout to earn more attacks.</span>
               ) : (
-                <span className="text-foreground/60">No spins yet. Check in at the gym or log a workout to earn some.</span>
+                <span className="text-foreground/60">No attacks yet. Check in at the gym or log a workout to earn some.</span>
               )}
             </p>
             {error && (
@@ -189,10 +206,10 @@ export function BattleScreen({ initialState, preview }: BattleScreenProps): Reac
             <button
               type="button"
               onClick={handleSpin}
-              disabled={busy || defeated || state.spinsAvailable <= 0}
+              disabled={busy || defeated || attacks <= 0}
               className="w-full max-w-xs rounded-2xl bg-gradient-to-b from-red-500 to-red-700 px-8 py-4 text-xl font-black uppercase tracking-[0.25em] text-white shadow-[0_0_32px_rgba(239,68,68,0.4)] transition hover:scale-105 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100"
             >
-              {phase === "requesting" ? "…" : phase === "spinning" ? "Rolling" : "Spin"}
+              {phase === "requesting" ? "…" : phase === "spinning" ? "Rolling" : "Attack"}
             </button>
           </div>
         </section>

@@ -21,12 +21,12 @@ export function LogResult({
         <p
           className={`spin-pop text-5xl font-black ${earned > 0 ? "text-emerald-300" : "text-foreground/70"}`}
         >
-          +{earned} {earned === 1 ? "spin" : "spins"}
+          +{earned} {earned === 1 ? "attack" : "attacks"}
         </p>
         <p className="text-sm text-foreground/60">
           {earned > 0
-            ? `You grew! You now have ${result.spinsBalance} ${result.spinsBalance === 1 ? "spin" : "spins"}.`
-            : "No growth this time. Beat today's numbers next session to earn a spin."}
+            ? `You grew! You now have ${result.spinsBalance} ${result.spinsBalance === 1 ? "attack" : "attacks"}.`
+            : "No growth this time. Beat today's numbers next session to earn an attack."}
         </p>
       </div>
 
@@ -36,13 +36,13 @@ export function LogResult({
           let status: string;
           let tone: string;
           if (e.previousSets === null) {
-            status = "Baseline set. Beat it next time for a spin.";
+            status = "Baseline set. Beat it next time for an attack.";
             tone = "text-foreground/60";
           } else if (e.spinAwarded) {
             status = `▲ ${describeGrowth(e.previousSets, e.sets).join(" · ")}`;
             tone = "text-emerald-300";
           } else if (e.grew) {
-            status = "▲ Growth! You already earned a spin for this lift in the last 20 hours.";
+            status = "▲ Growth! You already earned an attack for this lift in the last 20 hours.";
             tone = "text-emerald-300/80";
           } else {
             status = `Held at or below last time (${formatSets(e.previousSets)}).`;
@@ -57,7 +57,7 @@ export function LogResult({
                 <span className="font-semibold">{e.name}</span>
                 {e.spinAwarded && (
                   <span className="rounded-full bg-emerald-500/20 px-2 py-0.5 font-mono text-xs text-emerald-200">
-                    +1 spin
+                    +1 attack
                   </span>
                 )}
               </div>

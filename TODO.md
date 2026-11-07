@@ -17,15 +17,15 @@ Background: players earn spins at their gym (1 on check-in, +1 per 10 verified m
 
 Also decide what happens to players outside SoCal under option A: block them, or fall back to option B.
 
-**Done when:** the chosen behaviour is implemented in `src/app/battle/actions.ts` (`setGym`, `findNearbyGyms`) and `src/components/battle/GymPicker.tsx`, and is enforced server-side, not just in the UI.
+**Done when:** the chosen behaviour is implemented in `src/app/battle/actions.ts` (`checkInAtGym`, `findNearbyGyms`) and `src/components/battle/GymPicker.tsx`, and is enforced server-side, not just in the UI.
 
 ## 2. Comply with Google Maps Platform terms
 
 **Status:** the current code breaks these. Quotes are from the Service Specific Terms (Places section 14) and the general terms (3.2.3), read on 2026-11-06.
 
-- **Coordinates:** "Customer may temporarily cache latitude and longitude values from the Places API for up to 30 consecutive calendar days." `setGym` stores the gym's Google coordinates in `user_gyms.lat/lng` indefinitely.
+- **Coordinates:** "Customer may temporarily cache latitude and longitude values from the Places API for up to 30 consecutive calendar days." `checkInAtGym` stores the gym's Google coordinates in `user_gyms.lat/lng` indefinitely.
 - **Names and addresses:** the general terms ban saving "business names, addresses". `GymPicker` prefills the gym name from Google and `user_gyms.name` stores it.
-- **Distance checks:** the general terms ban using "latitude/longitude values from the Places API as an input for point-in-polygon analysis". The 1-mile check against Google coordinates (in `setGym` and on every check-in) is close to that. It's a grey area, not a clear breach.
+- **Distance checks:** the general terms ban using "latitude/longitude values from the Places API as an input for point-in-polygon analysis". The 1-mile check against Google coordinates (in `checkInAtGym` and on every check-in) is close to that. It's a grey area, not a clear breach.
 - **Attribution:** results shown without a Google Map must carry Google's attribution. `GymPicker` shows none. The exact styling rules are at https://developers.google.com/maps/documentation/places/web-service/policies (this environment couldn't reach that page).
 - **Place IDs are fine:** the terms allow caching `place_id` indefinitely.
 
@@ -49,7 +49,7 @@ If picking a gym from up to a mile away must stay, the alternative is:
 
 **Status:** open security gap.
 
-`set_my_gym` is granted to the `authenticated` role, so a signed-in user can call it straight from the browser console with any name, coordinates and place ID. That skips the Places checks in `setGym`. The fix:
+`set_my_gym` is granted to the `authenticated` role, so a signed-in user can call it straight from the browser console with any name, coordinates and place ID. That skips the Places checks in `checkInAtGym`. The fix:
 
 - Revoke `set_my_gym` from `authenticated`.
 - Add a variant that takes a user ID and is callable only with the Supabase service-role key.

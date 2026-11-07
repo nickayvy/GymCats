@@ -1,4 +1,21 @@
+import { useEffect, useState } from "react";
 import type { LocationFix } from "@/app/battle/actions";
+
+/**
+ * The current time, ticking every second while `active`. Null until the
+ * component mounts, so the server render and hydration agree; callers fall
+ * back to a fixed time such as the session's last location check.
+ */
+export function useNow(active: boolean): number | null {
+  const [now, setNow] = useState<number | null>(null);
+  useEffect(() => {
+    if (!active) return;
+    setNow(Date.now());
+    const id = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(id);
+  }, [active]);
+  return now;
+}
 
 export function getFix(): Promise<LocationFix> {
   return new Promise((resolve, reject) => {

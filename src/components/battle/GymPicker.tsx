@@ -1,14 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { findNearbyGyms, setGym, type LocationFix } from "@/app/battle/actions";
+import { checkInAtGym, findNearbyGyms } from "@/app/battle/actions";
 import { buttonClass, getFix, ghostButtonClass } from "@/components/battle/shared";
 import type { BattleState, NearbyGym } from "@/lib/battle/state";
 
-type Search =
-  | { kind: "idle" }
-  | { kind: "results"; fix: LocationFix; gyms: NearbyGym[] }
-  | { kind: "manual"; fix: LocationFix };
+type Search = { kind: "idle" } | { kind: "results"; gyms: NearbyGym[] } | { kind: "manual" };
 
 function formatDistance(meters: number): string {
   const miles = meters / 1609.34;
@@ -24,16 +21,19 @@ function DumbbellIcon(): React.JSX.Element {
 }
 
 export interface GymPickerProps {
-  onState: (state: BattleState) => void;
-  onSaved: (name: string) => void;
+  /** The gym the player last checked in at, if any (shown when switching). */
+  currentGymName: string | null;
+  onCheckedIn: (state: BattleState, gymName: string) => void;
+  /** Shown as a "Back" link when the player already has a gym. */
+  onCancel?: () => void;
 }
 
-export function GymPicker({ onState, onSaved }: GymPickerProps): React.JSX.Element {
+export function GymPicker({ currentGymName, onCheckedIn, onCancel }: GymPickerProps): React.JSX.Element {
   const [search, setSearch] = useState<Search>({ kind: "idle" });
   const [selected, setSelected] = useState<NearbyGym | null>(null);
   const [name, setName] = useState("");
   const [query, setQuery] = useState("");
-  const [busy, setBusy] = useState<"search" | "save" | null>(null);
+  const [busy, setBusy] = useState<"search" | "checkin" | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   async function handleSearch(): Promise<void> {
@@ -47,11 +47,7 @@ export function GymPicker({ onState, onSaved }: GymPickerProps): React.JSX.Eleme
         setError(result.error);
         return;
       }
-      setSearch(
-        result.data.configured
-          ? { kind: "results", fix, gyms: result.data.gyms }
-          : { kind: "manual", fix },
-      );
+      setSearch(result.data.configured ? { kind: "results", gyms: result.data.gyms } : { kind: "manual" });
     } catch (e) {
       setError(e instanceof Error ? e.message : "Something went wrong.");
     } finally {
@@ -61,41 +57,59 @@ export function GymPicker({ onState, onSaved }: GymPickerProps): React.JSX.Eleme
 
   function handlePick(gym: NearbyGym): void {
     setSelected(gym);
-    setName(gym.name);
     setError(null);
   }
 
-  async function handleSave(): Promise<void> {
+  async function handleCheckIn(): Promise<void> {
     if (search.kind === "idle") return;
-    const label = name.trim();
+    const label = (search.kind === "results" ? (selected?.name ?? "") : name).trim().slice(0, 60);
     if (!label) {
-      setError("Give your gym a name first.");
+      setError(search.kind === "results" ? "Pick your gym from the list first." : "Give your gym a name first.");
       return;
     }
-    setBusy("save");
+    setBusy("checkin");
     setError(null);
-    const result = await setGym({
-      name: label,
-      placeId: search.kind === "results" ? (selected?.placeId ?? null) : null,
-      fix: search.fix,
-    });
-    setBusy(null);
-    if (!result.ok) {
-      setError(result.error);
-      return;
+    try {
+      // A fresh fix: the search may have been a while ago.
+      const fix = await getFix();
+      const result = await checkInAtGym({
+        name: label,
+        placeId: search.kind === "results" ? (selected?.placeId ?? null) : null,
+        fix,
+      });
+      if (!result.ok) {
+        setError(result.error);
+        return;
+      }
+      onCheckedIn(result.data, label);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Something went wrong.");
+    } finally {
+      setBusy(null);
     }
-    onState(result.data);
-    onSaved(label);
   }
 
   return (
     <div className="mt-3 space-y-3">
-      {search.kind === "idle" && (
+      <div className="flex items-start justify-between gap-3">
         <p className="text-sm text-foreground/70">
-          Find your gym to start earning spins. You&apos;ll need to be within a mile of it to check in, and you can
-          change it once a week.
+          {search.kind === "results" && search.gyms.length > 0
+            ? "Which gym are you at?"
+            : currentGymName
+              ? `Not at ${currentGymName}? Find the gym you're at to check in there instead.`
+              : "Find the gym you're at to check in and start earning attacks. You can switch gyms any time you're not mid-session."}
         </p>
-      )}
+        {onCancel && (
+          <button
+            type="button"
+            onClick={onCancel}
+            disabled={busy !== null}
+            className="shrink-0 font-mono text-xs uppercase tracking-widest text-foreground/60 hover:text-accent disabled:opacity-50"
+          >
+            Back
+          </button>
+        )}
+      </div>
 
       {search.kind !== "manual" && (
         <form
@@ -130,7 +144,6 @@ export function GymPicker({ onState, onSaved }: GymPickerProps): React.JSX.Eleme
 
       {search.kind === "results" && search.gyms.length > 0 && (
         <>
-          <p className="text-sm text-foreground/70">Which one is yours?</p>
           <ul className="max-h-72 space-y-2 overflow-y-auto pr-1" aria-label="Nearby gyms">
             {search.gyms.map((gym) => {
               const active = selected?.placeId === gym.placeId;
@@ -168,11 +181,11 @@ export function GymPicker({ onState, onSaved }: GymPickerProps): React.JSX.Eleme
 
       {search.kind === "manual" && (
         <p className="text-sm text-foreground/70">
-          Gym search isn&apos;t set up, so name your gym and we&apos;ll save where you&apos;re standing.
+          Gym search isn&apos;t set up, so name your gym and we&apos;ll use where you&apos;re standing.
         </p>
       )}
 
-      {(search.kind === "manual" || selected !== null) && (
+      {search.kind === "manual" && (
         <div className="flex flex-col gap-2 sm:flex-row">
           <input
             type="text"
@@ -183,12 +196,17 @@ export function GymPicker({ onState, onSaved }: GymPickerProps): React.JSX.Eleme
             aria-label="Gym name"
             className="flex-1 rounded-xl border border-white/15 bg-black/30 px-4 py-3 text-sm outline-none focus:border-accent"
           />
-          <button type="button" onClick={handleSave} disabled={busy !== null} className={buttonClass}>
-            {busy === "save" ? "Saving…" : "Save as my gym"}
+          <button type="button" onClick={handleCheckIn} disabled={busy !== null} className={buttonClass}>
+            {busy === "checkin" ? "Checking in…" : "Check in here"}
           </button>
         </div>
       )}
 
+      {search.kind === "results" && selected !== null && (
+        <button type="button" onClick={handleCheckIn} disabled={busy !== null} className={`w-full ${buttonClass}`}>
+          {busy === "checkin" ? "Checking in…" : `Check in at ${selected.name}`}
+        </button>
+      )}
 
       {error && (
         <p role="alert" className="text-sm text-red-300">

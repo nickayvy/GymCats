@@ -11,10 +11,11 @@ const RPC_ERRORS: Record<string, string> = {
   invalid_location: "Couldn't read your location. Try again.",
   invalid_gym_name: "Give your gym a name (up to 60 characters).",
   invalid_place: "That gym couldn't be saved. Pick it from the list again.",
-  session_active: "Check out of your gym session before changing gyms.",
-  gym_change_cooldown: "You can only change your gym once a week.",
+  session_active: "Check out of your gym session before switching gyms.",
+  // Only until 20261113000000_free_gym_switching.sql is applied.
+  gym_change_cooldown: "Switching gyms isn't enabled yet. Try again later.",
   no_active_session: "You're not checked in.",
-  no_spins: "No spins left. Hit the gym to earn more!",
+  no_spins: "No attacks left. Hit the gym to earn more!",
   boss_defeated: "This boss is already defeated. A new one arrives Monday.",
 };
 

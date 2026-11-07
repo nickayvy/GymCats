@@ -15,7 +15,7 @@ export function RecentWorkouts({ workouts }: { workouts: RecentWorkout[] }): Rea
               <LocalDate iso={w.performedAt} />
               {w.spinsEarned > 0 && (
                 <span className="text-emerald-300">
-                  +{w.spinsEarned} {w.spinsEarned === 1 ? "spin" : "spins"}
+                  +{w.spinsEarned} {w.spinsEarned === 1 ? "attack" : "attacks"}
                 </span>
               )}
             </div>

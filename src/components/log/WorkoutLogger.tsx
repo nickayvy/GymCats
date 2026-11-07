@@ -122,7 +122,7 @@ export function WorkoutLogger({
           </h1>
           <p className="text-sm text-foreground/60">
             Beat your last session on any lift (one more rep, a little more weight, or an extra set)
-            and earn a spin.
+            and earn an attack.
           </p>
         </div>
 
