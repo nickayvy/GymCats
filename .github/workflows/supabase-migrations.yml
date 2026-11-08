@@ -42,8 +42,10 @@ jobs:
       - name: Link project
         run: supabase link --project-ref "$SUPABASE_PROJECT_REF"
 
+      # Newer CLIs push to a local stack unless told otherwise; --remote
+      # targets the project linked above.
       - name: Show pending migrations
-        run: supabase db push --dry-run
+        run: supabase db push --remote --dry-run
 
       - name: Apply migrations
-        run: supabase db push --yes
+        run: supabase db push --remote --yes
