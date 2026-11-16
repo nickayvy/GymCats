@@ -5,21 +5,6 @@
 @layer theme, base, components, utilities;
 
 @layer components {
-  /* "Press start" prompt on the title screen. */
-  .gc-press {
-    animation: gc-press 2.4s ease-in-out infinite;
-  }
-
-  @keyframes gc-press {
-    0%,
-    100% {
-      opacity: 0.35;
-    }
-    50% {
-      opacity: 1;
-    }
-  }
-
   /* Empty party slot: a quiet dashed frame. It is not a control, so it
      doesn't glow or pulse like one. */
   .gc-party-open {
@@ -69,12 +54,8 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .gc-press,
     .gc-party-open {
       animation: none !important;
-    }
-    .gc-press {
-      opacity: 0.8;
     }
   }
 }

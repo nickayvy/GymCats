@@ -59,10 +59,6 @@ export function HeroSection({ session }: HeroSectionProps): React.JSX.Element {
           <PlayerCat sheet={CAT_SPRITES.tuxedo} label="Pixel art tuxedo cat" player="Player 2" flip delay="-1.6s" />
         </div>
 
-        <p className="gc-press gc-title text-sm tracking-[0.3em] text-white/85 sm:text-base" aria-hidden="true">
-          ◆ Press start ◆
-        </p>
-
         <div className="gc-rise flex w-full max-w-xs flex-col items-center gap-2" style={rise(550)}>
           <Link href="/login?mode=signup" className="gc-btn gc-btn-primary gc-btn-lg gc-shine w-full">
             Get started
