@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { describeGrowth, formatSets, growthTargets } from "@/lib/workouts/growth";
+import { describeGrowth, formatSets } from "@/lib/workouts/growth";
 import type { LogWorkoutResult } from "@/lib/workouts/schema";
 import { primaryButtonClass, secondaryButtonClass } from "@/components/onboarding/styles";
 import { ITEM_SPRITES, PixelSprite } from "@/components/sprites";
@@ -64,7 +64,6 @@ export function LogResult({
 
       <ul className="flex w-full flex-col gap-2 text-left">
         {result.exercises.map((e, i) => {
-          const next = growthTargets(e.sets).map((t) => t.label);
           let status: string;
           let tone: string;
           if (e.previousSets === null) {
@@ -77,7 +76,7 @@ export function LogResult({
             status = "▲ Growth! You already earned an attack for this lift in the last 20 hours.";
             tone = "text-moss/80";
           } else {
-            status = `Held at or below last time (${formatSets(e.previousSets)}).`;
+            status = `Didn't beat last time (${formatSets(e.previousSets)}).`;
             tone = "text-white/65";
           }
           return (
@@ -100,11 +99,9 @@ export function LogResult({
                 </div>
                 <span className="gc-num text-sm italic text-white/75">{formatSets(e.sets)}</span>
                 <span className={`text-sm italic ${tone}`}>{status}</span>
-                {next.length > 0 && (
-                  <span className="mt-1 font-mono text-[0.7rem] font-semibold uppercase tracking-wider text-glow/85">
-                    Next time: {next.join(" · ")}
-                  </span>
-                )}
+                <span className="mt-1 text-xs font-semibold text-glow/85">
+                  Next time, beat {formatSets(e.sets)}
+                </span>
               </div>
             </li>
           );

@@ -32,6 +32,7 @@ export default async function LogPage(): Promise<React.JSX.Element> {
   return (
     <WorkoutLogger
       preview={preview}
+      userId={userId}
       spins={spins}
       lastSessions={lastSessions}
       recentWorkouts={recentWorkouts}
