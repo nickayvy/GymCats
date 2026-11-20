@@ -90,8 +90,9 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 2rem;
-    height: 2rem;
+    /* 44px: a comfortable tap target on a phone. */
+    width: 2.75rem;
+    height: 2.75rem;
     border-radius: 4px;
     border: 1px solid transparent;
     color: var(--ink-faint);
@@ -171,6 +172,48 @@
     box-shadow: 0 0 18px rgba(155, 211, 106, 0.3);
   }
 
+
+  /* Invalid fields after a failed submit. */
+  .lg-card .gc-input[aria-invalid="true"] {
+    border-color: rgba(232, 80, 63, 0.85);
+    box-shadow: 0 0 0 1px rgba(232, 80, 63, 0.45);
+  }
+
+  /* One-tap exercise picks on an unnamed card. */
+  .gc-chip.lg-pick {
+    font-style: normal;
+    font-size: 0.8rem;
+  }
+
+  /* Quiet inline notice (restored draft, undo). */
+  .lg-note {
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    background: rgba(0, 0, 0, 0.55);
+    color: var(--ink-dim);
+  }
+
+  .lg-link {
+    min-height: 2.75rem;
+    padding: 0 0.25rem;
+    font-style: normal;
+    font-weight: 700;
+    color: #d4f5b0;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .lg-link:hover,
+  .lg-link:focus-visible {
+    color: #f5ffe9;
+  }
+
+  /* Sticky action bar at the bottom of the form. */
+  .lg-dock {
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+    background: linear-gradient(180deg, rgba(6, 9, 6, 0) 0%, rgba(6, 9, 6, 0.88) 1.25rem, rgba(6, 9, 6, 0.95) 100%);
+    backdrop-filter: blur(6px);
+  }
 
   /* ---------- Result (reward moment) ---------- */
 

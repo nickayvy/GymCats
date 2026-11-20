@@ -6,7 +6,9 @@ import {
   growthTargets,
   isGrowth,
   MAX_EXERCISE_NAME,
+  MAX_REPS,
   MAX_SETS,
+  MAX_WEIGHT_LB,
   type WorkoutSet,
 } from "@/lib/workouts/growth";
 import type { ExerciseHistoryEntry } from "@/lib/workouts/schema";
@@ -36,6 +38,24 @@ export function parseSets(sets: SetDraft[]): WorkoutSet[] | null {
   return parsed.every((s): s is WorkoutSet => s !== null) ? parsed : null;
 }
 
+/** Reps must be a whole number from 1 to MAX_REPS. */
+function repsInvalid(reps: string): boolean {
+  const n = reps.trim() === "" ? NaN : Number(reps);
+  return !Number.isInteger(n) || n < 1 || n > MAX_REPS;
+}
+
+/** Blank weight is bodyweight, so only a filled-in bad value is invalid. */
+function weightInvalid(weight: string): boolean {
+  if (weight.trim() === "") return false;
+  const n = Number(weight);
+  return !Number.isFinite(n) || n < 0 || n > MAX_WEIGHT_LB;
+}
+
+/** Stops a scroll wheel over a focused number field from changing its value. */
+function blurOnWheel(e: React.WheelEvent<HTMLInputElement>): void {
+  e.currentTarget.blur();
+}
+
 const cellInputClass = `${inputClass} lg-cell`;
 
 export function ExerciseCard({
@@ -43,6 +63,10 @@ export function ExerciseCard({
   exercise,
   lastSession,
   canRemove,
+  showErrors,
+  duplicate,
+  quickPicks,
+  quickPicksLabel,
   newId,
   onChange,
   onRemove,
@@ -51,11 +75,22 @@ export function ExerciseCard({
   exercise: ExerciseDraft;
   lastSession: ExerciseHistoryEntry | undefined;
   canRemove: boolean;
+  /** Highlight invalid fields (set after a failed submit). */
+  showErrors: boolean;
+  /** Another exercise in this workout has the same name. */
+  duplicate: boolean;
+  /** Exercise names to offer as one-tap picks while the name is empty. */
+  quickPicks: string[];
+  quickPicksLabel: string;
   newId: () => string;
   onChange: (next: ExerciseDraft) => void;
   onRemove: () => void;
 }): React.JSX.Element {
   const label = exercise.name.trim() || `Exercise ${index + 1}`;
+  const nameEmpty = exercise.name.trim() === "";
+  const touched = !nameEmpty || exercise.sets.some((s) => s.reps.trim() !== "" || s.weight.trim() !== "");
+  const flag = showErrors && touched;
+  const nameError = flag && (nameEmpty || duplicate);
   const current = parseSets(exercise.sets);
   const previous = lastSession?.sets ?? [];
   const grows = lastSession && current ? isGrowth(previous, current) : false;
@@ -113,20 +148,42 @@ export function ExerciseCard({
             aria-label={`Exercise ${index + 1} name`}
             autoComplete="off"
             onChange={(e) => onChange({ ...exercise, name: e.target.value })}
+            aria-invalid={nameError || undefined}
             className={`${inputClass} lg-name`}
           />
+          {nameError && (
+            <span className="text-xs italic text-ember">
+              {nameEmpty ? "Name this exercise." : "Already in this workout. Add sets to the other one instead."}
+            </span>
+          )}
         </div>
         {canRemove && (
           <button
             type="button"
             onClick={onRemove}
             aria-label={`Remove ${label}`}
-            className="lg-x shrink-0 self-end mb-1.5"
+            className="lg-x shrink-0 self-start mt-5"
           >
             ✕
           </button>
         )}
       </div>
+
+      {nameEmpty && quickPicks.length > 0 && (
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="gc-caps">{quickPicksLabel}</span>
+          {quickPicks.map((name) => (
+            <button
+              key={name}
+              type="button"
+              onClick={() => onChange({ ...exercise, name })}
+              className={`${chipClass} lg-pick`}
+            >
+              {name}
+            </button>
+          ))}
+        </div>
+      )}
 
       {lastSession ? (
         <div className="lg-last flex flex-col gap-2.5 p-3">
@@ -163,14 +220,14 @@ export function ExerciseCard({
       )}
 
       <div className="flex flex-col gap-2">
-        <div className="gc-caps grid grid-cols-[2rem_1fr_1fr_2rem] items-center gap-2">
+        <div className="gc-caps grid grid-cols-[2rem_1fr_1fr_2.75rem] items-center gap-2">
           <span>Set</span>
           <span className="text-center">Weight (lb)</span>
           <span className="text-center">Reps</span>
           <span />
         </div>
         {exercise.sets.map((set, i) => (
-          <div key={set.id} className="grid grid-cols-[2rem_1fr_1fr_2rem] items-center gap-2">
+          <div key={set.id} className="grid grid-cols-[2rem_1fr_1fr_2.75rem] items-center gap-2">
             <span className="lg-setno">{i + 1}</span>
             <input
               type="number"
@@ -181,6 +238,8 @@ export function ExerciseCard({
               aria-label={`${label} set ${i + 1} weight in pounds`}
               value={set.weight}
               onChange={(e) => updateSet(set.id, { weight: e.target.value })}
+              onWheel={blurOnWheel}
+              aria-invalid={(flag && weightInvalid(set.weight)) || undefined}
               className={cellInputClass}
             />
             <input
@@ -188,10 +247,12 @@ export function ExerciseCard({
               inputMode="numeric"
               min={1}
               step={1}
-              placeholder="0"
+              placeholder="–"
               aria-label={`${label} set ${i + 1} reps`}
               value={set.reps}
               onChange={(e) => updateSet(set.id, { reps: e.target.value })}
+              onWheel={blurOnWheel}
+              aria-invalid={(flag && repsInvalid(set.reps)) || undefined}
               className={cellInputClass}
             />
             {exercise.sets.length > 1 ? (
