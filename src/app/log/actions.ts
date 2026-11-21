@@ -80,12 +80,14 @@ export async function logWorkout(input: unknown): Promise<ActionResult<LogWorkou
   // screen show it. Falls back to the wallet alone if the battle can't load.
   const battle = await loadBattleState(supabase);
   const spinsBalance = battle.ok ? battle.data.spinsAvailable : result.data.spins_balance;
+  const bossAlive = battle.ok ? battle.data.battle.currentHp > 0 : true;
 
   return {
     ok: true,
     data: {
       spinsEarned: result.data.spins_earned,
       spinsBalance,
+      bossAlive,
       exercises: result.data.exercises.map((e, i) => ({
         name: e.name,
         sets: exercises[i]?.sets ?? [],

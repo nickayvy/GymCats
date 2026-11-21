@@ -1,5 +1,7 @@
 "use client";
 
+import { useRef } from "react";
+
 import {
   describeGrowth,
   formatSets,
@@ -58,6 +60,12 @@ function blurOnWheel(e: React.WheelEvent<HTMLInputElement>): void {
 
 const cellInputClass = `${inputClass} lg-cell`;
 
+/** "135×8", or "BW×8" for bodyweight: last time's set, compact. */
+function shortSet(set: WorkoutSet): string {
+  const weight = set.weightLb === 0 ? "BW" : String(Math.round(set.weightLb * 10) / 10);
+  return `${weight}×${set.reps}`;
+}
+
 export function ExerciseCard({
   index,
   exercise,
@@ -93,6 +101,13 @@ export function ExerciseCard({
   const nameError = flag && (nameEmpty || duplicate);
   const current = parseSets(exercise.sets);
   const previous = lastSession?.sets ?? [];
+  const hasPrevious = previous.length > 0;
+  // Tailwind needs whole class names, so both layouts are spelled out.
+  // Below 380px (iPhone SE) the columns tighten so the weight still fits.
+  const gridClass = hasPrevious
+    ? "grid grid-cols-[1.5rem_3.5rem_1fr_1fr_2.25rem] items-center gap-1.5 min-[380px]:grid-cols-[2rem_4.5rem_1fr_1fr_2.75rem] min-[380px]:gap-2"
+    : "grid grid-cols-[2rem_1fr_1fr_2.75rem] items-center gap-2";
+  const sectionRef = useRef<HTMLElement>(null);
   const grows = lastSession && current ? isGrowth(previous, current) : false;
   const changes = grows && current ? describeGrowth(previous, current) : [];
 
@@ -109,6 +124,17 @@ export function ExerciseCard({
       ...exercise,
       sets: [...exercise.sets, { id: newId(), reps: last?.reps ?? "", weight: last?.weight ?? "" }],
     });
+  }
+
+  function pickName(name: string): void {
+    onChange({ ...exercise, name });
+    // The chip that had focus disappears once the card has a name. Keep focus
+    // on this card (without opening the keyboard) rather than losing it.
+    window.requestAnimationFrame(() => sectionRef.current?.focus({ preventScroll: true }));
+  }
+
+  function copyPrevious(id: string, set: WorkoutSet): void {
+    updateSet(id, { reps: String(set.reps), weight: set.weightLb === 0 ? "" : String(set.weightLb) });
   }
 
   function removeSet(id: string): void {
@@ -128,8 +154,10 @@ export function ExerciseCard({
 
   return (
     <section
+      ref={sectionRef}
+      tabIndex={-1}
       aria-label={label}
-      className="gc-panel lg-card gc-rise flex flex-col gap-4 p-4 text-left sm:p-5"
+      className="gc-panel lg-card gc-rise flex flex-col gap-4 p-4 text-left outline-none sm:p-5"
     >
       <div className="flex items-center gap-3">
         <ItemSlot size={48} className="lg-slot" selected={grows}>
@@ -176,7 +204,7 @@ export function ExerciseCard({
             <button
               key={name}
               type="button"
-              onClick={() => onChange({ ...exercise, name })}
+              onClick={() => pickName(name)}
               className={`${chipClass} lg-pick`}
             >
               {name}
@@ -220,15 +248,32 @@ export function ExerciseCard({
       )}
 
       <div className="flex flex-col gap-2">
-        <div className="gc-caps grid grid-cols-[2rem_1fr_1fr_2.75rem] items-center gap-2">
+        <div className={`gc-caps ${gridClass}`}>
           <span>Set</span>
-          <span className="text-center">Weight (lb)</span>
+          {hasPrevious && <span className="text-center">Last</span>}
+          <span className="text-center">{hasPrevious ? "lb" : "Weight (lb)"}</span>
           <span className="text-center">Reps</span>
           <span />
         </div>
         {exercise.sets.map((set, i) => (
-          <div key={set.id} className="grid grid-cols-[2rem_1fr_1fr_2.75rem] items-center gap-2">
+          <div key={set.id} className={gridClass}>
             <span className="lg-setno">{i + 1}</span>
+            {hasPrevious &&
+              (previous[i] ? (
+                <button
+                  type="button"
+                  onClick={() => copyPrevious(set.id, previous[i])}
+                  aria-label={`Use last time's set ${i + 1} (${shortSet(previous[i])}) for set ${i + 1}`}
+                  title="Use last time's numbers"
+                  className="lg-prev"
+                >
+                  {shortSet(previous[i])}
+                </button>
+              ) : (
+                <span className="lg-prev" data-empty aria-hidden="true">
+                  –
+                </span>
+              ))}
             <input
               type="number"
               inputMode="decimal"

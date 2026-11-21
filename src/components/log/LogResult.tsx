@@ -18,6 +18,7 @@ export function LogResult({
   const earned = result.spinsEarned;
 
   const attacksWord = earned === 1 ? "attack" : "attacks";
+  const canAttack = result.spinsBalance > 0 && result.bossAlive;
 
   return (
     <section className="gc-panel gc-panel-strong gc-rise relative flex flex-col items-center gap-6 overflow-hidden px-4 py-7 text-center sm:px-8">
@@ -67,7 +68,7 @@ export function LogResult({
           let status: string;
           let tone: string;
           if (e.previousSets === null) {
-            status = "Baseline set. Beat it next time for an attack.";
+            status = "First time logged. This is your baseline.";
             tone = "text-white/65";
           } else if (e.spinAwarded) {
             status = `▲ ${describeGrowth(e.previousSets, e.sets).join(" · ")}`;
@@ -108,11 +109,25 @@ export function LogResult({
         })}
       </ul>
 
-      <div className="flex w-full flex-col gap-3 sm:flex-row sm:justify-center">
-        <Link href="/hub" className={`${primaryButtonClass} text-center`}>
-          Back to hub
-        </Link>
-        <button type="button" onClick={onLogAnother} className={`${secondaryButtonClass} lg-add`}>
+      <div className="flex w-full flex-col items-center gap-3">
+        {/* Earned attacks are meant to be spent: point there first. */}
+        <div className="flex w-full flex-col gap-3 sm:flex-row sm:justify-center">
+          {canAttack ? (
+            <>
+              <Link href="/battle" className={`${primaryButtonClass} text-center`}>
+                Attack the boss
+              </Link>
+              <Link href="/hub" className={`${secondaryButtonClass} text-center`}>
+                Back to hub
+              </Link>
+            </>
+          ) : (
+            <Link href="/hub" className={`${primaryButtonClass} text-center`}>
+              Back to hub
+            </Link>
+          )}
+        </div>
+        <button type="button" onClick={onLogAnother} className="lg-link text-sm">
           Log another workout
         </button>
       </div>

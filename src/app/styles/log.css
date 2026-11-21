@@ -75,6 +75,7 @@
     align-items: center;
     justify-content: center;
     width: 1.75rem;
+    max-width: 100%;
     height: 1.75rem;
     border-radius: 2px;
     border: 1px solid var(--line);
@@ -92,6 +93,7 @@
     justify-content: center;
     /* 44px: a comfortable tap target on a phone. */
     width: 2.75rem;
+    max-width: 100%;
     height: 2.75rem;
     border-radius: 4px;
     border: 1px solid transparent;
@@ -108,6 +110,42 @@
     color: #ffd2c9;
     border-color: rgba(232, 80, 63, 0.6);
     background: rgba(232, 80, 63, 0.14);
+  }
+
+  /* Last time's set, per row. Tap to copy it into that row. */
+  .lg-prev {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.75rem;
+    padding: 0 0.25rem;
+    border-radius: 3px;
+    border: 1px dashed rgba(155, 211, 106, 0.3);
+    background: rgba(0, 0, 0, 0.3);
+    font-family: var(--font-label), system-ui, sans-serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink-dim);
+    white-space: nowrap;
+    overflow: hidden;
+    transition:
+      color 150ms ease,
+      border-color 150ms ease,
+      background 150ms ease;
+  }
+
+  button.lg-prev:hover,
+  button.lg-prev:focus-visible {
+    border-color: var(--moss);
+    background: rgba(45, 84, 25, 0.45);
+    color: #f5ffe9;
+  }
+
+  .lg-prev[data-empty] {
+    border-color: transparent;
+    background: none;
+    color: var(--ink-faint);
   }
 
   /* "Last time" sunken box. */
