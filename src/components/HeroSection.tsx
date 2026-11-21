@@ -56,7 +56,6 @@ export function HeroSection({ session }: HeroSectionProps): React.JSX.Element {
 
         <div className="gc-rise flex items-end justify-center gap-6 sm:gap-16" style={rise(350)}>
           <PlayerCat sheet={CAT_SPRITES.siamese} label="Pixel art Siamese cat" player="Player 1" delay="0s" />
-          <PlayerCat sheet={CAT_SPRITES.tuxedo} label="Pixel art tuxedo cat" player="Player 2" flip delay="-1.6s" />
         </div>
 
         <div className="gc-rise flex w-full max-w-xs flex-col items-center gap-2" style={rise(550)}>
