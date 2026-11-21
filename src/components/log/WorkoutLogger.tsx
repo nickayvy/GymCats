@@ -26,8 +26,9 @@ import { clearDraft, isBlankExercise, loadDraft, saveDraft } from "./draft";
 import { LogResult } from "./LogResult";
 import { RecentWorkouts } from "./RecentWorkouts";
 
-/** One-tap exercise picks shown on an unnamed card. */
-const QUICK_PICKS = 6;
+/** One-tap exercise picks on an unnamed card: your own lifts, or popular ones. */
+const RECENT_PICKS = 6;
+const POPULAR_PICKS = 4;
 /** How long "Undo" stays up after removing an exercise. */
 const UNDO_MS = 8000;
 
@@ -64,25 +65,27 @@ export function WorkoutLogger({
   const [restored, setRestored] = useState(false);
   const [removed, setRemoved] = useState<{ exercise: ExerciseDraft; index: number } | null>(null);
   const [pending, startTransition] = useTransition();
-  // Drafts are read after mount (localStorage isn't available on the server)
-  // and only written once that read has happened, so a blank first render
-  // never wipes a saved draft.
-  const draftLoaded = useRef(false);
+  // Drafts are read after mount (localStorage isn't available on the server).
+  // Saving waits for a render where draftReady is true, which is also the
+  // first render that holds the restored exercises, so the blank initial
+  // state can never overwrite a saved draft.
+  const [draftReady, setDraftReady] = useState(false);
 
   useEffect(() => {
+    if (draftReady) return;
     const draft = loadDraft(userId, newId);
     if (draft) {
       setExercises(draft);
       setRestored(true);
     }
-    draftLoaded.current = true;
-    // Runs once per user; newId only reads a ref.
-  }, [userId]);
+    setDraftReady(true);
+    // newId only reads a ref.
+  }, [userId, draftReady]);
 
   useEffect(() => {
-    if (!draftLoaded.current || result) return;
+    if (!draftReady || result) return;
     saveDraft(userId, exercises);
-  }, [userId, exercises, result]);
+  }, [userId, exercises, result, draftReady]);
 
   useEffect(() => {
     if (!removed) return;
@@ -123,8 +126,11 @@ export function WorkoutLogger({
 
   // Your own recent lifts first; common lifts until you have some history.
   const quickPicks = useMemo(() => {
-    const source = lastSessions.length > 0 ? lastSessions.map((s) => s.name) : [...COMMON_EXERCISES];
-    return source.filter((name) => !usedKeys.has(exerciseKey(name))).slice(0, QUICK_PICKS);
+    const recent = lastSessions.length > 0;
+    const source = recent ? lastSessions.map((s) => s.name) : [...COMMON_EXERCISES];
+    return source
+      .filter((name) => !usedKeys.has(exerciseKey(name)))
+      .slice(0, recent ? RECENT_PICKS : POPULAR_PICKS);
   }, [lastSessions, usedKeys]);
   const quickPicksLabel = lastSessions.length > 0 ? "Recent" : "Popular";
 
@@ -319,7 +325,7 @@ export function WorkoutLogger({
             )}
 
             {/* Stays in reach of your thumb while you scroll through a long workout. */}
-            <div className="lg-dock sticky bottom-0 z-20 -mx-4 flex flex-col gap-2 px-4 pt-3 sm:-mx-6 sm:px-6">
+            <div className="lg-dock sticky bottom-0 z-20 -mx-4 flex flex-col gap-2 px-4 pt-3 sm:mx-0 sm:px-0">
               {removed && (
                 <div role="status" className="lg-note gc-fade flex items-center justify-between gap-3 px-3 py-2 text-sm italic">
                   <span className="min-w-0 truncate">

@@ -60,6 +60,8 @@ export type LogWorkoutResult = {
   spinsEarned: number;
   /** Everything the player can spend now: wallet plus this week's gym spins. */
   spinsBalance: number;
+  /** This week's boss still has HP, so attacks can be spent right now. */
+  bossAlive: boolean;
   exercises: ExerciseOutcome[];
 };
 
