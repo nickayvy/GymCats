@@ -6,6 +6,7 @@ import type { LogWorkoutResult } from "@/lib/workouts/schema";
 import { primaryButtonClass, secondaryButtonClass } from "@/components/onboarding/styles";
 import { ITEM_SPRITES, PixelSprite } from "@/components/sprites";
 import { ItemSlot, Starburst, TitleBanner } from "@/components/ui";
+import { useBattleWarp } from "@/components/transition/battleWarp";
 import { ExerciseIcon } from "./exerciseIcon";
 
 export function LogResult({
@@ -19,6 +20,7 @@ export function LogResult({
 
   const attacksWord = earned === 1 ? "attack" : "attacks";
   const canAttack = result.spinsBalance > 0 && result.bossAlive;
+  const { warping, warpToBattle } = useBattleWarp();
 
   return (
     <section className="gc-panel gc-panel-strong gc-rise relative flex flex-col items-center gap-6 overflow-hidden px-4 py-7 text-center sm:px-8">
@@ -114,9 +116,14 @@ export function LogResult({
         <div className="flex w-full flex-col gap-3 sm:flex-row sm:justify-center">
           {canAttack ? (
             <>
-              <Link href="/battle" className={`${primaryButtonClass} text-center`}>
+              <button
+                type="button"
+                onClick={warpToBattle}
+                disabled={warping}
+                className={`${primaryButtonClass} text-center`}
+              >
                 Attack the boss
-              </Link>
+              </button>
               <Link href="/hub" className={`${secondaryButtonClass} text-center`}>
                 Back to hub
               </Link>

@@ -1,0 +1,293 @@
+/* Hub → battle warp (src/components/transition/battleWarp.ts).
+   Timeline, all from the click:
+     0–350 ms    the world dims
+     0–750 ms    motes of light gather toward the centre
+     80–650 ms   rune rings draw themselves, the glyph band fades in and turns
+     300–700 ms  the gold sigil ignites
+     580–1000 ms a pillar of light opens
+     780–1040 ms white flash (navigation starts at 900 ms and the overlay
+                 holds on the flash until the battle screen fades it out) */
+
+@layer theme, base, components, utilities;
+
+@layer components {
+  .battle-warp {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .battle-warp[data-leaving] {
+    animation: battle-warp-out 650ms cubic-bezier(0.2, 0.7, 0.3, 1) forwards;
+  }
+
+  .battle-warp-veil {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 50%, rgba(12, 46, 50, 0.82) 0%, rgba(3, 8, 10, 0.96) 70%);
+    animation: battle-warp-veil 350ms ease-out both;
+  }
+
+  /* ---------- Rune circle ---------- */
+
+  .battle-warp-sigil {
+    position: relative;
+    width: min(78vmin, 460px);
+    height: auto;
+    overflow: visible;
+    filter: drop-shadow(0 0 4px rgba(159, 245, 240, 0.95)) drop-shadow(0 0 16px rgba(116, 230, 226, 0.55));
+    animation: battle-warp-sigil 1040ms cubic-bezier(0.3, 0, 0.2, 1) both;
+  }
+
+  .battle-warp-ring {
+    fill: none;
+    stroke: #aaf7f2;
+    stroke-width: 1.4;
+    stroke-linecap: round;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: battle-warp-draw 520ms cubic-bezier(0.65, 0, 0.25, 1) forwards;
+  }
+
+  .battle-warp-ring-a {
+    animation-delay: 80ms;
+  }
+
+  .battle-warp-ring-b {
+    stroke-width: 1;
+    animation-delay: 200ms;
+  }
+
+  .battle-warp-ticks,
+  .battle-warp-glyphs {
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
+  .battle-warp-ticks {
+    fill: none;
+    stroke: rgba(170, 247, 242, 0.75);
+    stroke-width: 3;
+    stroke-dasharray: 0.6 5.4;
+    opacity: 0;
+    animation:
+      battle-warp-fade-in 300ms 220ms ease-out forwards,
+      battle-warp-spin 5s linear infinite reverse;
+  }
+
+  .battle-warp-glyphs {
+    fill: #aaf7f2;
+    opacity: 0;
+    animation:
+      battle-warp-fade-in 300ms 260ms ease-out forwards,
+      battle-warp-spin 7s linear infinite;
+  }
+
+  .battle-warp-star {
+    fill: rgba(242, 199, 92, 0.18);
+    stroke: #ffe29a;
+    stroke-width: 1.2;
+    stroke-linejoin: round;
+    transform-box: fill-box;
+    transform-origin: center;
+    opacity: 0;
+    filter: drop-shadow(0 0 5px rgba(242, 199, 92, 0.9));
+    animation: battle-warp-star 420ms 300ms cubic-bezier(0.2, 1.4, 0.4, 1) forwards;
+  }
+
+  .battle-warp-core {
+    fill: #ffffff;
+    transform-box: fill-box;
+    transform-origin: center;
+    opacity: 0;
+    animation: battle-warp-core 700ms 300ms ease-in forwards;
+  }
+
+  /* ---------- Motes of light ---------- */
+
+  .battle-warp-mote {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 5px;
+    height: 5px;
+    margin: -2.5px;
+    border-radius: 9999px;
+    background: #e9fffd;
+    box-shadow:
+      0 0 6px 2px rgba(116, 230, 226, 0.85),
+      0 0 14px 4px rgba(116, 230, 226, 0.35);
+    opacity: 0;
+    animation: battle-warp-mote 680ms var(--d, 0ms) cubic-bezier(0.55, 0, 0.75, 0.35) forwards;
+  }
+
+  .battle-warp-mote-gold {
+    background: #fff4d0;
+    box-shadow:
+      0 0 6px 2px rgba(242, 199, 92, 0.9),
+      0 0 14px 4px rgba(242, 199, 92, 0.35);
+  }
+
+  /* ---------- Pillar and flash ---------- */
+
+  .battle-warp-pillar {
+    position: absolute;
+    left: 50%;
+    top: -10%;
+    bottom: -10%;
+    width: 22vmin;
+    margin-left: -11vmin;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(116, 230, 226, 0.35) 28%,
+      rgba(233, 255, 253, 0.95) 46%,
+      #ffffff 50%,
+      rgba(233, 255, 253, 0.95) 54%,
+      rgba(116, 230, 226, 0.35) 72%,
+      transparent 100%
+    );
+    filter: blur(3px);
+    transform: scaleX(0);
+    opacity: 0;
+    animation: battle-warp-pillar 420ms 580ms cubic-bezier(0.5, 0, 0.2, 1) forwards;
+  }
+
+  .battle-warp-flash {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 50%, #ffffff 0%, #eafffd 45%, #c9f6f2 100%);
+    opacity: 0;
+    animation: battle-warp-flash 260ms 780ms ease-in forwards;
+  }
+
+  /* ---------- Keyframes ---------- */
+
+  @keyframes battle-warp-veil {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes battle-warp-sigil {
+    0% {
+      opacity: 0;
+      transform: scale(0.72) rotate(-12deg);
+    }
+    25% {
+      opacity: 1;
+    }
+    65% {
+      transform: scale(1) rotate(0deg);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1.18) rotate(4deg);
+    }
+  }
+
+  @keyframes battle-warp-draw {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  @keyframes battle-warp-fade-in {
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes battle-warp-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes battle-warp-star {
+    from {
+      opacity: 0;
+      transform: scale(0.2) rotate(-60deg);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) rotate(0deg);
+    }
+  }
+
+  @keyframes battle-warp-core {
+    0% {
+      opacity: 0;
+      transform: scale(0.4);
+    }
+    40% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(3.2);
+    }
+  }
+
+  @keyframes battle-warp-mote {
+    0% {
+      opacity: 0;
+      transform: rotate(var(--a)) translateY(calc(var(--r) * -1)) scale(0.5);
+    }
+    25% {
+      opacity: 1;
+    }
+    85% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+      transform: rotate(var(--a)) translateY(0) scale(1.4);
+    }
+  }
+
+  @keyframes battle-warp-pillar {
+    0% {
+      opacity: 0;
+      transform: scaleX(0);
+    }
+    35% {
+      opacity: 1;
+      transform: scaleX(0.18);
+    }
+    100% {
+      opacity: 1;
+      transform: scaleX(1.8);
+    }
+  }
+
+  @keyframes battle-warp-flash {
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes battle-warp-out {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+
+  /* battleWarp.ts skips the warp for reduced motion; this is a backstop. */
+  @media (prefers-reduced-motion: reduce) {
+    .battle-warp {
+      display: none;
+    }
+  }
+}

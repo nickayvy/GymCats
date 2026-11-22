@@ -1120,33 +1120,6 @@ body {
     transition: width 700ms cubic-bezier(0.22, 1, 0.36, 1);
   }
 
-  /* Hub → battle: an ember iris closes in with a slash of light. */
-  @keyframes battle-wipe {
-    0% {
-      clip-path: circle(0% at 50% 50%);
-      opacity: 1;
-    }
-    70% {
-      clip-path: circle(150% at 50% 50%);
-      opacity: 1;
-    }
-    100% {
-      clip-path: circle(150% at 50% 50%);
-      opacity: 1;
-    }
-  }
-
-  .battle-wipe {
-    position: fixed;
-    inset: 0;
-    z-index: 50;
-    background:
-      linear-gradient(115deg, transparent 46%, rgba(255, 240, 220, 0.9) 50%, transparent 54%),
-      radial-gradient(circle at 50% 50%, #8f1e14 0%, #2a0806 55%, #050404 80%);
-    animation: battle-wipe 650ms ease-in forwards;
-    pointer-events: none;
-  }
-
   @keyframes battle-enter-down {
     from {
       opacity: 0;
@@ -1458,7 +1431,6 @@ body {
       opacity: 0;
     }
 
-    .battle-wipe,
     .battle-cover,
     .route-transition {
       display: none;

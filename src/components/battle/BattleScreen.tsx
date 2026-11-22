@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { rollSpin } from "@/app/battle/actions";
 import { BossSprite } from "@/components/boss/BossSprite";
 import { HealthBar } from "@/components/boss/HealthBar";
@@ -9,6 +9,7 @@ import { GymPanel } from "@/components/battle/GymPanel";
 import { RARITY_LOOK } from "@/components/battle/rarity";
 import { SpinReel } from "@/components/battle/SpinReel";
 import { useNow } from "@/components/battle/shared";
+import { finishBattleWarp } from "@/components/transition/battleWarp";
 import { ITEM_SPRITES, PixelSprite } from "@/components/sprites";
 import { BossBanner, Panel, PanelHeading, Starburst, PreviewNotice } from "@/components/ui";
 import {
@@ -69,6 +70,11 @@ export function BattleScreen({ initialState, preview }: BattleScreenProps): Reac
   const spinning = useRef(false);
   const [error, setError] = useState<string | null>(null);
   const [hitKey, setHitKey] = useState(0);
+
+  // Arriving through the hub's warp: fade its flash away now that we're here.
+  useEffect(() => {
+    finishBattleWarp();
+  }, []);
 
   const { battle } = state;
   const defeated = battle.currentHp <= 0;
